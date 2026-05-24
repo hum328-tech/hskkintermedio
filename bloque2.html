@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSK4 + HSKK | Bloque 2 越来越</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #172033;
+      --card2: #202b42;
+      --accent: #dc2626;
+      --gold: #facc15;
+      --blue: #38bdf8;
+      --green: #22c55e;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --line: rgba(255,255,255,0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.22), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(250,204,21,0.16), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      min-height: 76vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 42px 20px;
+    }
+
+    .hero {
+      max-width: 1050px;
+      padding: 52px 38px;
+      border-radius: 30px;
+      border: 1px solid var(--line);
+      background: rgba(11,16,32,0.82);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.35);
+      backdrop-filter: blur(14px);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.14);
+      border: 1px solid rgba(56,189,248,0.45);
+      color: #bae6fd;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: 1.05;
+      margin: 0 0 18px;
+      letter-spacing: -1.4px;
+    }
+
+    .yellow { color: var(--gold); }
+    .blue { color: var(--blue); }
+
+    .subtitle {
+      max-width: 820px;
+      margin: 0 auto 30px;
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 22px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 15px;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary { background: var(--blue); color: #06111f; }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid var(--line); }
+    .btn:hover { transform: translateY(-2px); }
+
+    main {
+      max-width: 1180px;
+      margin: auto;
+      padding: 30px 20px 90px;
+    }
+
+    section { margin: 42px 0; }
+
+    .section-title {
+      font-size: 34px;
+      margin: 0 0 12px;
+    }
+
+    .section-intro {
+      color: var(--muted);
+      max-width: 860px;
+      margin-bottom: 26px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .card, .lab, .box {
+      background: rgba(23,32,51,0.92);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.2);
+    }
+
+    .lab {
+      background: linear-gradient(135deg, rgba(23,32,51,0.98), rgba(11,16,32,0.98));
+      border-radius: 30px;
+      padding: 32px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.28);
+    }
+
+    .card h3, .box h3 { margin-top: 0; }
+    .card p, .box p, .box li { color: var(--muted); }
+
+    .method-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .method-step:last-child { border-bottom: none; }
+
+    .step-number {
+      min-width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: rgba(56,189,248,0.14);
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .grammar-chip {
+      display: inline-block;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.14);
+      color: #bae6fd;
+      border: 1px solid rgba(56,189,248,0.35);
+      font-size: 14px;
+      font-weight: 700;
+      margin: 4px 4px 4px 0;
+    }
+
+    .sentence-card {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      background: var(--card2);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+    }
+
+    .sentence-number {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .hanzi {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 3px;
+    }
+
+    .mini-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.07);
+      color: white;
+      border-radius: 12px;
+      padding: 9px 11px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .mini-btn:hover { background: rgba(255,255,255,0.14); }
+
+    .result {
+      margin: -6px 0 14px 56px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      min-height: 42px;
+      font-size: 14px;
+    }
+
+    .discover {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    textarea, input {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.28);
+      color: white;
+      padding: 14px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    textarea { min-height: 120px; resize: vertical; }
+
+    .pattern-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+      margin-top: 12px;
+    }
+
+    .pattern-table th, .pattern-table td {
+      border: 1px solid var(--line);
+      padding: 12px;
+      text-align: left;
+    }
+
+    .pattern-table th {
+      background: rgba(255,255,255,0.08);
+      color: var(--gold);
+    }
+
+    .pattern-table td { color: var(--muted); }
+
+    .formula {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold);
+      background: rgba(250,204,21,0.08);
+      border: 1px solid rgba(250,204,21,0.25);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 20px 60px;
+    }
+
+    @media (max-width: 720px) {
+      .sentence-card { grid-template-columns: 1fr; }
+      .mini-buttons { justify-content: flex-start; }
+      .hero, .lab { padding: 30px 22px; }
+      .result { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="hero">
+    <div class="tag">Bloque 2 · HSK4 + HSKK Intermedio</div>
+    <h1>Expresar progreso con <span class="blue">越来越</span></h1>
+    <p class="subtitle">
+      Escucha 10 oraciones, repítelas y descubre cómo el chino expresa cambios graduales: algo se vuelve más bonito, más difícil, más rápido o más interesante.
+    </p>
+    <div class="actions">
+      <a href="#oraciones"><button class="btn btn-primary">Iniciar práctica</button></a>
+      <a href="#explicacion"><button class="btn btn-secondary">Ver explicación</button></a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2 class="section-title">Objetivo del bloque</h2>
+    <p class="section-intro">
+      Al terminar este bloque, el estudiante podrá hablar de progreso, cambios y mejora personal usando 越来越, 变得, 得 y 提高了很多, estructuras muy útiles para respuestas del HSKK intermedio.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Reconocer cambios</h3>
+        <p>Identificar cuándo una cualidad aumenta gradualmente.</p>
+      </div>
+      <div class="card">
+        <h3>Hablar de progreso</h3>
+        <p>Explicar cómo mejora el chino, la pronunciación, la escucha o una habilidad.</p>
+      </div>
+      <div class="card">
+        <h3>Usar 变得</h3>
+        <p>Decir que una situación “se vuelve” diferente con el tiempo.</p>
+      </div>
+      <div class="card">
+        <h3>Responder HSKK</h3>
+        <p>Construir respuestas orales sobre aprendizaje, hábitos y cambios personales.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="section-title">Ruta de aprendizaje</h2>
+    <div class="method-step">
+      <div class="step-number">1</div>
+      <div><strong>Escucha el cambio</strong><br><span class="hint">Detecta la palabra 越来越 dentro de la frase.</span></div>
+    </div>
+    <div class="method-step">
+      <div class="step-number">2</div>
+      <div><strong>Repite con ritmo</strong><br><span class="hint">Practica la secuencia completa sin separar demasiado las palabras.</span></div>
+    </div>
+    <div class="method-step">
+      <div class="step-number">3</div>
+      <div><strong>Encuentra el patrón</strong><br><span class="hint">Observa qué aparece después de 越来越.</span></div>
+    </div>
+    <div class="method-step">
+      <div class="step-number">4</div>
+      <div><strong>Transforma</strong><br><span class="hint">Cambia el adjetivo para crear nuevas frases.</span></div>
+    </div>
+    <div class="method-step">
+      <div class="step-number">5</div>
+      <div><strong>Produce oralmente</strong><br><span class="hint">Habla de tu propio progreso en chino.</span></div>
+    </div>
+  </section>
+
+  <section id="oraciones" class="lab">
+    <h2 class="section-title">Práctica oral: 10 oraciones</h2>
+    <p class="section-intro">
+      Presiona “Escuchar”, repite la oración y luego usa “Micro” para verificar si el navegador reconoce tu frase.
+    </p>
+
+    <div>
+      <span class="grammar-chip">越来越</span>
+      <span class="grammar-chip">变得</span>
+      <span class="grammar-chip">得</span>
+      <span class="grammar-chip">提高了很多</span>
+      <span class="grammar-chip">progreso personal</span>
+    </div>
+    <br>
+
+    <div class="sentence-card">
+      <div class="sentence-number">1</div>
+      <div><div class="hanzi">这里变得越来越漂亮了。</div><div class="hint">Patrón: 变得 + 越来越 + adjetivo</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('这里变得越来越漂亮了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('这里变得越来越漂亮了。','r1')">Micro</button></div>
+    </div>
+    <div id="r1" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">2</div>
+      <div><div class="hanzi">你开车的水平越来越高了。</div><div class="hint">Patrón: nivel + 越来越 + alto</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('你开车的水平越来越高了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('你开车的水平越来越高了。','r2')">Micro</button></div>
+    </div>
+    <div id="r2" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">3</div>
+      <div><div class="hanzi">他的汉语水平提高了很多。</div><div class="hint">Patrón: habilidad + 提高了很多</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('他的汉语水平提高了很多。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('他的汉语水平提高了很多。','r3')">Micro</button></div>
+    </div>
+    <div id="r3" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">4</div>
+      <div><div class="hanzi">我的中文越来越好了。</div><div class="hint">Patrón: mi chino + 越来越 + bueno</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('我的中文越来越好了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('我的中文越来越好了。','r4')">Micro</button></div>
+    </div>
+    <div id="r4" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">5</div>
+      <div><div class="hanzi">现在天气越来越热了。</div><div class="hint">Patrón: clima + 越来越 + adjetivo</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('现在天气越来越热了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('现在天气越来越热了。','r5')">Micro</button></div>
+    </div>
+    <div id="r5" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">6</div>
+      <div><div class="hanzi">城市变得越来越安静了。</div><div class="hint">Patrón: 变得 + 越来越 + adjetivo</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('城市变得越来越安静了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('城市变得越来越安静了。','r6')">Micro</button></div>
+    </div>
+    <div id="r6" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">7</div>
+      <div><div class="hanzi">她跑得越来越快了。</div><div class="hint">Patrón: verbo + 得 + 越来越 + adjetivo</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('她跑得越来越快了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('她跑得越来越快了。','r7')">Micro</button></div>
+    </div>
+    <div id="r7" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">8</div>
+      <div><div class="hanzi">这个地方的人越来越多了。</div><div class="hint">Patrón: personas/cosas + 越来越多</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('这个地方的人越来越多了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('这个地方的人越来越多了。','r8')">Micro</button></div>
+    </div>
+    <div id="r8" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">9</div>
+      <div><div class="hanzi">我对中文越来越感兴趣了。</div><div class="hint">Patrón: 对 + tema + 越来越感兴趣</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('我对中文越来越感兴趣了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('我对中文越来越感兴趣了。','r9')">Micro</button></div>
+    </div>
+    <div id="r9" class="result">Resultado...</div>
+
+    <div class="sentence-card">
+      <div class="sentence-number">10</div>
+      <div><div class="hanzi">手机越来越便宜了。</div><div class="hint">Patrón: objeto/situación + 越来越 + adjetivo</div></div>
+      <div class="mini-buttons"><button class="mini-btn" onclick="speakChinese('手机越来越便宜了。')">Escuchar</button><button class="mini-btn" onclick="checkPronunciation('手机越来越便宜了。','r10')">Micro</button></div>
+    </div>
+    <div id="r10" class="result">Resultado...</div>
+  </section>
+
+  <section id="explicacion">
+    <h2 class="section-title">Explicación gramatical</h2>
+    <p class="section-intro">
+      越来越 se usa para expresar que una cualidad aumenta o cambia gradualmente. Es una estructura muy útil para hablar de aprendizaje, progreso, clima, ciudad, tecnología o intereses personales.
+    </p>
+
+    <div class="formula">越来越 + adjetivo / estado = cada vez más...</div>
+    <div class="formula">变得 + 越来越 + adjetivo = volverse cada vez más...</div>
+    <div class="formula">verbo + 得 + 越来越 + adjetivo = hacer algo cada vez más...</div>
+
+    <table class="pattern-table">
+      <tr><th>Estructura</th><th>Uso</th><th>Ejemplo</th></tr>
+      <tr><td>越来越 + adjetivo</td><td>Expresa aumento gradual de una cualidad.</td><td>越来越好 / 越来越热</td></tr>
+      <tr><td>变得 + 越来越 + adjetivo</td><td>Indica que algo se vuelve progresivamente diferente.</td><td>变得越来越漂亮</td></tr>
+      <tr><td>verbo + 得 + 越来越 + adjetivo</td><td>Describe cómo una acción mejora o cambia.</td><td>跑得越来越快</td></tr>
+      <tr><td>提高了很多</td><td>Expresa mejora notable.</td><td>汉语水平提高了很多</td></tr>
+      <tr><td>对……越来越感兴趣</td><td>Expresa interés creciente.</td><td>对中文越来越感兴趣</td></tr>
+    </table>
+  </section>
+
+  <section class="discover">
+    <div class="box">
+      <h3>Actividad 1: Detecta el patrón</h3>
+      <p>Escribe qué estructura aparece en cada oración.</p>
+      <textarea placeholder="Ejemplo: 1. 变得 + 越来越 + adjetivo. 2. 越来越 + 高..."></textarea>
+    </div>
+
+    <div class="box">
+      <h3>Actividad 2: Transforma</h3>
+      <p>Cambia la palabra final para crear nuevas frases.</p>
+      <ul>
+        <li>我的中文越来越好了 → 我的发音越来越……</li>
+        <li>天气越来越热了 → 天气越来越……</li>
+        <li>我对中文越来越感兴趣了 → 我对中国文化越来越……</li>
+      </ul>
+      <textarea placeholder="Escribe tus nuevas frases..."></textarea>
+    </div>
+
+    <div class="box">
+      <h3>Actividad 3: Frases propias</h3>
+      <p>Crea cinco frases sobre tu progreso real.</p>
+      <ul>
+        <li>我的听力越来越……</li>
+        <li>我的口语越来越……</li>
+        <li>我的汉字越来越……</li>
+        <li>我对……越来越感兴趣</li>
+        <li>我的中文水平提高了很多</li>
+      </ul>
+      <textarea placeholder="Mis cinco frases..."></textarea>
+    </div>
+
+    <div class="box">
+      <h3>Checkpoint oral HSKK</h3>
+      <p>Responde en chino durante 45-60 segundos. Usa mínimo tres estructuras del bloque.</p>
+      <p><strong>你觉得你的中文哪方面越来越好了？为什么？</strong></p>
+      <textarea placeholder="Prepara tus ideas antes de hablar..."></textarea>
+      <button class="btn btn-primary" onclick="checkOpenAnswer('oralResult')" style="margin-top:12px;">Abrir micrófono</button>
+      <div id="oralResult" class="result" style="margin-left:0; margin-top:14px;">Tu respuesta reconocida aparecerá aquí...</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  HSK4 + HSKK Intermedio · Bloque 2 · 越来越 y cambios progresivos
+</footer>
+
+<script>
+  function speakChinese(text) {
+    if (!('speechSynthesis' in window)) {
+      alert('Tu navegador no permite lectura de voz. Puedes reemplazar esto por audios MP3 reales.');
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN';
+    utterance.rate = 0.82;
+    utterance.pitch = 1;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function cleanChinese(text) {
+    return text.replace(/[，。！？、\s,.!?]/g, '').trim();
+  }
+
+  function similarity(a, b) {
+    a = cleanChinese(a);
+    b = cleanChinese(b);
+    let matches = 0;
+    const min = Math.min(a.length, b.length);
+    const max = Math.max(a.length, b.length);
+    for (let i = 0; i < min; i++) {
+      if (a[i] === b[i]) matches++;
+    }
+    return max === 0 ? 0 : matches / max;
+  }
+
+  function checkPronunciation(targetText, resultId) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const resultBox = document.getElementById(resultId);
+
+    if (!SpeechRecognition) {
+      resultBox.innerHTML = 'Tu navegador no permite reconocimiento de voz. Prueba en Chrome.';
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    resultBox.innerHTML = 'Escuchando... repite la oración en chino.';
+    recognition.start();
+
+    recognition.onresult = function(event) {
+      const spokenText = event.results[0][0].transcript;
+      const score = similarity(spokenText, targetText);
+      let feedback = '';
+
+      if (score >= 0.85) feedback = 'Excelente. La frase fue reconocida con alta similitud.';
+      else if (score >= 0.60) feedback = 'Casi correcto. Repite cuidando tonos y ritmo.';
+      else feedback = 'Necesita más práctica. Escucha otra vez y repite más lento.';
+
+      resultBox.innerHTML = '<strong>Reconocido:</strong> ' + spokenText + '<br><strong>Resultado:</strong> ' + feedback;
+    };
+
+    recognition.onerror = function() {
+      resultBox.innerHTML = 'No se pudo reconocer el audio. Revisa permisos del micrófono.';
+    };
+  }
+
+  function checkOpenAnswer(resultId) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const resultBox = document.getElementById(resultId);
+
+    if (!SpeechRecognition) {
+      resultBox.innerHTML = 'Tu navegador no permite reconocimiento de voz. Prueba en Chrome.';
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    resultBox.innerHTML = 'Escuchando tu respuesta oral...';
+    recognition.start();
+
+    recognition.onresult = function(event) {
+      const spokenText = event.results[0][0].transcript;
+      const patterns = ['越来越', '变得', '提高了很多', '得', '感兴趣'];
+      const used = patterns.filter(word => spokenText.includes(word));
+
+      let feedback = 'Detecté ' + used.length + ' estructura(s): ' + (used.join('、') || 'ninguna detectada') + '.';
+      if (used.length >= 3) feedback += ' Muy bien: cumpliste la meta del checkpoint.';
+      else feedback += ' Intenta repetir usando mínimo tres estructuras del bloque.';
+
+      resultBox.innerHTML = '<strong>Tu respuesta reconocida:</strong><br>' + spokenText + '<br><br><strong>Retroalimentación:</strong> ' + feedback;
+    };
+
+    recognition.onerror = function() {
+      resultBox.innerHTML = 'No se pudo reconocer el audio. Revisa permisos del micrófono.';
+    };
+  }
+</script>
+
+</body>
+</html>
