@@ -918,7 +918,50 @@
     recognition.maxAlternatives = 1;
 
     resultBox.innerHTML = 'Escuchando tu respuesta oral...';
-    recognition.start();
+   let recognition;
+let isListening = false;
+let stopTimer;
+
+function abrirMicrofono() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert('Tu navegador no permite reconocimiento de voz.');
+    return;
+  }
+
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = 'zh-CN';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  isListening = true;
+  recognition.start();
+
+  document.getElementById("micBtn").innerText = "Micrófono abierto...";
+
+  stopTimer = setTimeout(() => {
+    if (isListening) {
+      recognition.stop();
+      isListening = false;
+      document.getElementById("micBtn").innerText = "Abrir micrófono";
+    }
+  }, 60000); // 1 minuto
+
+  recognition.onresult = function(event) {
+    let texto = "";
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      texto += event.results[i][0].transcript;
+    }
+
+    document.getElementById("respuestaReconocida").innerText = texto;
+  };
+
+  recognition.onend = function() {
+    if (isListening) {
+      recognition.start();
+    }
+  };
+}
 
     recognition.onresult = function(event) {
       const spokenText = event.results[0][0].transcript;
