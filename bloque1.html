@@ -903,82 +903,59 @@
     };
   }
 
-  function checkOpenAnswer(resultId) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const resultBox = document.getElementById(resultId);
+ function checkOpenAnswer(resultId) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const resultBox = document.getElementById(resultId);
 
-    if (!SpeechRecognition) {
-      resultBox.innerHTML = 'Tu navegador no permite reconocimiento de voz. Prueba en Chrome.';
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'zh-CN';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    resultBox.innerHTML = 'Escuchando tu respuesta oral...';
-   let recognition;
-let isListening = false;
-let stopTimer;
-
-function abrirMicrofono() {
-  if (!('webkitSpeechRecognition' in window)) {
-    alert('Tu navegador no permite reconocimiento de voz.');
+  if (!SpeechRecognition) {
+    resultBox.innerHTML = 'Tu navegador no permite reconocimiento de voz. Prueba en Chrome.';
     return;
   }
 
-  recognition = new webkitSpeechRecognition();
+  const recognition = new SpeechRecognition();
   recognition.lang = 'zh-CN';
   recognition.continuous = true;
   recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
 
-  isListening = true;
+  let finalText = '';
+
+  resultBox.innerHTML = 'Escuchando tu respuesta oral durante 1 minuto...';
   recognition.start();
 
-  document.getElementById("micBtn").innerText = "Micrófono abierto...";
-
-  stopTimer = setTimeout(() => {
-    if (isListening) {
-      recognition.stop();
-      isListening = false;
-      document.getElementById("micBtn").innerText = "Abrir micrófono";
-    }
-  }, 60000); // 1 minuto
+  setTimeout(() => {
+    recognition.stop();
+  }, 60000);
 
   recognition.onresult = function(event) {
-    let texto = "";
+    finalText = '';
 
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      texto += event.results[i][0].transcript;
+    for (let i = 0; i < event.results.length; i++) {
+      finalText += event.results[i][0].transcript;
     }
 
-    document.getElementById("respuestaReconocida").innerText = texto;
+    const intensifiers = ['非常', '太', '特别', '极了', '最', '很', '不太', '当然'];
+    const used = intensifiers.filter(word => finalText.includes(word));
+
+    let feedback = 'Usaste ' + used.length + ' intensificador(es): ' + (used.join('、') || 'ninguno detectado') + '.';
+
+    if (used.length >= 3) {
+      feedback += ' Muy bien: cumpliste la meta del checkpoint.';
+    } else {
+      feedback += ' Intenta repetir usando mínimo tres estructuras del bloque.';
+    }
+
+    resultBox.innerHTML =
+      '<strong>Tu respuesta reconocida:</strong><br>' +
+      finalText +
+      '<br><br><strong>Retroalimentación:</strong> ' +
+      feedback;
   };
 
-  recognition.onend = function() {
-    if (isListening) {
-      recognition.start();
-    }
+  recognition.onerror = function() {
+    resultBox.innerHTML = 'No se pudo reconocer el audio. Revisa permisos del micrófono.';
   };
 }
-
-    recognition.onresult = function(event) {
-      const spokenText = event.results[0][0].transcript;
-      const intensifiers = ['非常', '太', '特别', '极了', '最', '很', '不太', '当然'];
-      const used = intensifiers.filter(word => spokenText.includes(word));
-
-      let feedback = 'Usaste ' + used.length + ' intensificador(es): ' + (used.join('、') || 'ninguno detectado') + '.';
-      if (used.length >= 3) feedback += ' Muy bien: cumpliste la meta del checkpoint.';
-      else feedback += ' Intenta repetir usando mínimo tres estructuras del bloque.';
-
-      resultBox.innerHTML = '<strong>Tu respuesta reconocida:</strong><br>' + spokenText + '<br><br><strong>Retroalimentación:</strong> ' + feedback;
-    };
-
-    recognition.onerror = function() {
-      resultBox.innerHTML = 'No se pudo reconocer el audio. Revisa permisos del micrófono.';
-    };
-  }
 </script>
 
 </body>
