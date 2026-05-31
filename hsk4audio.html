@@ -785,7 +785,7 @@ function checkBlanks(){
       recorder.onstop = e => {
         const blob = new Blob(audioChunks, { type: 'audio/webm' });
         const audioURL = URL.createObjectURL(blob);
-        document.getElementById('player').src = audioURL;
+        document.getElementById('playerA').src = audioURL;
       };
 
       recorder.start();
