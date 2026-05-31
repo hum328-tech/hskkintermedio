@@ -426,10 +426,9 @@
   </p>
 
   <div class="btn-row">
-    <button class="success" onclick="startRecording()">
-      ● Grabar mi voz
-    </button>
-
+   <button class="success" onclick="startRecording('playerA','resultadoVozA')">
+● Grabar mi voz
+</button>
     <button class="danger" onclick="stopRecording()">
       ■ Detener
     </button>
@@ -823,42 +822,42 @@ function checkBlanks(){
   }
 }
 
-  async function startRecording(){
-    try{
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      recorder = new MediaRecorder(stream);
-      audioChunks = [];
+ async function startRecording(playerId, resultadoId){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream);
+    audioChunks = [];
 
-      recorder.ondataavailable = e => {
-        audioChunks.push(e.data);
+    recorder.ondataavailable = e => {
+      audioChunks.push(e.data);
+    };
+
+    recorder.onstop = e => {
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      const audioURL = URL.createObjectURL(blob);
+      document.getElementById(playerId).src = audioURL;
+    };
+
+    recorder.start();
+
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = 'zh-CN';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onresult = function(event){
+        const textoDetectado = event.results[0][0].transcript;
+        document.getElementById(resultadoId).innerHTML =
+          "Detectado: " + textoDetectado;
       };
 
-      recorder.onstop = e => {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-        const audioURL = URL.createObjectURL(blob);
-        document.getElementById('playerA').src = audioURL;
-      };
+      recognition.start();
+    }
 
-      recorder.start();
-      textoDetectado = "";
-
-if ('webkitSpeechRecognition' in window) {
-  recognition = new webkitSpeechRecognition();
-  recognition.lang = 'zh-CN';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-
-  recognition.onresult = function(event){
-    textoDetectado = event.results[0][0].transcript;
-
-    document.getElementById("resultadoVoz").innerHTML =
-      "Detectado: " + textoDetectado;
-  };
-
-  recognition.start();
-} else {
-  document.getElementById("resultadoVoz").innerHTML =
-    "Tu navegador no permite reconocimiento de voz.";
+  }catch(error){
+    alert('No se pudo activar el micrófono. Revisa permisos del navegador.');
+  }
 }
       if ('webkitSpeechRecognition' in window) {
 
