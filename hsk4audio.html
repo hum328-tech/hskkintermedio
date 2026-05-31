@@ -474,51 +474,92 @@ Lo que digas aparecerá aquí
           </div>
         </div>
 
-        <div class="mini-card">
-          <h3>Fragmento B</h3>
-          <button onclick="speakChinese('今天的阳光多好啊')">▶ Escuchar</button>
-          <p><strong>¿De qué habla?</strong></p>
-          <button class="choice" onclick="checkChoice(this,false,'fb2b')">De comida.</button>
-          <button class="choice" onclick="checkChoice(this,true,'fb2b')">Del sol / clima agradable.</button>
-          <div id="fb2b" class="feedback"></div>
-          <button class="secondary" onclick="toggle('txtB')">Mostrar texto</button>
-          <div id="txtB" class="hidden-text">
-            <div class="hanzi">今天的阳光多好啊。</div>
-            <div class="pinyin">Jīntiān de yángguāng duō hǎo a.</div>
-            <div class="meaning">Qué bonito está el sol hoy.</div>
-          </div>
-        </div>
+ <div class="mini-card">
+  <h3>Fragmento B</h3>
+  <button onclick="speakChinese('今天的阳光多好啊')">▶ Escuchar</button>
 
-        <div class="mini-card">
-          <h3>Fragmento C</h3>
-          <button onclick="speakChinese('很暖和')">▶ Escuchar</button>
-          <p><strong>¿Cómo está el clima?</strong></p>
-          <button class="choice" onclick="checkChoice(this,false,'fb2c')">Muy frío.</button>
-          <button class="choice" onclick="checkChoice(this,true,'fb2c')">Cálido y agradable.</button>
-          <div id="fb2c" class="feedback"></div>
-          <button class="secondary" onclick="toggle('txtC')">Mostrar texto</button>
-          <div id="txtC" class="hidden-text">
-            <div class="hanzi">很暖和。</div>
-            <div class="pinyin">Hěn nuǎnhuo.</div>
-            <div class="meaning">Está cálido / agradable.</div>
-          </div>
-        </div>
+  <div class="record-box">
+    <strong>Escucha y repite</strong>
+    <p>Escucha el fragmento varias veces. Después intenta repetirlo de memoria.</p>
 
-        <div class="mini-card">
-          <h3>Fragmento D</h3>
-          <button onclick="speakChinese('图书馆门口儿见')">▶ Escuchar</button>
-          <p><strong>¿Qué información da?</strong></p>
-          <button class="choice" onclick="checkChoice(this,true,'fb2d')">Lugar para encontrarse.</button>
-          <button class="choice" onclick="checkChoice(this,false,'fb2d')">Precio de un boleto.</button>
-          <div id="fb2d" class="feedback"></div>
-          <button class="secondary" onclick="toggle('txtD')">Mostrar texto</button>
-          <div id="txtD" class="hidden-text">
-            <div class="hanzi">图书馆门口儿见。</div>
-            <div class="pinyin">Túshūguǎn ménkǒur jiàn.</div>
-            <div class="meaning">Nos vemos en la entrada de la biblioteca.</div>
-          </div>
-        </div>
-      </div>
+    <div class="btn-row">
+      <button class="success" onclick="startRecording('playerB','resultadoVozB')">● Grabar mi voz</button>
+      <button class="danger" onclick="stopRecording()">■ Detener</button>
+    </div>
+
+    <audio controls id="playerB"></audio>
+
+    <div id="resultadoVozB" style="margin-top:10px;padding:10px;background:#f3f4f6;border-radius:10px;font-weight:bold;">
+      Lo que digas aparecerá aquí
+    </div>
+
+    <button class="secondary" onclick="toggle('txtB')">Mostrar texto para comprobar</button>
+
+    <div id="txtB" class="hidden-text">
+      <div class="hanzi">今天的阳光多好啊。</div>
+      <div class="pinyin">Jīntiān de yángguāng duō hǎo a.</div>
+      <div class="meaning">Qué bonito está el sol hoy.</div>
+    </div>
+  </div>
+</div>
+
+      <div class="mini-card">
+  <h3>Fragmento C</h3>
+  <button onclick="speakChinese('很暖和')">▶ Escuchar</button>
+
+  <div class="record-box">
+    <strong>Escucha y repite</strong>
+    <p>Escucha el fragmento varias veces. Después intenta repetirlo de memoria.</p>
+
+    <div class="btn-row">
+      <button class="success" onclick="startRecording('playerC','resultadoVozC')">● Grabar mi voz</button>
+      <button class="danger" onclick="stopRecording()">■ Detener</button>
+    </div>
+
+    <audio controls id="playerC"></audio>
+
+    <div id="resultadoVozC" style="margin-top:10px;padding:10px;background:#f3f4f6;border-radius:10px;font-weight:bold;">
+      Lo que digas aparecerá aquí
+    </div>
+
+    <button class="secondary" onclick="toggle('txtC')">Mostrar texto para comprobar</button>
+
+    <div id="txtC" class="hidden-text">
+      <div class="hanzi">很暖和。</div>
+      <div class="pinyin">Hěn nuǎnhuo.</div>
+      <div class="meaning">Está cálido / agradable.</div>
+    </div>
+  </div>
+</div>
+
+       <div class="mini-card">
+  <h3>Fragmento D</h3>
+  <button onclick="speakChinese('图书馆门口儿见')">▶ Escuchar</button>
+
+  <div class="record-box">
+    <strong>Escucha y repite</strong>
+    <p>Escucha el fragmento varias veces. Después intenta repetirlo de memoria.</p>
+
+    <div class="btn-row">
+      <button class="success" onclick="startRecording('playerD','resultadoVozD')">● Grabar mi voz</button>
+      <button class="danger" onclick="stopRecording()">■ Detener</button>
+    </div>
+
+    <audio controls id="playerD"></audio>
+
+    <div id="resultadoVozD" style="margin-top:10px;padding:10px;background:#f3f4f6;border-radius:10px;font-weight:bold;">
+      Lo que digas aparecerá aquí
+    </div>
+
+    <button class="secondary" onclick="toggle('txtD')">Mostrar texto para comprobar</button>
+
+    <div id="txtD" class="hidden-text">
+      <div class="hanzi">图书馆门口儿见。</div>
+      <div class="pinyin">Túshūguǎn ménkǒur jiàn.</div>
+      <div class="meaning">Nos vemos en la entrada de la biblioteca.</div>
+    </div>
+  </div>
+</div>
 
       <div class="btn-row">
         <button class="secondary" onclick="completeStep(2)">Marcar sección como terminada</button>
