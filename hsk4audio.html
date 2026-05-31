@@ -436,7 +436,16 @@
   </div>
 
   <audio controls id="playerA"></audio>
-
+<div id="resultadoVoz"
+style="
+margin-top:10px;
+padding:10px;
+background:#f3f4f6;
+border-radius:10px;
+font-weight:bold;
+">
+Lo que digas aparecerá aquí
+</div>
 <div id="resultadoVoz"
 style="
 margin-top:10px;
@@ -718,6 +727,7 @@ Lo que digas aparecerá aquí
 let recorder;
 let audioChunks = [];
 let recognition;
+let textoDetectado = "";
 
   function completeStep(n){
     completed.add(n);
@@ -789,6 +799,26 @@ function checkBlanks(){
       };
 
       recorder.start();
+      textoDetectado = "";
+
+if ('webkitSpeechRecognition' in window) {
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = 'zh-CN';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onresult = function(event){
+    textoDetectado = event.results[0][0].transcript;
+
+    document.getElementById("resultadoVoz").innerHTML =
+      "Detectado: " + textoDetectado;
+  };
+
+  recognition.start();
+} else {
+  document.getElementById("resultadoVoz").innerHTML =
+    "Tu navegador no permite reconocimiento de voz.";
+}
       if ('webkitSpeechRecognition' in window) {
 
   recognition = new webkitSpeechRecognition();
@@ -819,6 +849,9 @@ function checkBlanks(){
   function stopRecording(){
     if(recorder && recorder.state !== 'inactive'){
       recorder.stop();
+      if(recognition){
+  recognition.stop();
+}
       document.getElementById('recordStatus').innerText = 'Grabación detenida. Reproduce tu audio para compararte.';
     }
   }
