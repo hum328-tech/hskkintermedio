@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HSK4 Audio - Pregunta 1</title>
+  <style>
+    :root{
+      --bg:#f4f6fb;
+      --card:#ffffff;
+      --primary:#23395d;
+      --accent:#2f80ed;
+      --soft:#eaf2ff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --warning:#f59e0b;
+      --border:#dbe3ef;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:linear-gradient(180deg,#edf3ff 0%,#f8fafc 100%);
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    header{
+      background:var(--primary);
+      color:white;
+      padding:28px 18px;
+      text-align:center;
+    }
+
+    header h1{
+      margin:0;
+      font-size:1.7rem;
+    }
+
+    header p{
+      margin:8px auto 0;
+      max-width:760px;
+      color:#dbeafe;
+      font-size:.98rem;
+    }
+
+    main{
+      max-width:980px;
+      margin:0 auto;
+      padding:22px 14px 60px;
+    }
+
+    .progress-box{
+      background:white;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      margin-bottom:18px;
+      box-shadow:0 10px 25px rgba(15,23,42,.06);
+    }
+
+    .progress-label{
+      display:flex;
+      justify-content:space-between;
+      font-size:.9rem;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .progress-bar{
+      height:12px;
+      background:#e5e7eb;
+      border-radius:99px;
+      overflow:hidden;
+    }
+
+    .progress-fill{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,var(--accent),#60a5fa);
+      transition:.4s;
+    }
+
+    .section{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:22px;
+      margin:18px 0;
+      overflow:hidden;
+      box-shadow:0 12px 28px rgba(15,23,42,.06);
+    }
+
+    .section-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:18px 20px;
+      background:#f8fbff;
+      border-bottom:1px solid var(--border);
+    }
+
+    .step{
+      min-width:38px;
+      height:38px;
+      border-radius:50%;
+      background:var(--accent);
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+    }
+
+    .section-header h2{
+      margin:0;
+      font-size:1.15rem;
+      color:var(--primary);
+    }
+
+    .section-header small{
+      color:var(--muted);
+      display:block;
+      margin-top:2px;
+    }
+
+    .section-body{
+      padding:20px;
+    }
+
+    .instruction{
+      background:var(--soft);
+      border-left:5px solid var(--accent);
+      padding:13px 15px;
+      border-radius:12px;
+      margin-bottom:16px;
+    }
+
+    .audio-card{
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      margin:14px 0;
+      background:#ffffff;
+    }
+
+    .audio-title{
+      font-weight:800;
+      color:var(--primary);
+      margin-bottom:8px;
+    }
+
+    .btn-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:14px 0;
+    }
+
+    button{
+      border:none;
+      border-radius:14px;
+      padding:11px 15px;
+      font-weight:700;
+      cursor:pointer;
+      background:var(--accent);
+      color:white;
+      transition:.2s;
+    }
+
+    button:hover{
+      transform:translateY(-1px);
+      opacity:.92;
+    }
+
+    button.secondary{
+      background:#e5e7eb;
+      color:#111827;
+    }
+
+    button.success{
+      background:var(--success);
+    }
+
+    button.warning{
+      background:var(--warning);
+      color:#111827;
+    }
+
+    button.danger{
+      background:var(--danger);
+    }
+
+    .choice{
+      display:block;
+      width:100%;
+      text-align:left;
+      margin:9px 0;
+      padding:13px 15px;
+      border-radius:14px;
+      background:#f9fafb;
+      border:1px solid var(--border);
+      color:#111827;
+      font-weight:600;
+    }
+
+    .choice.correct{
+      border-color:var(--success);
+      background:#ecfdf5;
+    }
+
+    .choice.wrong{
+      border-color:var(--danger);
+      background:#fef2f2;
+    }
+
+    .feedback{
+      display:none;
+      margin-top:10px;
+      padding:12px;
+      border-radius:12px;
+      font-weight:700;
+    }
+
+    .feedback.ok{
+      display:block;
+      background:#dcfce7;
+      color:#166534;
+    }
+
+    .feedback.no{
+      display:block;
+      background:#fee2e2;
+      color:#991b1b;
+    }
+
+    .hidden-text{
+      display:none;
+      margin-top:14px;
+      padding:16px;
+      border-radius:16px;
+      background:#f8fafc;
+      border:1px dashed #94a3b8;
+    }
+
+    .hanzi{
+      font-size:1.45rem;
+      font-weight:800;
+      color:#111827;
+      margin-bottom:6px;
+    }
+
+    .pinyin{
+      color:#2563eb;
+      font-weight:700;
+      margin-bottom:5px;
+    }
+
+    .meaning{
+      color:var(--muted);
+    }
+
+    .fragment-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+      gap:14px;
+    }
+
+    .mini-card{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .mini-card h3{
+      margin:0 0 8px;
+      color:var(--primary);
+      font-size:1rem;
+    }
+
+    .record-box{
+      background:#f9fafb;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .record-status{
+      color:var(--muted);
+      font-weight:700;
+      margin-top:8px;
+    }
+
+    audio{
+      width:100%;
+      margin-top:8px;
+    }
+
+    textarea{
+      width:100%;
+      min-height:90px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      font-family:inherit;
+      resize:vertical;
+    }
+
+    .grammar-box{
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      border-radius:16px;
+      padding:15px;
+      margin:12px 0;
+    }
+
+    .grammar-box strong{
+      color:#9a3412;
+    }
+
+    .pill{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:99px;
+      background:#eef2ff;
+      color:#3730a3;
+      font-weight:800;
+      font-size:.85rem;
+      margin:3px;
+    }
+
+    .final-card{
+      text-align:center;
+      padding:24px;
+      background:#ecfdf5;
+      border:1px solid #bbf7d0;
+      border-radius:20px;
+      margin-top:20px;
+    }
+
+    @media(max-width:600px){
+      header h1{font-size:1.35rem;}
+      .section-header{align-items:flex-start;}
+      .hanzi{font-size:1.25rem;}
+      button{width:100%;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>HSK4 听力 · Pregunta 1</h1>
+  <p>Microlección auditiva: primero escuchar, después comprender por partes, luego repetir, leer y producir oralmente.</p>
+</header>
+
+<main>
+
+  <div class="progress-box">
+    <div class="progress-label">
+      <span>Progreso de la microlección</span>
+      <span id="progressText">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="step">1</div>
+      <div>
+        <h2>Escucha completa sin leer</h2>
+        <small>Objetivo: captar intención, emoción y tema general.</small>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="instruction">
+        Primero escucha el audio completo. No leas la transcripción todavía. Intenta responder solo por lo que escuchas.
+      </div>
+
+      <div class="audio-card">
+        <div class="audio-title">Audio completo</div>
+        <button onclick="speakChinese('喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吗？图书馆门口儿见？')">▶ Escuchar audio completo</button>
+      </div>
+
+      <p><strong>¿Qué intención tiene la persona que habla?</strong></p>
+      <button class="choice" onclick="checkChoice(this,false,'fb1')">Está rechazando una invitación.</button>
+      <button class="choice" onclick="checkChoice(this,true,'fb1')">Está invitando a alguien a salir a caminar.</button>
+      <button class="choice" onclick="checkChoice(this,false,'fb1')">Está comprando algo en una tienda.</button>
+      <div id="fb1" class="feedback"></div>
+
+      <div class="btn-row">
+        <button class="secondary" onclick="completeStep(1)">Marcar sección como terminada</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="step">2</div>
+      <div>
+        <h2>Escucha por fragmentos</h2>
+        <small>Objetivo: comprender sin depender primero de la lectura.</small>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="instruction">
+        Escucha cada fragmento varias veces. Primero responde por oído. Después puedes revelar el texto.
+      </div>
+
+      <div class="fragment-grid">
+        <div class="mini-card">
+          <h3>Fragmento A</h3>
+          <button onclick="speakChinese('我们去树林里走走吧')">▶ Escuchar</button>
+<div class="record-box">
+  <strong>Escucha y repite</strong>
+
+  <p>
+    Escucha el fragmento varias veces.
+    Después intenta repetirlo de memoria.
+  </p>
+
+  <div class="btn-row">
+    <button class="success" onclick="startRecording()">
+      ● Grabar mi voz
+    </button>
+
+    <button class="danger" onclick="stopRecording()">
+      ■ Detener
+    </button>
+  </div>
+
+  <audio controls id="playerA"></audio>
+
+  <button class="secondary" onclick="toggle('txtA')">
+    Mostrar texto para comprobar
+  </button>
+
+  <div id="txtA" class="hidden-text">
+    <div class="hanzi">我们去树林里走走吧</div>
+    <div class="pinyin">Wǒmen qù shùlín lǐ zǒu zou ba</div>
+  </div>
+</div>
+          <button class="secondary" onclick="toggle('txtA')">Mostrar texto</button>
+          <div id="txtA" class="hidden-text">
+            <div class="hanzi">我们去树林里走走吧。</div>
+            <div class="pinyin">Wǒmen qù shùlín lǐ zǒu zou ba.</div>
+            <div class="meaning">Vamos a caminar un rato por la zona arbolada.</div>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <h3>Fragmento B</h3>
+          <button onclick="speakChinese('今天的阳光多好啊')">▶ Escuchar</button>
+          <p><strong>¿De qué habla?</strong></p>
+          <button class="choice" onclick="checkChoice(this,false,'fb2b')">De comida.</button>
+          <button class="choice" onclick="checkChoice(this,true,'fb2b')">Del sol / clima agradable.</button>
+          <div id="fb2b" class="feedback"></div>
+          <button class="secondary" onclick="toggle('txtB')">Mostrar texto</button>
+          <div id="txtB" class="hidden-text">
+            <div class="hanzi">今天的阳光多好啊。</div>
+            <div class="pinyin">Jīntiān de yángguāng duō hǎo a.</div>
+            <div class="meaning">Qué bonito está el sol hoy.</div>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <h3>Fragmento C</h3>
+          <button onclick="speakChinese('很暖和')">▶ Escuchar</button>
+          <p><strong>¿Cómo está el clima?</strong></p>
+          <button class="choice" onclick="checkChoice(this,false,'fb2c')">Muy frío.</button>
+          <button class="choice" onclick="checkChoice(this,true,'fb2c')">Cálido y agradable.</button>
+          <div id="fb2c" class="feedback"></div>
+          <button class="secondary" onclick="toggle('txtC')">Mostrar texto</button>
+          <div id="txtC" class="hidden-text">
+            <div class="hanzi">很暖和。</div>
+            <div class="pinyin">Hěn nuǎnhuo.</div>
+            <div class="meaning">Está cálido / agradable.</div>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <h3>Fragmento D</h3>
+          <button onclick="speakChinese('图书馆门口儿见')">▶ Escuchar</button>
+          <p><strong>¿Qué información da?</strong></p>
+          <button class="choice" onclick="checkChoice(this,true,'fb2d')">Lugar para encontrarse.</button>
+          <button class="choice" onclick="checkChoice(this,false,'fb2d')">Precio de un boleto.</button>
+          <div id="fb2d" class="feedback"></div>
+          <button class="secondary" onclick="toggle('txtD')">Mostrar texto</button>
+          <div id="txtD" class="hidden-text">
+            <div class="hanzi">图书馆门口儿见。</div>
+            <div class="pinyin">Túshūguǎn ménkǒur jiàn.</div>
+            <div class="meaning">Nos vemos en la entrada de la biblioteca.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="secondary" onclick="completeStep(2)">Marcar sección como terminada</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="step">3</div>
+      <div>
+        <h2>Reconstrucción auditiva</h2>
+        <small>Objetivo: unir los fragmentos antes de leer todo.</small>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="instruction">
+        Escucha otra vez el audio completo. Ahora intenta reconstruir mentalmente la situación.
+      </div>
+
+      <button onclick="speakChinese('喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吗？图书馆门口儿见？')">▶ Escuchar de nuevo</button>
+<p><strong>根据录音补全句子：</strong></p>
+
+<p>
+我们去
+<input id="blank1" placeholder="..." />
+里走走吧，
+今天的阳光多
+<input id="blank2" placeholder="..." />
+啊，
+很
+<input id="blank3" placeholder="..." />
+。
+</p>
+      <div class="btn-row">
+        <button onclick="checkBlanks()">Revisar</button>
+        <button class="secondary" onclick="completeStep(3)">Marcar sección como terminada</button>
+      </div>
+      <div id="blankFeedback" class="feedback"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="step">4</div>
+      <div>
+        <h2>Ahora sí: lectura y pronunciación completa</h2>
+        <small>Objetivo: leer para hablar, no leer para traducir.</small>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="instruction">
+        Ahora aparece la transcripción completa. Escucha y sigue el texto. Después léelo en voz alta.
+      </div>
+
+      <div class="hidden-text" style="display:block;">
+        <div class="hanzi">喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吗？图书馆门口儿见？</div>
+        <div class="pinyin">Wéi? Wǒmen qù shùlín lǐ zǒu zou ba, jīntiān de yángguāng duō hǎo a, hěn nuǎnhuo. Hǎo ma? Túshūguǎn ménkǒur jiàn?</div>
+        <div class="meaning">¿Hola? Vamos a caminar un rato por la zona arbolada. Qué bonito está el sol hoy, está cálido. ¿Está bien? ¿Nos vemos en la entrada de la biblioteca?</div>
+      </div>
+
+      <div class="btn-row">
+        <button onclick="speakChinese('喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吗？图书馆门口儿见？')">▶ Escuchar completo</button>
+        <button onclick="speakChinese('喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吗？图书馆门口儿见？',0.65)">▶ Escuchar lento</button>
+      </div>
+
+      <div class="record-box">
+        <strong>Grabación oral</strong>
+        <p>Graba tu lectura completa. Luego escúchate y compárala con el audio.</p>
+        <div class="btn-row">
+          <button class="success" onclick="startRecording()">● Grabar</button>
+          <button class="danger" onclick="stopRecording()">■ Detener</button>
+        </div>
+        <div class="record-status" id="recordStatus">Micrófono listo.</div>
+        <audio id="player" controls></audio>
+      </div>
+
+      <div class="btn-row">
+        <button class="secondary" onclick="completeStep(4)">Marcar sección como terminada</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="step">5</div>
+      <div>
+        <h2>Gramática auditiva</h2>
+        <small>Objetivo: notar patrones escuchando y produciendo.</small>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="grammar-box">
+        <strong>1. 走走</strong>
+        <p>La repetición del verbo suaviza la acción. No significa “caminar mucho”, sino “caminar un rato” o “dar una vuelta”.</p>
+        <button onclick="speakChinese('我们去公园里走走吧')">▶ 我们去公园里走走吧</button>
+        <button onclick="speakChinese('我们去学校里走走吧')">▶ 我们去学校里走走吧</button>
+      </div>
+
+      <div class="grammar-box">
+        <strong>2. 多 + adjetivo + 啊</strong>
+        <p>Sirve para expresar admiración o emoción: “¡Qué...!”</p>
+        <button onclick="speakChinese('今天的天气多好啊')">▶ 今天的天气多好啊</button>
+        <button onclick="speakChinese('这里的风景多美啊')">▶ 这里的风景多美啊</button>
+      </div>
+
+      <div class="grammar-box">
+        <strong>3. Lugar + 见</strong>
+        <p>Forma natural para decir “nos vemos en...”.</p>
+        <button onclick="speakChinese('学校门口儿见')">▶ 学校门口儿见</button>
+        <button onclick="speakChinese('图书馆门口儿见')">▶ 图书馆门口儿见</button>
+      </div>
+
+      <div class="btn-row">
+        <button class="secondary" onclick="completeStep(5)">Marcar sección como terminada</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="step">6</div>
+      <div>
+        <h2>Producción oral controlada</h2>
+        <small>Objetivo: usar el patrón con nuevas palabras.</small>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="instruction">
+        Escucha el modelo y luego crea una frase parecida. No necesitas escribirla primero: dilo en voz alta.
+      </div>
+
+      <div class="audio-card">
+        <div class="audio-title">Modelo</div>
+        <button onclick="speakChinese('我们去树林里走走吧，今天的阳光多好啊。')">▶ Escuchar modelo</button>
+      </div>
+
+      <p><strong>Cambia una parte y dilo oralmente:</strong></p>
+      <span class="pill">公园</span>
+      <span class="pill">学校</span>
+      <span class="pill">海边</span>
+      <span class="pill">天气</span>
+      <span class="pill">风景</span>
+
+      <div class="record-box">
+        <strong>Graba tu nueva oración</strong>
+        <p>Ejemplo: 我们去公园里走走吧，今天的天气多好啊。</p>
+        <div class="btn-row">
+          <button class="success" onclick="startRecording()">● Grabar</button>
+          <button class="danger" onclick="stopRecording()">■ Detener</button>
+        </div>
+        <div class="record-status">Usa tu propia variación oral.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="secondary" onclick="completeStep(6)">Marcar sección como terminada</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="step">7</div>
+      <div>
+        <h2>Mini HSKK</h2>
+        <small>Objetivo: responder hablando, no traduciendo palabra por palabra.</small>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="instruction">
+        Responde en chino durante 20 a 30 segundos. Puedes usar palabras de la lección.
+      </div>
+
+      <div class="audio-card">
+        <div class="audio-title">Pregunta oral</div>
+        <button onclick="speakChinese('今天天气怎么样？天气好的时候你喜欢做什么？')">▶ Escuchar pregunta</button>
+        <p><strong>今天天气怎么样？天气好的时候你喜欢做什么？</strong></p>
+      </div>
+
+      <textarea placeholder="Opcional: escribe algunas palabras clave, pero intenta responder hablando."></textarea>
+
+      <div class="record-box">
+        <strong>Graba tu respuesta HSKK</strong>
+        <div class="btn-row">
+          <button class="success" onclick="startRecording()">● Grabar</button>
+          <button class="danger" onclick="stopRecording()">■ Detener</button>
+        </div>
+        <div class="record-status">Meta: hablar sin leer todo el tiempo.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="secondary" onclick="completeStep(7)">Finalizar microlección</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="final-card">
+    <h2>Pregunta 1 completada</h2>
+    <p>Ya escuchaste, fragmentaste, repetiste, leíste, analizaste gramática y produjiste oralmente.</p>
+  </div>
+
+</main>
+
+<script>
+  let completed = new Set();
+  let recorder;
+  let audioChunks = [];
+
+  function completeStep(n){
+    completed.add(n);
+    let percent = Math.round((completed.size/7)*100);
+    document.getElementById('progressFill').style.width = percent + '%';
+    document.getElementById('progressText').innerText = percent + '%';
+  }
+
+  function speakChinese(text, rate=0.85){
+    if(!('speechSynthesis' in window)){
+      alert('Tu navegador no soporta lectura de voz automática.');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN';
+    utterance.rate = rate;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function toggle(id){
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function checkChoice(btn, isCorrect, feedbackId){
+    const fb = document.getElementById(feedbackId);
+    if(isCorrect){
+      btn.classList.add('correct');
+      fb.className = 'feedback ok';
+      fb.innerText = 'Correcto. Sigue escuchando y repite el fragmento.';
+    } else {
+      btn.classList.add('wrong');
+      fb.className = 'feedback no';
+      fb.innerText = 'Todavía no. Escucha otra vez antes de ver el texto.';
+    }
+  }
+
+function checkBlanks(){
+  const b1 = document.getElementById("blank1").value.trim();
+  const b2 = document.getElementById("blank2").value.trim();
+  const b3 = document.getElementById("blank3").value.trim();
+  const fb = document.getElementById("blankFeedback");
+
+  if(b1 === "树林" && b2 === "好" && b3 === "暖和"){
+    fb.className = "feedback ok";
+    fb.innerText = "正确！你听出来了。";
+  } else {
+    fb.className = "feedback no";
+    fb.innerText = "再听一次。正确答案：树林、好、暖和。";
+  }
+}
+
+  async function startRecording(){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      recorder.ondataavailable = e => {
+        audioChunks.push(e.data);
+      };
+
+      recorder.onstop = e => {
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        const audioURL = URL.createObjectURL(blob);
+        document.getElementById('player').src = audioURL;
+      };
+
+      recorder.start();
+      document.getElementById('recordStatus').innerText = 'Grabando... habla ahora.';
+    }catch(error){
+      alert('No se pudo activar el micrófono. Revisa permisos del navegador.');
+    }
+  }
+
+  function stopRecording(){
+    if(recorder && recorder.state !== 'inactive'){
+      recorder.stop();
+      document.getElementById('recordStatus').innerText = 'Grabación detenida. Reproduce tu audio para compararte.';
+    }
+  }
+</script>
+
+</body>
+</html>
