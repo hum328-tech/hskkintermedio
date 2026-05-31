@@ -437,6 +437,17 @@
 
   <audio controls id="playerA"></audio>
 
+<div id="resultadoVoz"
+style="
+margin-top:10px;
+padding:10px;
+background:#f3f4f6;
+border-radius:10px;
+font-weight:bold;
+">
+Lo que digas aparecerá aquí
+</div>
+
   <button class="secondary" onclick="toggle('txtA')">
     Mostrar texto para comprobar
   </button>
@@ -704,8 +715,9 @@
 
 <script>
   let completed = new Set();
-  let recorder;
-  let audioChunks = [];
+let recorder;
+let audioChunks = [];
+let recognition;
 
   function completeStep(n){
     completed.add(n);
@@ -777,6 +789,27 @@ function checkBlanks(){
       };
 
       recorder.start();
+      if ('webkitSpeechRecognition' in window) {
+
+  recognition = new webkitSpeechRecognition();
+
+  recognition.lang = 'zh-CN';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = function(event){
+
+    const textoDetectado =
+    event.results[0][0].transcript;
+
+    document.getElementById("resultadoVoz").innerHTML =
+    "Detectado: " + textoDetectado;
+
+  };
+
+  recognition.start();
+
+}
       document.getElementById('recordStatus').innerText = 'Grabando... habla ahora.';
     }catch(error){
       alert('No se pudo activar el micrófono. Revisa permisos del navegador.');
