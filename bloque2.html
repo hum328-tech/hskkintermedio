@@ -630,6 +630,53 @@ recognition.maxAlternatives = 1;
       resultBox.innerHTML = 'No se pudo reconocer el audio. Revisa permisos del micrófono.';
     };
   }
+  let recorder;
+let chunks = [];
+let streamActivo;
+
+async function iniciarGrabacion() {
+  try {
+    streamActivo = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    recorder = new MediaRecorder(streamActivo);
+    chunks = [];
+
+    recorder.ondataavailable = function(e) {
+      chunks.push(e.data);
+    };
+
+    recorder.onstart = function() {
+      document.getElementById('oralResult').innerHTML = '🎙️ Grabando... habla con calma.';
+    };
+
+    recorder.start();
+
+  } catch (error) {
+    document.getElementById('oralResult').innerHTML =
+      'No se pudo activar el micrófono. Revisa permisos del navegador.';
+  }
+}
+
+function detenerGrabacion() {
+  if (!recorder) {
+    document.getElementById('oralResult').innerHTML = 'Primero presiona Iniciar respuesta.';
+    return;
+  }
+
+  recorder.stop();
+
+  recorder.onstop = function() {
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const audioURL = URL.createObjectURL(blob);
+
+    document.getElementById('oralResult').innerHTML =
+      '<strong>Grabación terminada:</strong><br><audio controls src="' + audioURL + '"></audio>';
+
+    if (streamActivo) {
+      streamActivo.getTracks().forEach(track => track.stop());
+    }
+  };
+}
 </script>
 
 </body>
