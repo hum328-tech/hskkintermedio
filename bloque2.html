@@ -563,16 +563,22 @@
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'zh-CN';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+   const recognition = new SpeechRecognition();
+recognition.lang = 'zh-CN';
+recognition.interimResults = true;
+recognition.continuous = true;
+recognition.maxAlternatives = 1;
 
     resultBox.innerHTML = 'Escuchando... repite la oración en chino.';
     recognition.start();
 
     recognition.onresult = function(event) {
-      const spokenText = event.results[0][0].transcript;
+
+  let spokenText = '';
+
+  for(let i = 0; i < event.results.length; i++){
+    spokenText += event.results[i][0].transcript;
+  }
       const score = similarity(spokenText, targetText);
       let feedback = '';
 
