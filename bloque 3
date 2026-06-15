@@ -1,0 +1,227 @@
+<!-- BLOQUE 3 · ESCUCHAR Y REPETIR -->
+<section id="bloque3-escuchar" class="lab">
+  <h2 class="section-title">Bloque 3 · Escucha y repite</h2>
+  <p class="section-intro">
+    Escucha cada oración, repítela en voz alta y usa el micrófono para comprobar si el navegador reconoce tu pronunciación.
+  </p>
+
+  <div>
+    <span class="grammar-chip">不仅……而且</span>
+    <span class="grammar-chip">从来</span>
+    <span class="grammar-chip">刚 / 刚才</span>
+    <span class="grammar-chip">即使……也</span>
+    <span class="grammar-chip">在……上</span>
+  </div>
+
+  <br>
+
+  <div id="sentences-container"></div>
+</section>
+
+<script>
+const bloque3Sentences = [
+  {
+    grammar: "不仅……而且 / 也 / 还",
+    sentences: [
+      ["这种葡萄酒，不仅味道好，而且每个酒瓶也都像一件高级艺术品。", "Este vino no solo sabe bien, sino que cada botella también parece una obra de arte fina."],
+      ["阅读能力好的人不但容易找到工作，而且工资也比较高。", "Las personas con buena comprensión lectora no solo encuentran trabajo fácilmente, sino que también tienen salarios más altos."],
+      ["不但会三种语言，而且会写小说。", "No solo sabe tres idiomas, sino que también sabe escribir novelas."],
+      ["两个人共同生活，不仅需要浪漫的爱情，更需要性格上互相吸引。", "Para vivir juntos, no solo se necesita amor romántico, sino también atracción en la personalidad."],
+      ["不仅可以使室内空气更新鲜，也能给我们带来一个好的心情。", "No solo puede hacer más fresco el aire interior, también puede darnos buen ánimo."],
+      ["管理自己不但指自己的事情自己做，更重要的是时间管理。", "Administrarse no solo significa hacer tus propias cosas; más importante es administrar el tiempo."],
+      ["不但聪明，而且很懂礼貌。", "No solo es inteligente, sino que también tiene buenos modales."],
+      ["买来不仅可以自己用，还可以当礼物送给别人。", "No solo puedes usarlo tú mismo, también puedes regalarlo."]
+    ]
+  },
+  {
+    grammar: "从来",
+    sentences: [
+      ["但是我们从来没有说过话。", "Pero nunca hemos hablado."],
+      ["他从来不主动和别人说话。", "Él nunca toma la iniciativa para hablar con otros."],
+      ["我从来不关心它。", "Nunca me preocupo por eso."]
+    ]
+  },
+  {
+    grammar: "刚 / 刚才 / 刚刚",
+    sentences: [
+      ["我刚看了一下，在沙发上呢。", "Acabo de revisar, está en el sofá."],
+      ["我刚从会议室过来。", "Acabo de venir de la sala de juntas."],
+      ["刚才听广播说明天可能会下大雨。", "Hace un momento escuché en la radio que mañana quizá llueva fuerte."],
+      ["我刚从会议室过来，怎么一个人也没有？", "Acabo de venir de la sala de juntas, ¿por qué no hay nadie?"],
+      ["报名工作今天上午刚结束。", "El registro acaba de terminar esta mañana."],
+      ["我刚刚躺下，就响起了敲门声。", "Apenas me acosté, sonó la puerta."],
+      ["张记者，我刚刚接到通知。", "Reportero Zhang, acabo de recibir el aviso."],
+      ["我刚出差回来。", "Acabo de regresar de un viaje de trabajo."],
+      ["导游刚才说还要多久才能到长城？", "¿Cuánto dijo hace un momento el guía que falta para llegar a la Gran Muralla?"],
+      ["我妹刚发来一个笑话。", "Mi hermana menor acaba de mandar un chiste."]
+    ]
+  },
+  {
+    grammar: "即使……也……",
+    sentences: [
+      ["有些人即使只睡五个小时也很有精神。", "Algunas personas, aunque solo duerman cinco horas, tienen mucha energía."],
+      ["现在即使穿得更随便些，同样也会有人认识我。", "Ahora, aunque vista más casual, igualmente habrá gente que me reconozca."],
+      ["即使是出于教育的目的，也千万不能骗孩子。", "Aunque sea con fines educativos, nunca se debe engañar a los niños."]
+    ]
+  },
+  {
+    grammar: "在……上",
+    sentences: [
+      ["而喜欢红色衣服的女孩子们性格比较浪漫，在爱情上也比较主动。", "Las chicas a quienes les gusta la ropa roja son más románticas y también más activas en el amor."],
+      ["更需要性格上互相吸引。", "Más aún, se necesita atracción mutua en cuanto a la personalidad."]
+    ]
+  }
+];
+
+function renderBloque3() {
+  const container = document.getElementById("sentences-container");
+  let count = 1;
+
+  bloque3Sentences.forEach(group => {
+    const title = document.createElement("h3");
+    title.style.marginTop = "32px";
+    title.innerHTML = group.grammar;
+    container.appendChild(title);
+
+    group.sentences.forEach(item => {
+      const sentence = item[0];
+      const translation = item[1];
+      const resultId = "b3r" + count;
+
+      const card = document.createElement("div");
+      card.className = "sentence-card";
+      card.innerHTML = `
+        <div class="sentence-number">${count}</div>
+
+        <div>
+          <div class="hanzi">${sentence}</div>
+          <div class="translation">${translation}</div>
+          <div class="hint">Escucha → repite → verifica con micrófono</div>
+        </div>
+
+        <div class="mini-buttons">
+          <button class="mini-btn" onclick="speakChinese('${sentence}', 0.8)">Escuchar</button>
+          <button class="mini-btn" onclick="speakChinese('${sentence}', 0.55)">Lento</button>
+          <button class="mini-btn" onclick="shadowing('${sentence}')">Shadowing</button>
+          <button class="mini-btn" onclick="checkPronunciation('${sentence}', '${resultId}')">Micro</button>
+        </div>
+      `;
+
+      const result = document.createElement("div");
+      result.id = resultId;
+      result.className = "result";
+      result.innerHTML = "Resultado...";
+
+      container.appendChild(card);
+      container.appendChild(result);
+
+      count++;
+    });
+  });
+}
+
+function speakChinese(text, rate = 0.8) {
+  if (!window.speechSynthesis) {
+    alert("Tu navegador no soporta audio.");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "zh-CN";
+  utterance.rate = rate;
+  utterance.pitch = 1;
+
+  const voices = window.speechSynthesis.getVoices();
+  const chineseVoice = voices.find(v => v.lang.includes("zh") || v.name.includes("Chinese"));
+
+  if (chineseVoice) {
+    utterance.voice = chineseVoice;
+  }
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function shadowing(text) {
+  window.speechSynthesis.cancel();
+
+  const first = new SpeechSynthesisUtterance(text);
+  first.lang = "zh-CN";
+  first.rate = 0.55;
+
+  const second = new SpeechSynthesisUtterance(text);
+  second.lang = "zh-CN";
+  second.rate = 0.8;
+
+  first.onend = () => {
+    setTimeout(() => {
+      window.speechSynthesis.speak(second);
+    }, 1800);
+  };
+
+  window.speechSynthesis.speak(first);
+}
+
+function cleanChinese(text) {
+  return text.replace(/[，。！？、\s,.!?]/g, "").trim();
+}
+
+function similarity(a, b) {
+  a = cleanChinese(a);
+  b = cleanChinese(b);
+
+  let matches = 0;
+  const min = Math.min(a.length, b.length);
+  const max = Math.max(a.length, b.length);
+
+  for (let i = 0; i < min; i++) {
+    if (a[i] === b[i]) matches++;
+  }
+
+  return max === 0 ? 0 : matches / max;
+}
+
+function checkPronunciation(targetText, resultId) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const resultBox = document.getElementById(resultId);
+
+  if (!SpeechRecognition) {
+    resultBox.innerHTML = "Tu navegador no permite reconocimiento de voz. Usa Chrome.";
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "zh-CN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  resultBox.innerHTML = "Escuchando... repite la oración en chino.";
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    const spokenText = event.results[0][0].transcript;
+    const score = similarity(spokenText, targetText);
+
+    let feedback = "";
+
+    if (score >= 0.85) {
+      feedback = "Excelente. La oración fue reconocida con alta similitud.";
+    } else if (score >= 0.60) {
+      feedback = "Casi correcto. Escucha otra vez y repite con más ritmo.";
+    } else {
+      feedback = "Necesita práctica. Usa el botón lento y repite de nuevo.";
+    }
+
+    resultBox.innerHTML =
+      "<strong>Reconocido:</strong> " + spokenText +
+      "<br><strong>Resultado:</strong> " + feedback;
+  };
+
+  recognition.onerror = function() {
+    resultBox.innerHTML = "No se pudo reconocer el audio. Revisa permisos del micrófono.";
+  };
+}
+
+renderBloque3();
+</script>
