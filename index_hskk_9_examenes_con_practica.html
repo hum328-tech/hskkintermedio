@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HSK4 + HSKK Intermedio</title>
+<style>
+:root{
+  --bg:#0b1020;
+  --card:#172033;
+  --line:rgba(255,255,255,0.12);
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+  --gold:#facc15;
+  --blue:#38bdf8;
+  --red:#dc2626;
+  --green:#22c55e;
+  --orange:#fb923c;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(250,204,21,0.12), transparent 30%),
+    var(--bg);
+  color:var(--text);
+}
+header{
+  min-height:78vh;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:40px 20px;
+}
+.hero{max-width:1100px;}
+.tag{
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  background:rgba(56,189,248,0.15);
+  border:1px solid rgba(56,189,248,0.35);
+  color:#bae6fd;
+  margin-bottom:18px;
+}
+h1{
+  font-size:clamp(42px,7vw,88px);
+  line-height:1.05;
+  margin:0 0 20px;
+  letter-spacing:-2px;
+}
+h2,h3{margin-top:0;}
+.blue{color:var(--blue);}
+.gold{color:var(--gold);}
+.red{color:var(--red);}
+.subtitle{
+  max-width:850px;
+  margin:auto;
+  color:var(--muted);
+  font-size:20px;
+  line-height:1.7;
+}
+main{max-width:1250px;margin:auto;padding:20px 20px 100px;}
+.screen{display:none;}
+.screen.active{display:block;}
+.section-title{font-size:38px;margin-bottom:10px;}
+.section-intro{color:var(--muted);margin-bottom:30px;line-height:1.6;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;}
+.card{
+  background:rgba(23,32,51,0.92);
+  border:1px solid var(--line);
+  border-radius:28px;
+  overflow:hidden;
+  transition:0.25s ease;
+  position:relative;
+}
+.card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.35);}
+.card-top{height:180px;background-size:cover;background-position:center;}
+.card-content{padding:26px;}
+.card h3{font-size:30px;}
+.card p{color:var(--muted);line-height:1.7;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0;}
+.chip{background:rgba(255,255,255,0.07);border:1px solid var(--line);color:#cbd5e1;padding:7px 12px;border-radius:999px;font-size:13px;}
+.btn,button{
+  display:inline-block;
+  margin:8px;
+  padding:14px 20px;
+  border-radius:16px;
+  text-decoration:none;
+  font-weight:700;
+  transition:0.2s ease;
+  border:none;
+  cursor:pointer;
+  font-size:16px;
+}
+.btn-blue,.button-blue{background:var(--blue);color:#06111f;}
+.btn-red,.button-red{background:var(--red);color:white;}
+.btn-gold,.button-gold{background:var(--gold);color:#111827;}
+.btn-green,.button-green{background:var(--green);color:#06111f;}
+.btn-dark,.button-dark{background:#334155;color:white;border:1px solid rgba(255,255,255,.12);}
+.btn:hover,button:hover{transform:translateY(-2px);filter:brightness(1.05);}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:26px;}
+.panel{
+  background:rgba(23,32,51,0.92);
+  border:1px solid var(--line);
+  border-radius:28px;
+  padding:25px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.18);
+}
+input{
+  padding:14px;
+  margin:8px;
+  border-radius:12px;
+  border:2px solid rgba(255,255,255,.15);
+  font-size:17px;
+  background:#0f172a;
+  color:white;
+}
+.image-card img{width:100%;height:170px;object-fit:cover;border-radius:18px;}
+.guide{
+  background:rgba(34,197,94,.10);
+  border:1px solid rgba(34,197,94,.30);
+  padding:18px;
+  border-radius:18px;
+  font-size:20px;
+  line-height:1.8;
+  margin:18px 0;
+}
+.timer{font-size:52px;text-align:center;font-weight:bold;color:var(--orange);margin:18px 0;}
+.transcript,.feedback,.history{
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--line);
+  padding:18px;
+  border-radius:18px;
+  font-size:18px;
+  line-height:1.6;
+  margin-top:18px;
+  color:#e5e7eb;
+}
+.badge{display:inline-block;background:rgba(250,204,21,.18);border:1px solid rgba(250,204,21,.35);color:#fde68a;padding:8px 12px;border-radius:20px;margin:5px;font-weight:bold;}
+.exam-warning{background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.35);padding:15px;border-radius:15px;text-align:center;font-weight:bold;line-height:1.6;margin-top:20px;}
+.practice-img{max-width:430px;width:100%;border-radius:22px;border:1px solid var(--line);}
+.center{text-align:center;}
+footer{text-align:center;color:var(--muted);padding:40px 20px 70px;}
+
+.sentence-box{
+  font-size:clamp(30px,5vw,56px);
+  line-height:1.45;
+  font-weight:800;
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:32px 22px;
+  margin-top:16px;
+}
+.pinyin-note{color:var(--muted);margin-top:14px;font-size:18px;}
+.sentence-list{margin-top:26px;display:grid;gap:10px;}
+.sentence-item{
+  padding:13px 15px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--line);
+  color:#e5e7eb;
+  cursor:pointer;
+}
+.sentence-item.active-sentence{
+  border-color:rgba(250,204,21,.75);
+  background:rgba(250,204,21,.12);
+  color:#fef3c7;
+}
+
+.hidden-sentence{
+  color:#94a3b8;
+  font-size:clamp(24px,4vw,40px);
+  font-weight:800;
+}
+.practice-flow{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:14px;
+  margin:22px 0;
+}
+.flow-step{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  color:#e5e7eb;
+  line-height:1.5;
+}
+.flow-step strong{color:#fde68a;}
+.support-panel{
+  display:none;
+  margin-top:20px;
+  background:rgba(15,23,42,.75);
+  border:1px solid rgba(56,189,248,.25);
+  border-radius:22px;
+  padding:20px;
+  line-height:1.7;
+}
+.support-panel.active{display:block;}
+.support-panel h3{color:#7dd3fc;margin-top:8px;}
+.vocab-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.vocab-chip{
+  background:rgba(56,189,248,.12);
+  border:1px solid rgba(56,189,248,.3);
+  color:#e0f2fe;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:14px;
+}
+.text-hidden-note{color:#fef3c7;font-size:18px;line-height:1.6;margin-top:12px;}
+
+@media(max-width:700px){header{min-height:65vh;} .section-title{font-size:30px;} .topbar{display:block;} }
+</style>
+</head>
+<body>
+<header id="heroHeader">
+  <div class="hero">
+    <div class="tag">HSK4 + HSKK Intermedio</div>
+    <h1>Laboratorio oral de chino <span class="blue">por habilidades</span></h1>
+    <p class="subtitle">Preparación dividida en dos rutas: escuchar y repetir para la Sección 1, y describir imágenes para la Sección 2 del HSKK Intermedio.</p>
+    <div style="margin-top:28px;">
+      <button class="button-red" onclick="showScreen('section1')">Sección 1 · Escuchar y repetir</button>
+      <button class="button-blue" onclick="showScreen('section2Home')">Sección 2 · Describir imágenes</button>
+    </div>
+  </div>
+</header>
+<main>
+  <section id="home" class="screen active">
+    <h2 class="section-title">Elige tu preparación</h2>
+    <p class="section-intro">La plataforma queda unificada en un solo repositorio. Desde aquí el alumno puede entrar a la práctica auditiva o a la práctica oral con imágenes.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="card-top" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.55)),url('https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?q=80&w=1200&auto=format&fit=crop');background-size:cover;background-position:center;"></div>
+        <div class="card-content">
+          <h3>Sección 1</h3>
+          <h2 class="gold">Escuchar y repetir</h2>
+          <p>Laboratorios auditivos, shadowing, repetición y producción oral guiada usando tus bloques ya creados.</p>
+          <div class="chips"><div class="chip">听力</div><div class="chip">跟读</div><div class="chip">Shadowing</div><div class="chip">HSKK</div></div>
+          <button class="button-red" onclick="showScreen('section1')">Entrar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-top" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.55)),url('https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop');background-size:cover;background-position:center;"></div>
+        <div class="card-content">
+          <h3>Sección 2</h3>
+          <h2 class="blue">看图说话</h2>
+          <p>Práctica para describir imágenes con guía, modo examen, temporizador, transcripción e historial.</p>
+          <div class="chips"><div class="chip">看图说话</div><div class="chip">描述图片</div><div class="chip">2 minutos</div><div class="chip">口语</div></div>
+          <button class="button-blue" onclick="showScreen('section2Home')">Entrar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="section1" class="screen">
+    <div class="topbar">
+      <div>
+        <h2 class="section-title">Sección 1 · Escuchar y repetir</h2>
+        <p class="section-intro">Preparación organizada en 9 exámenes. Cada examen contiene 10 oraciones para escuchar, repetir y practicar pronunciación.</p>
+      </div>
+      <button class="button-dark" onclick="showScreen('home')">Volver al inicio</button>
+    </div>
+
+    <div class="grid" id="examGrid"></div>
+  </section>
+
+  <section id="section1Practice" class="screen">
+    <div class="topbar">
+      <div>
+        <h2 id="examPracticeTitle" class="section-title">Examen</h2>
+        <p class="section-intro">Escucha la oración, repítela en voz alta y avanza a la siguiente.</p>
+      </div>
+      <button class="button-dark" onclick="showScreen('section1')">Volver a exámenes</button>
+    </div>
+
+    <div class="panel">
+      <div class="center">
+        <div class="tag" id="sentenceCounter">Oración 1 de 10</div>
+        <div class="sentence-box" id="currentSentence"><span class="hidden-sentence">Texto oculto · escucha primero</span></div>
+        <div class="text-hidden-note">Primero escucha y repite sin leer. Después puedes revelar el texto si lo necesitas.</div>
+      </div>
+
+      <div class="practice-flow">
+        <div class="flow-step"><strong>1. Escucha</strong><br>No mires el texto. Concéntrate en tonos, ritmo y pausas.</div>
+        <div class="flow-step"><strong>2. Repite</strong><br>Graba tu intento sin leer. El navegador mostrará lo que entendió.</div>
+        <div class="flow-step"><strong>3. Verifica</strong><br>Revela el texto y consulta traducción, vocabulario y gramática.</div>
+      </div>
+
+      <div class="center" style="margin-top:20px;">
+        <button class="button-blue" onclick="speakCurrentSentence()">🔊 Escuchar</button>
+        <button class="button-green" onclick="startRepeatRecognition()">🎙️ Repetir sin ver</button>
+        <button class="button-red" onclick="stopRepeatRecognition()">停止</button>
+        <button class="button-gold" onclick="toggleSentenceText()" id="revealTextBtn">👁️ Revelar texto</button>
+        <button class="button-dark" onclick="toggleSupportPanel()" id="supportBtn">📘 Ver explicación</button>
+      </div>
+
+      <div class="transcript" id="repeatTranscript">Aquí aparecerá lo que el navegador entendió.</div>
+      <div class="support-panel" id="supportPanel"></div>
+
+      <div class="center" style="margin-top:20px;">
+        <button class="button-dark" onclick="previousSentence()">← Anterior</button>
+        <button class="button-gold" onclick="nextSentence()">Siguiente →</button>
+      </div>
+
+      <div id="sentenceList" class="sentence-list"></div>
+    </div>
+  </section>
+
+  <section id="section2Home" class="screen">
+    <div class="topbar">
+      <div><h2 class="section-title">Sección 2 · Describir imágenes</h2><p class="section-intro">看图说话: práctica oral con guía, modo entrenamiento, modo examen e historial.</p></div>
+      <button class="button-dark" onclick="showScreen('home')">Volver al inicio</button>
+    </div>
+    <div class="panel center">
+      <h2>HSKK Intermedio - 看图说话</h2>
+      <p class="section-intro">Escribe el nombre de la alumna o alumno para guardar su historial de práctica.</p>
+      <input id="studentName" placeholder="Nombre de la alumna o alumno">
+      <br>
+      <button class="button-blue" onclick="showScreen('imageSelect')">Comenzar práctica</button>
+      <button class="button-gold" onclick="showScreen('historyScreen'); loadHistory();">Ver historial</button>
+    </div>
+  </section>
+  <section id="imageSelect" class="screen">
+    <div class="topbar"><h2 class="section-title">Elige una imagen</h2><button class="button-dark" onclick="showScreen('section2Home')">Volver</button></div>
+    <div class="grid" id="imageGrid"></div>
+  </section>
+  <section id="modeSelect" class="screen">
+    <div class="panel center">
+      <h2>Elige modo</h2>
+      <button class="button-green" onclick="startTrainingMode()">Modo entrenamiento</button>
+      <button class="button-red" onclick="startExamMode()">Modo examen</button>
+      <div class="exam-warning">Entrenamiento: con guía y frases de apoyo.<br>Examen: 60 segundos para preparar y 2 minutos para hablar.</div>
+      <button class="button-dark" onclick="showScreen('imageSelect')">Cambiar imagen</button>
+    </div>
+  </section>
+  <section id="practiceScreen" class="screen">
+    <div class="topbar"><h2 id="practiceTitle" class="section-title">Práctica</h2><button class="button-dark" onclick="showScreen('imageSelect')">Cambiar imagen</button></div>
+    <div class="panel">
+      <div class="center"><img id="practiceImage" class="practice-img"></div>
+      <div id="prepBox" class="guide"><strong>Preparación:</strong><br>人物：¿Quién aparece?<br>地点：¿Dónde está?<br>动作：¿Qué hace?<br>原因：¿Por qué?<br>看法：¿Qué opinas?</div>
+      <div id="guideBox" class="guide">这张图片里有……<br>他 / 她 / 他们正在……<br>我觉得可能……<br>因为……所以……<br>这让我想到……<br>最后，我认为……</div>
+      <div class="timer" id="timer">02:00</div>
+      <div class="center">
+        <button class="button-blue" onclick="startPractice()">开始说话</button>
+        <button class="button-red" onclick="stopPractice()">停止</button>
+        <button class="button-gold" onclick="resetPractice()">重新开始</button>
+      </div>
+      <p id="status" class="center">Presiona comenzar.</p>
+      <div class="transcript" id="transcript">Aquí aparecerá la transcripción.</div>
+      <div class="feedback" id="feedback">Aquí aparecerá la retroalimentación.</div>
+    </div>
+  </section>
+  <section id="historyScreen" class="screen">
+    <div class="topbar"><h2 class="section-title">Historial de prácticas</h2><button class="button-dark" onclick="showScreen('section2Home')">Volver</button></div>
+    <div id="historyList" class="history"></div>
+    <div class="center"><button class="button-red" onclick="clearHistory()">Borrar historial</button></div>
+  </section>
+</main>
+<footer>HSK4 + HSKK Intermedio · Laboratorio oral unificado</footer>
+<script>
+let currentImage = null;
+let mode = "training";
+let recognition;
+let finalText = "";
+let timerInterval;
+let prepInterval;
+let timeLeft = 120;
+let isRecording = false;
+
+let currentExamIndex = 0;
+let currentSentenceIndex = 0;
+let sentenceTextVisible = false;
+let supportPanelVisible = false;
+let repeatRecognition;
+let repeatRecording = false;
+
+const hskkExams = [
+  {
+    "title": "Primer examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "这份报纸的内容非常丰富。",
+        "translation": "El contenido de este periódico es muy rico/abundante.",
+        "grammar": "非常 + adjetivo/verbo psicológico: intensifica la cualidad.",
+        "vocab": [
+          "报纸 = periódico",
+          "内容 = contenido",
+          "非常 = muy",
+          "丰富 = rico, abundante"
+        ]
+      },
+      {
+        "text": "电影还有10分钟就结束了。",
+        "translation": "La película terminará en 10 minutos.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 就 puede indicar cercanía temporal, rapidez o énfasis: “ya / justo / entonces”.",
+        "vocab": [
+          "电影 = película",
+          "分钟 = minuto",
+          "结束 = terminar"
+        ]
+      },
+      {
+        "text": "他每天早上都要锻炼身体。",
+        "translation": "Él hace ejercicio todas las mañanas.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "每天 = todos los días",
+          "早上 = mañana",
+          "锻炼身体 = hacer ejercicio"
+        ]
+      },
+      {
+        "text": "现在的电视广告太多了。",
+        "translation": "Ahora hay demasiados anuncios en la televisión.",
+        "grammar": "太……了 expresa exceso o intensidad: “demasiado / muy”. 了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "电视广告 = anuncio de televisión",
+          "太多了 = demasiado"
+        ]
+      },
+      {
+        "text": "这个周末我们想去北京玩儿。",
+        "translation": "Este fin de semana queremos ir a Beijing a pasear.",
+        "grammar": "想 + verbo expresa deseo o intención: “querer / pensar hacer”. 来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "周末 = fin de semana",
+          "北京 = Beijing"
+        ]
+      },
+      {
+        "text": "他下午经常去打篮球。",
+        "translation": "Por las tardes él suele ir a jugar basquetbol.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "经常 = frecuentemente",
+          "打篮球 = jugar basquetbol"
+        ]
+      },
+      {
+        "text": "这是现在最流行的音乐。",
+        "translation": "Esta es la música más popular actualmente.",
+        "grammar": "最 + adjetivo/verbo: forma superlativa, “el/la más”.",
+        "vocab": [
+          "最 = el más",
+          "流行 = popular",
+          "音乐 = música"
+        ]
+      },
+      {
+        "text": "下午的会议推迟了半个小时。",
+        "translation": "La reunión de la tarde se retrasó media hora.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "会议 = reunión",
+          "推迟 = retrasar",
+          "半个小时 = media hora"
+        ]
+      },
+      {
+        "text": "请帮我到超市买一包烟吧。",
+        "translation": "Por favor ayúdame a comprar una cajetilla de cigarros en el supermercado.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "超市 = supermercado",
+          "一包烟 = una cajetilla de cigarros"
+        ]
+      },
+      {
+        "text": "多说是学习语言的好方法。",
+        "translation": "Hablar más es una buena forma de aprender un idioma.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "语言 = idioma",
+          "方法 = método",
+          "学习 = estudiar"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Segundo examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "今天学校不上课。",
+        "translation": "Hoy no hay clases en la escuela.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "学校 = escuela",
+          "不上课 = no tener clases"
+        ]
+      },
+      {
+        "text": "他最近每天都跑步。",
+        "translation": "Últimamente él corre todos los días.",
+        "grammar": "最 + adjetivo/verbo: forma superlativa, “el/la más”.",
+        "vocab": [
+          "每天 = todos los días",
+          "最 = el más",
+          "最近 = recientemente",
+          "跑步 = correr"
+        ]
+      },
+      {
+        "text": "我们决定这个周末去香山。",
+        "translation": "Decidimos ir a Xiangshan este fin de semana.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "周末 = fin de semana",
+          "决定 = decidir",
+          "香山 = Xiangshan"
+        ]
+      },
+      {
+        "text": "杭州是旅游的好地方。",
+        "translation": "Hangzhou es un buen lugar para viajar.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "杭州 = Hangzhou",
+          "旅游 = viajar/turismo",
+          "地方 = lugar"
+        ]
+      },
+      {
+        "text": "开会用的资料已经整理完了。",
+        "translation": "Los materiales para la reunión ya fueron ordenados/preparados.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "资料 = material",
+          "整理 = ordenar/preparar",
+          "已经 = ya"
+        ]
+      },
+      {
+        "text": "每个人都想考上一所好大学。",
+        "translation": "Todos quieren lograr entrar a una buena universidad.",
+        "grammar": "想 + verbo expresa deseo o intención: “querer / pensar hacer”.",
+        "vocab": [
+          "大学 = universidad"
+        ]
+      },
+      {
+        "text": "请填写一下你的出生年月日。",
+        "translation": "Por favor llena tu fecha de nacimiento.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "填写 = llenar",
+          "出生年月日 = fecha de nacimiento"
+        ]
+      },
+      {
+        "text": "他给我的感觉是漂亮又文静。",
+        "translation": "La impresión que me da es que es bonita y tranquila.",
+        "grammar": "给 + persona + verbo: indica destinatario o beneficio de la acción.",
+        "vocab": [
+          "感觉 = sensación/impresión",
+          "漂亮 = bonito",
+          "文静 = tranquila"
+        ]
+      },
+      {
+        "text": "我发现你很喜欢吃苹果。",
+        "translation": "Descubrí que te gusta mucho comer manzanas.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "发现 = descubrir",
+          "苹果 = manzana"
+        ]
+      },
+      {
+        "text": "我需要你帮我出个主意。",
+        "translation": "Necesito que me ayudes a darme una idea.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "主意 = idea"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Tercer examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "我想到解决问题的办法了。",
+        "translation": "Ya se me ocurrió una forma de resolver el problema.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 想 + verbo expresa deseo o intención: “querer / pensar hacer”.",
+        "vocab": [
+          "解决 = resolver",
+          "问题 = problema",
+          "办法 = método/solución"
+        ]
+      },
+      {
+        "text": "父母应该是孩子的好朋友。",
+        "translation": "Los padres deberían ser buenos amigos de sus hijos.",
+        "grammar": "应该 expresa consejo u obligación suave: “debería”.",
+        "vocab": [
+          "父母 = padres",
+          "应该 = debería",
+          "孩子 = hijo/niño"
+        ]
+      },
+      {
+        "text": "批评也是一门艺术。",
+        "translation": "Criticar también es un arte.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "批评 = criticar",
+          "艺术 = arte"
+        ]
+      },
+      {
+        "text": "遇到问题时我们要冷静。",
+        "translation": "Cuando encontramos problemas debemos mantener la calma.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "问题 = problema",
+          "遇到 = encontrar/toparse",
+          "冷静 = calma"
+        ]
+      },
+      {
+        "text": "请尝一尝这道菜。",
+        "translation": "Por favor prueba este platillo.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "尝一尝 = probar",
+          "这道菜 = este platillo"
+        ]
+      },
+      {
+        "text": "做蛋炒饭一点儿也不麻烦。",
+        "translation": "Hacer arroz frito con huevo no es nada complicado.",
+        "grammar": "一点儿也不 + adjetivo/verbo: negación enfática, “para nada”.",
+        "vocab": [
+          "蛋炒饭 = arroz frito con huevo",
+          "麻烦 = complicado/molesto"
+        ]
+      },
+      {
+        "text": "附近有一家很大的超市。",
+        "translation": "Cerca hay un supermercado muy grande.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "超市 = supermercado",
+          "附近 = cerca"
+        ]
+      },
+      {
+        "text": "我们按照原计划行动。",
+        "translation": "Actuamos de acuerdo con el plan original.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "按照 = de acuerdo con",
+          "原计划 = plan original",
+          "行动 = actuar"
+        ]
+      },
+      {
+        "text": "我对减肥很有信心。",
+        "translation": "Tengo mucha confianza en bajar de peso.",
+        "grammar": "对 + persona/cosa + adjetivo/verbo psicológico: actitud u opinión hacia algo.",
+        "vocab": [
+          "减肥 = bajar de peso",
+          "信心 = confianza"
+        ]
+      },
+      {
+        "text": "听说小李准备五一结婚。",
+        "translation": "Escuché que Xiao Li planea casarse el Primero de Mayo.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "听说 = escuchar que",
+          "准备 = preparar/planear",
+          "结婚 = casarse"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Cuarto examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "他对网球不感兴趣。",
+        "translation": "A él no le interesa el tenis.",
+        "grammar": "对 + persona/cosa + adjetivo/verbo psicológico: actitud u opinión hacia algo.",
+        "vocab": [
+          "网球 = tenis",
+          "感兴趣 = interesarse"
+        ]
+      },
+      {
+        "text": "有两千多人参加了会议。",
+        "translation": "Más de dos mil personas participaron en la reunión.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "会议 = reunión",
+          "参加 = participar"
+        ]
+      },
+      {
+        "text": "我正在给父母写信。",
+        "translation": "Estoy escribiéndoles una carta a mis padres.",
+        "grammar": "正在 + verbo indica acción en progreso: “estar haciendo”. 给 + persona + verbo: indica destinatario o beneficio de la acción.",
+        "vocab": [
+          "父母 = padres",
+          "正在 = estar + gerundio",
+          "写信 = escribir carta"
+        ]
+      },
+      {
+        "text": "考试十分钟前就结束了。",
+        "translation": "El examen terminó hace diez minutos.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 就 puede indicar cercanía temporal, rapidez o énfasis: “ya / justo / entonces”.",
+        "vocab": [
+          "分钟 = minuto",
+          "结束 = terminar"
+        ]
+      },
+      {
+        "text": "今天的作业终于写完了。",
+        "translation": "Por fin terminé la tarea de hoy.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "终于 = por fin",
+          "作业 = tarea"
+        ]
+      },
+      {
+        "text": "你必须好好休息休息。",
+        "translation": "Debes descansar bien.",
+        "grammar": "必须 expresa obligación fuerte: “debe / tener que”.",
+        "vocab": [
+          "必须 = deber/tener que",
+          "休息 = descansar"
+        ]
+      },
+      {
+        "text": "他可能下周六才回来。",
+        "translation": "Puede que él regrese hasta el próximo sábado.",
+        "grammar": "才 puede indicar “hasta apenas” o que algo ocurre más tarde de lo esperado. 可能 expresa posibilidad: “posiblemente / puede que”. 来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "可能 = posiblemente",
+          "才 = hasta/apenas"
+        ]
+      },
+      {
+        "text": "你要的资料我给你带来了。",
+        "translation": "Te traje los materiales que querías.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 要 puede expresar necesidad, intención o futuro cercano según el contexto. 给 + persona + verbo: indica destinatario o beneficio de la acción.",
+        "vocab": [
+          "资料 = material",
+          "带来 = traer"
+        ]
+      },
+      {
+        "text": "这个问题不太好回答。",
+        "translation": "Esta pregunta no es muy fácil de responder.",
+        "grammar": "太……了 expresa exceso o intensidad: “demasiado / muy”.",
+        "vocab": [
+          "问题 = problema",
+          "回答 = responder"
+        ]
+      },
+      {
+        "text": "我家就在公园的旁边。",
+        "translation": "Mi casa está justo al lado del parque.",
+        "grammar": "就 puede indicar cercanía temporal, rapidez o énfasis: “ya / justo / entonces”.",
+        "vocab": [
+          "旁边 = al lado"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Quinto examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "这里变得越来越漂亮了。",
+        "translation": "Este lugar se ha vuelto cada vez más bonito.",
+        "grammar": "越来越 + adjetivo/verbo: cambio progresivo, “cada vez más”. 变得 indica cambio de estado: “volverse / hacerse”. 了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "漂亮 = bonito",
+          "变得 = volverse",
+          "越来越 = cada vez más"
+        ]
+      },
+      {
+        "text": "这个字典非常有用。",
+        "translation": "Este diccionario es muy útil.",
+        "grammar": "非常 + adjetivo/verbo psicológico: intensifica la cualidad.",
+        "vocab": [
+          "非常 = muy",
+          "字典 = diccionario",
+          "有用 = útil"
+        ]
+      },
+      {
+        "text": "他的个子只有1米5。",
+        "translation": "Él mide solamente 1.50 metros.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "个子 = estatura"
+        ]
+      },
+      {
+        "text": "这些东西一共需要100元。",
+        "translation": "Estas cosas cuestan 100 yuanes en total.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "一共 = en total",
+          "元 = yuan"
+        ]
+      },
+      {
+        "text": "他现在最可能在8楼。",
+        "translation": "Ahora lo más probable es que esté en el octavo piso.",
+        "grammar": "最 + adjetivo/verbo: forma superlativa, “el/la más”. 可能 expresa posibilidad: “posiblemente / puede que”.",
+        "vocab": [
+          "最 = el más",
+          "可能 = posiblemente",
+          "8楼 = octavo piso"
+        ]
+      },
+      {
+        "text": "我已经把书还回去了。",
+        "translation": "Ya devolví el libro.",
+        "grammar": "把 + objeto + verbo/complemento: enfatiza qué se hace con el objeto. 了 marca cambio de situación, acción completada o actualización del estado. 来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "已经 = ya",
+          "把 = marca objeto desplazado",
+          "还回去 = devolver"
+        ]
+      },
+      {
+        "text": "他都练习喜欢听音乐。",
+        "translation": "Él practica / le gusta escuchar música.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "音乐 = música",
+          "练习 = practicar"
+        ]
+      },
+      {
+        "text": "今天的天气特别晴朗。",
+        "translation": "El clima de hoy está especialmente despejado.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "天气 = clima",
+          "特别 = especialmente",
+          "晴朗 = despejado"
+        ]
+      },
+      {
+        "text": "朋友对我都很照顾。",
+        "translation": "Mis amigos me cuidan mucho / son atentos conmigo.",
+        "grammar": "对 + persona/cosa + adjetivo/verbo psicológico: actitud u opinión hacia algo.",
+        "vocab": [
+          "照顾 = cuidar"
+        ]
+      },
+      {
+        "text": "你能来，我当然高兴。",
+        "translation": "Claro que me alegra que puedas venir.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "当然 = por supuesto"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Sexto examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "他总是骑自行车去上班。",
+        "translation": "Él siempre va al trabajo en bicicleta.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "骑自行车 = andar en bicicleta",
+          "上班 = ir al trabajo"
+        ]
+      },
+      {
+        "text": "照片上的女孩儿是我的女儿。",
+        "translation": "La niña de la foto es mi hija.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "照片 = foto",
+          "女孩儿 = niña",
+          "女儿 = hija"
+        ]
+      },
+      {
+        "text": "电影马上就开始了。",
+        "translation": "La película está por comenzar.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 就 puede indicar cercanía temporal, rapidez o énfasis: “ya / justo / entonces”.",
+        "vocab": [
+          "电影 = película",
+          "马上 = de inmediato"
+        ]
+      },
+      {
+        "text": "请给我那一份地图。",
+        "translation": "Por favor dame ese mapa.",
+        "grammar": "给 + persona + verbo: indica destinatario o beneficio de la acción.",
+        "vocab": [
+          "地图 = mapa"
+        ]
+      },
+      {
+        "text": "他的表演好看极了。",
+        "translation": "Su actuación fue extremadamente buena/de ver.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "表演 = actuación",
+          "极了 = extremadamente"
+        ]
+      },
+      {
+        "text": "这件事我要好好想一想。",
+        "translation": "Tengo que pensar bien este asunto.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto. 想 + verbo expresa deseo o intención: “querer / pensar hacer”.",
+        "vocab": [
+          "这件事 = este asunto"
+        ]
+      },
+      {
+        "text": "请把电视声音管少一点。",
+        "translation": "Por favor baja un poco el volumen de la televisión.",
+        "grammar": "把 + objeto + verbo/complemento: enfatiza qué se hace con el objeto.",
+        "vocab": [
+          "把 = marca objeto desplazado",
+          "声音 = volumen/sonido",
+          "少一点 = un poco menos"
+        ]
+      },
+      {
+        "text": "走两百米到医院了。",
+        "translation": "Caminando doscientos metros se llega al hospital.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "医院 = hospital"
+        ]
+      },
+      {
+        "text": "这个周末我要参加比赛。",
+        "translation": "Este fin de semana voy a participar en una competencia.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "周末 = fin de semana",
+          "参加 = participar",
+          "比赛 = competencia"
+        ]
+      },
+      {
+        "text": "他想了解更多的中国文化。",
+        "translation": "Él quiere conocer más sobre la cultura china.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 想 + verbo expresa deseo o intención: “querer / pensar hacer”.",
+        "vocab": [
+          "了解 = conocer/entender",
+          "中国文化 = cultura china"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Séptimo examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "他的汉语水平提高了很多。",
+        "translation": "Su nivel de chino mejoró mucho.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "汉语水平 = nivel de chino",
+          "提高 = mejorar",
+          "水平 = nivel"
+        ]
+      },
+      {
+        "text": "冰箱里什么吃的都没有。",
+        "translation": "En el refrigerador no hay nada de comer.",
+        "grammar": "什么……都没有: negación total, “no hay nada”.",
+        "vocab": [
+          "冰箱 = refrigerador"
+        ]
+      },
+      {
+        "text": "下个月我要搬家了。",
+        "translation": "El próximo mes me voy a mudar.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "搬家 = mudarse"
+        ]
+      },
+      {
+        "text": "不要喝太多的酒。",
+        "translation": "No bebas demasiado alcohol.",
+        "grammar": "太……了 expresa exceso o intensidad: “demasiado / muy”. 要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "重点词 = palabra clave",
+          "句子 = oración",
+          "意思 = significado"
+        ]
+      },
+      {
+        "text": "这是我第一次坐飞机。",
+        "translation": "Esta es la primera vez que tomo un avión.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "第一次 = primera vez",
+          "坐飞机 = tomar avión"
+        ]
+      },
+      {
+        "text": "明天我们一起去游泳。",
+        "translation": "Mañana iremos juntos a nadar.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "游泳 = nadar"
+        ]
+      },
+      {
+        "text": "你不要总是上网玩儿游戏。",
+        "translation": "No estés siempre jugando en internet.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto.",
+        "vocab": [
+          "上网 = conectarse a internet",
+          "游戏 = juego"
+        ]
+      },
+      {
+        "text": "哪个学校的黄金真不错。",
+        "translation": "El oro/la parte dorada de esa escuela es realmente buena.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "学校 = escuela"
+        ]
+      },
+      {
+        "text": "我对你的表现很满意。",
+        "translation": "Estoy muy satisfecho con tu desempeño.",
+        "grammar": "对 + persona/cosa + adjetivo/verbo psicológico: actitud u opinión hacia algo.",
+        "vocab": [
+          "表现 = desempeño",
+          "满意 = satisfecho"
+        ]
+      },
+      {
+        "text": "我的护照怎么也找不到了。",
+        "translation": "No puedo encontrar mi pasaporte por ningún lado.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. 怎么也 + verbo negativo: “de ninguna manera / por más que intento”.",
+        "vocab": [
+          "护照 = pasaporte",
+          "找不到 = no encontrar"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Octavo examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "他学习一直很努力。",
+        "translation": "Él siempre estudia con mucho esfuerzo.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "一直 = siempre/continuamente",
+          "努力 = esforzarse",
+          "学习 = estudiar"
+        ]
+      },
+      {
+        "text": "你应该多锻炼身体。",
+        "translation": "Deberías hacer más ejercicio.",
+        "grammar": "应该 expresa consejo u obligación suave: “debería”.",
+        "vocab": [
+          "锻炼身体 = hacer ejercicio",
+          "应该 = debería"
+        ]
+      },
+      {
+        "text": "左边这条路是去商店的。",
+        "translation": "El camino de la izquierda es el que va a la tienda.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "左边 = lado izquierdo",
+          "商店 = tienda"
+        ]
+      },
+      {
+        "text": "很多人喜欢在网上买东西。",
+        "translation": "A muchas personas les gusta comprar cosas en internet.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "网上 = en internet",
+          "买东西 = comprar cosas"
+        ]
+      },
+      {
+        "text": "我和他很久没有见面了。",
+        "translation": "Él y yo no nos hemos visto desde hace mucho tiempo.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "很久 = mucho tiempo",
+          "见面 = verse/encontrarse"
+        ]
+      },
+      {
+        "text": "我决定学习汉语。",
+        "translation": "Decidí estudiar chino.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "决定 = decidir",
+          "学习 = estudiar"
+        ]
+      },
+      {
+        "text": "这本书你可以借两周。",
+        "translation": "Puedes pedir prestado este libro por dos semanas.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "借 = pedir prestado",
+          "两周 = dos semanas"
+        ]
+      },
+      {
+        "text": "这药非常有用。",
+        "translation": "Esta medicina es muy útil/efectiva.",
+        "grammar": "非常 + adjetivo/verbo psicológico: intensifica la cualidad.",
+        "vocab": [
+          "非常 = muy",
+          "有用 = útil",
+          "药 = medicina"
+        ]
+      },
+      {
+        "text": "你开车的水平越来越高了。",
+        "translation": "Tu nivel al conducir es cada vez más alto.",
+        "grammar": "越来越 + adjetivo/verbo: cambio progresivo, “cada vez más”. 了 marca cambio de situación, acción completada o actualización del estado. 来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "越来越 = cada vez más",
+          "开车 = manejar",
+          "水平 = nivel"
+        ]
+      },
+      {
+        "text": "他长得和他爸爸很像。",
+        "translation": "Él se parece mucho a su papá.",
+        "grammar": "得 puede introducir complemento de grado o resultado según la oración. A 和 B 很像: comparación de parecido entre dos personas/cosas.",
+        "vocab": [
+          "长得 = tener apariencia",
+          "很像 = parecerse mucho"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Noveno examen",
+    "description": "10 oraciones para práctica de escucha, repetición sin texto y verificación gramatical.",
+    "sentences": [
+      {
+        "text": "离开时请把灯光上。",
+        "translation": "Al salir, por favor apaga/cierra la luz.",
+        "grammar": "把 + objeto + verbo/complemento: enfatiza qué se hace con el objeto.",
+        "vocab": [
+          "把 = marca objeto desplazado",
+          "离开 = salir/irse",
+          "灯 = luz"
+        ]
+      },
+      {
+        "text": "我要去超市买点东西。",
+        "translation": "Voy al supermercado a comprar algunas cosas.",
+        "grammar": "要 puede expresar necesidad, intención o futuro cercano según el contexto. 来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "超市 = supermercado"
+        ]
+      },
+      {
+        "text": "从这儿去东走走公园。",
+        "translation": "Desde aquí ve hacia el este para llegar al parque.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "重点词 = palabra clave",
+          "句子 = oración",
+          "意思 = significado"
+        ]
+      },
+      {
+        "text": "这个地方我来过很多次了。",
+        "translation": "He venido a este lugar muchas veces.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado. V + 过 indica experiencia previa: “haber hecho alguna vez”. 来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "地方 = lugar"
+        ]
+      },
+      {
+        "text": "我不同意你的说法。",
+        "translation": "No estoy de acuerdo con tu forma de decirlo/opinión.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "同意 = estar de acuerdo",
+          "说法 = forma de decir/opinión"
+        ]
+      },
+      {
+        "text": "他们俩的性格完全不同。",
+        "translation": "La personalidad de los dos es completamente diferente.",
+        "grammar": "Oración útil para fluidez: identifica sujeto + tiempo/lugar + verbo + complemento.",
+        "vocab": [
+          "性格 = personalidad",
+          "完全不同 = completamente diferente"
+        ]
+      },
+      {
+        "text": "我家就在银行的对面。",
+        "translation": "Mi casa está justo enfrente del banco.",
+        "grammar": "就 puede indicar cercanía temporal, rapidez o énfasis: “ya / justo / entonces”. 对 + persona/cosa + adjetivo/verbo psicológico: actitud u opinión hacia algo.",
+        "vocab": [
+          "银行 = banco",
+          "对面 = enfrente"
+        ]
+      },
+      {
+        "text": "你的生日礼物我准备好了。",
+        "translation": "Ya preparé tu regalo de cumpleaños.",
+        "grammar": "了 marca cambio de situación, acción completada o actualización del estado.",
+        "vocab": [
+          "准备 = preparar/planear",
+          "生日礼物 = regalo de cumpleaños"
+        ]
+      },
+      {
+        "text": "晚饭后我常常去散步。",
+        "translation": "Después de cenar suelo salir a caminar.",
+        "grammar": "来/去 marcan dirección hacia o lejos del hablante.",
+        "vocab": [
+          "晚饭后 = después de cenar",
+          "散步 = caminar"
+        ]
+      },
+      {
+        "text": "请把这份资料吧请一下。",
+        "translation": "Por favor organiza/revisa este material.",
+        "grammar": "把 + objeto + verbo/complemento: enfatiza qué se hace con el objeto.",
+        "vocab": [
+          "资料 = material",
+          "把 = marca objeto desplazado"
+        ]
+      }
+    ]
+  }
+];
+
+function loadExamCards(){
+  const grid = document.getElementById('examGrid');
+  if(!grid) return;
+  grid.innerHTML = hskkExams.map((exam,index)=>`
+    <div class="card">
+      <div class="card-top" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.55)),url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop');background-size:cover;background-position:center;"></div>
+      <div class="card-content">
+        <h3>${exam.title}</h3>
+        <h2 class="gold">10 oraciones</h2>
+        <p>${exam.description}</p>
+        <div class="chips">
+          <div class="chip">听</div>
+          <div class="chip">跟读</div>
+          <div class="chip">HSKK</div>
+          <div class="chip">${exam.sentences.length}句子</div>
+        </div>
+        <button class="button-red" onclick="openExam(${index})">Entrar al examen</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openExam(index){
+  currentExamIndex = index;
+  currentSentenceIndex = 0;
+  renderCurrentSentence();
+  showScreen('section1Practice');
+}
+
+function renderCurrentSentence(){
+  const exam = hskkExams[currentExamIndex];
+  const sentence = exam.sentences[currentSentenceIndex];
+  sentenceTextVisible = false;
+  supportPanelVisible = false;
+  document.getElementById('examPracticeTitle').innerText = exam.title;
+  document.getElementById('sentenceCounter').innerText = `Oración ${currentSentenceIndex + 1} de ${exam.sentences.length}`;
+  document.getElementById('currentSentence').innerHTML = '<span class="hidden-sentence">Texto oculto · escucha primero</span>';
+  document.getElementById('revealTextBtn').innerText = '👁️ Revelar texto';
+  document.getElementById('supportBtn').innerText = '📘 Ver explicación';
+  document.getElementById('repeatTranscript').innerText = 'Aquí aparecerá lo que el navegador entendió.';
+  renderSupportPanel();
+  document.getElementById('sentenceList').innerHTML = exam.sentences.map((item,i)=>`
+    <div class="sentence-item ${i === currentSentenceIndex ? 'active-sentence' : ''}" onclick="goToSentence(${i})">
+      ${i + 1}. ${i === currentSentenceIndex && sentenceTextVisible ? item.text : 'Oración de práctica'}
+    </div>
+  `).join('');
+}
+
+function renderSupportPanel(){
+  const sentence = hskkExams[currentExamIndex].sentences[currentSentenceIndex];
+  const panel = document.getElementById('supportPanel');
+  panel.classList.toggle('active', supportPanelVisible);
+  panel.innerHTML = `
+    <h3>Texto</h3>
+    <p style="font-size:26px;color:#fef3c7;"><strong>${sentence.text}</strong></p>
+    <h3>Traducción aproximada</h3>
+    <p>${sentence.translation}</p>
+    <h3>Vocabulario clave</h3>
+    <div class="vocab-grid">${sentence.vocab.map(v=>`<span class="vocab-chip">${v}</span>`).join('')}</div>
+    <h3>Explicación gramatical</h3>
+    <p>${sentence.grammar}</p>
+  `;
+}
+
+function toggleSentenceText(){
+  const sentence = hskkExams[currentExamIndex].sentences[currentSentenceIndex];
+  sentenceTextVisible = !sentenceTextVisible;
+  document.getElementById('currentSentence').innerHTML = sentenceTextVisible ? sentence.text : '<span class="hidden-sentence">Texto oculto · escucha primero</span>';
+  document.getElementById('revealTextBtn').innerText = sentenceTextVisible ? '🙈 Ocultar texto' : '👁️ Revelar texto';
+}
+
+function toggleSupportPanel(){
+  supportPanelVisible = !supportPanelVisible;
+  document.getElementById('supportBtn').innerText = supportPanelVisible ? '📕 Ocultar explicación' : '📘 Ver explicación';
+  renderSupportPanel();
+}
+
+function goToSentence(index){
+  currentSentenceIndex = index;
+  stopRepeatRecognition();
+  renderCurrentSentence();
+}
+
+function nextSentence(){
+  const exam = hskkExams[currentExamIndex];
+  currentSentenceIndex = (currentSentenceIndex + 1) % exam.sentences.length;
+  stopRepeatRecognition();
+  renderCurrentSentence();
+}
+
+function previousSentence(){
+  const exam = hskkExams[currentExamIndex];
+  currentSentenceIndex = (currentSentenceIndex - 1 + exam.sentences.length) % exam.sentences.length;
+  stopRepeatRecognition();
+  renderCurrentSentence();
+}
+
+function speakCurrentSentence(){
+  const sentence = hskkExams[currentExamIndex].sentences[currentSentenceIndex].text;
+  if(!('speechSynthesis' in window)){
+    alert('Tu navegador no permite lectura de voz. Usa Google Chrome.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(sentence);
+  utterance.lang = 'zh-CN';
+  utterance.rate = 0.82;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
+}
+
+function startRepeatRecognition(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    alert('Tu navegador no soporta reconocimiento de voz. Usa Google Chrome.');
+    return;
+  }
+  stopRepeatRecognition();
+  repeatRecognition = new SpeechRecognition();
+  repeatRecognition.lang = 'zh-CN';
+  repeatRecognition.continuous = false;
+  repeatRecognition.interimResults = true;
+  repeatRecording = true;
+  document.getElementById('repeatTranscript').innerText = 'Escuchando tu repetición...';
+  repeatRecognition.onresult = event=>{
+    let text = '';
+    for(let i = event.resultIndex; i < event.results.length; i++){
+      text += event.results[i][0].transcript;
+    }
+    document.getElementById('repeatTranscript').innerText = text;
+  };
+  repeatRecognition.onerror = event=>{
+    document.getElementById('repeatTranscript').innerText = 'Error: ' + event.error;
+  };
+  repeatRecognition.onend = ()=>{
+    repeatRecording = false;
+  };
+  repeatRecognition.start();
+}
+
+function stopRepeatRecognition(){
+  repeatRecording = false;
+  if(repeatRecognition){
+    try{repeatRecognition.stop();}catch(e){}
+  }
+}
+const images = [
+  {title:"Niña tocando piano",category:"Música",url:"https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=700",words:["钢琴","音乐","练习","学生","认真","房间"]},
+  {title:"Persona cocinando",category:"Comida",url:"https://images.unsplash.com/photo-1556911220-bff31c812dba?w=700",words:["做饭","厨房","食物","家人","准备","高兴"]},
+  {title:"Estudiantes en clase",category:"Escuela",url:"https://images.unsplash.com/photo-1509062522246-3755977927d7?w=700",words:["学生","老师","教室","学习","上课","学校"]},
+  {title:"Familia comiendo",category:"Familia",url:"https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?w=700",words:["家人","吃饭","聊天","快乐","餐厅","晚饭"]},
+  {title:"Persona trabajando",category:"Trabajo",url:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=700",words:["工作","电脑","办公室","认真","同事","忙"]},
+  {title:"Deporte",category:"Vida diaria",url:"https://images.unsplash.com/photo-1517649763962-0c623066013b?w=700",words:["运动","健康","跑步","比赛","努力","身体"]}
+];
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('heroHeader').style.display = id === 'home' ? 'grid' : 'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function loadImages(){
+  const grid = document.getElementById('imageGrid');
+  grid.innerHTML = '';
+  images.forEach((img,index)=>{
+    grid.innerHTML += `<div class="card image-card"><div class="card-content"><img src="${img.url}" alt="${img.title}"><h3>${img.title}</h3><p>${img.category}</p><div class="chips">${img.words.map(w=>`<div class="chip">${w}</div>`).join('')}</div><button class="button-blue" onclick="selectImage(${index})">Elegir</button></div></div>`;
+  });
+}
+function selectImage(index){currentImage = images[index];showScreen('modeSelect');}
+function startTrainingMode(){mode = 'training';openPractice();}
+function startExamMode(){mode = 'exam';openPractice();startPrepTimer();}
+function openPractice(){
+  document.getElementById('practiceImage').src = currentImage.url;
+  document.getElementById('practiceTitle').innerText = mode === 'training' ? 'Modo entrenamiento' : 'Modo examen';
+  document.getElementById('guideBox').style.display = mode === 'training' ? 'block' : 'none';
+  document.getElementById('prepBox').style.display = 'block';
+  resetPractice();
+  showScreen('practiceScreen');
+}
+function startPrepTimer(){
+  let prepTime = 60;
+  const prepBox = document.getElementById('prepBox');
+  prepBox.innerHTML = `<strong>Tiempo de preparación: ${prepTime} segundos</strong><br>Observa la imagen y piensa:<br>人物、地点、动作、原因、看法`;
+  clearInterval(prepInterval);
+  prepInterval = setInterval(()=>{
+    prepTime--;
+    prepBox.innerHTML = `<strong>Tiempo de preparación: ${prepTime} segundos</strong><br>人物：¿Quién aparece?<br>地点：¿Dónde está?<br>动作：¿Qué hace?<br>原因：¿Por qué?<br>看法：¿Qué opinas?`;
+    if(prepTime <= 0){clearInterval(prepInterval);prepBox.innerHTML = '<strong>Preparación terminada. Ahora habla 2 minutos.</strong>';}
+  },1000);
+}
+function setupRecognition(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){alert('Tu navegador no soporta reconocimiento de voz. Usa Google Chrome.');return;}
+  recognition = new SpeechRecognition();
+  recognition.lang = 'zh-CN';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.onstart = ()=>{document.getElementById('status').innerText = 'Escuchando...';};
+  recognition.onresult = event=>{
+    let interimText = '';
+    for(let i = event.resultIndex; i < event.results.length; i++){
+      let text = event.results[i][0].transcript;
+      if(event.results[i].isFinal){finalText += text + ' ';}else{interimText += text;}
+    }
+    document.getElementById('transcript').innerText = finalText + interimText;
+  };
+  recognition.onerror = event=>{document.getElementById('status').innerText = 'Error: ' + event.error;};
+  recognition.onend = ()=>{if(isRecording){recognition.start();}};
+}
+function startPractice(){
+  if(isRecording) return;
+  setupRecognition();
+  finalText = '';
+  timeLeft = 120;
+  isRecording = true;
+  document.getElementById('transcript').innerText = '';
+  document.getElementById('feedback').innerHTML = 'Grabando...';
+  recognition.start();
+  startTimer();
+}
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    let m = Math.floor(timeLeft / 60);
+    let s = timeLeft % 60;
+    document.getElementById('timer').innerText = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    if(timeLeft <= 0){stopPractice();}
+  },1000);
+}
+function stopPractice(){
+  if(!isRecording && timeLeft === 120) return;
+  isRecording = false;
+  clearInterval(timerInterval);
+  if(recognition){recognition.stop();}
+  document.getElementById('status').innerText = 'Práctica terminada.';
+  generateFeedback();
+}
+function resetPractice(){
+  isRecording = false;
+  clearInterval(timerInterval);
+  clearInterval(prepInterval);
+  if(recognition){recognition.stop();}
+  finalText = '';
+  timeLeft = 120;
+  document.getElementById('timer').innerText = '02:00';
+  document.getElementById('transcript').innerText = 'Aquí aparecerá la transcripción.';
+  document.getElementById('feedback').innerText = 'Aquí aparecerá la retroalimentación.';
+  document.getElementById('status').innerText = 'Presiona comenzar.';
+  document.getElementById('prepBox').innerHTML = '<strong>Preparación:</strong><br>人物：¿Quién aparece?<br>地点：¿Dónde está?<br>动作：¿Qué hace?<br>原因：¿Por qué?<br>看法：¿Qué opinas?';
+}
+function generateFeedback(){
+  const text = document.getElementById('transcript').innerText;
+  const spokenSeconds = 120 - timeLeft;
+  const cleanText = text.replace(/\s/g,'');
+  const characters = cleanText.length;
+  const requiredPhrases = ['这张图片','有','正在','我觉得','可能','因为','所以','这让我想到','最后','我认为'];
+  let usedPhrases = requiredPhrases.filter(p=>text.includes(p));
+  let imageWords = currentImage.words.filter(w=>text.includes(w));
+  let timeScore = Math.min(20, Math.round((spokenSeconds / 120) * 20));
+  let structureScore = Math.min(25, usedPhrases.length * 3);
+  let vocabScore = Math.min(20, imageWords.length * 4);
+  let lengthScore = Math.min(20, Math.round(characters / 8));
+  let opinionScore = (text.includes('我觉得') || text.includes('我认为')) ? 15 : 5;
+  let total = timeScore + structureScore + vocabScore + lengthScore + opinionScore;
+  if(total > 100) total = 100;
+  let badges = [];
+  if(spokenSeconds >= 60) badges.push('⭐ Habló más de 1 minuto');
+  if(spokenSeconds >= 110) badges.push('⭐ Llegó casi a 2 minutos');
+  if(text.includes('因为')) badges.push('⭐ Usó 因为');
+  if(text.includes('所以')) badges.push('⭐ Usó 所以');
+  if(text.includes('我觉得') || text.includes('我认为')) badges.push('⭐ Dio opinión');
+  if(imageWords.length >= 3) badges.push('⭐ Usó vocabulario de la imagen');
+  let feedback = `<h3>Resultado: ${total}/100</h3><p><strong>Tiempo:</strong> ${spokenSeconds} segundos.</p><p><strong>Caracteres:</strong> ${characters}</p><p><strong>Frases guía usadas:</strong> ${usedPhrases.length ? usedPhrases.join('、') : 'ninguna'}</p><p><strong>Vocabulario detectado:</strong> ${imageWords.length ? imageWords.join('、') : 'poco vocabulario de la imagen'}</p><h3>Rúbrica</h3>Tiempo: ${timeScore}/20<br>Estructura: ${structureScore}/25<br>Vocabulario: ${vocabScore}/20<br>Extensión: ${lengthScore}/20<br>Opinión: ${opinionScore}/15<br><h3>Logros</h3>${badges.length ? badges.map(b=>`<span class="badge">${b}</span>`).join('') : 'Todavía no obtuvo logros.'}<h3>Recomendación</h3>`;
+  if(spokenSeconds < 60){feedback += 'Debe hablar más tiempo. Puede agregar detalles, imaginar una situación y conectar la imagen con su vida.';}
+  else if(!text.includes('因为')){feedback += 'Buen avance. Ahora debe explicar sus ideas usando 因为.';}
+  else if(!text.includes('最后')){feedback += 'Buen trabajo. Le falta cerrar con 最后，我认为……';}
+  else{feedback += 'Muy bien. Ya tiene una estructura cercana al formato del HSKK.';}
+  document.getElementById('feedback').innerHTML = feedback;
+  saveHistory(total, spokenSeconds, text, usedPhrases, imageWords);
+}
+function saveHistory(score, seconds, text, phrases, words){
+  const name = document.getElementById('studentName').value || 'Alumna/o';
+  let history = JSON.parse(localStorage.getItem('hskkHistory')) || [];
+  history.unshift({name:name,image:currentImage.title,mode:mode,score:score,seconds:seconds,text:text,phrases:phrases,words:words,date:new Date().toLocaleString()});
+  localStorage.setItem('hskkHistory', JSON.stringify(history));
+}
+function loadHistory(){
+  let history = JSON.parse(localStorage.getItem('hskkHistory')) || [];
+  const box = document.getElementById('historyList');
+  if(history.length === 0){box.innerHTML = 'Todavía no hay prácticas guardadas.';return;}
+  box.innerHTML = history.map(item=>`<div style="border-bottom:1px solid rgba(255,255,255,.15);padding:15px;"><h3>${item.name} - ${item.score}/100</h3><p><strong>Fecha:</strong> ${item.date}</p><p><strong>Imagen:</strong> ${item.image}</p><p><strong>Modo:</strong> ${item.mode}</p><p><strong>Tiempo:</strong> ${item.seconds} segundos</p><p><strong>Transcripción:</strong> ${item.text}</p></div>`).join('');
+}
+function clearHistory(){localStorage.removeItem('hskkHistory');loadHistory();}
+loadExamCards();
+loadImages();
+</script>
+</body>
+</html>
