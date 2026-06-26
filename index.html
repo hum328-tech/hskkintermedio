@@ -1373,8 +1373,7 @@ function speakCurrentSentence(){
   window.speechSynthesis.speak(utterance);
 }
 
-function startRepeatRecognition(){
- function normalizeChineseText(text){
+function normalizeChineseText(text){
   return (text || "")
     .replace(/[，。！？；：、“”‘’（）()\s]/g,"")
     .replace(/儿/g,"")
@@ -1383,8 +1382,15 @@ function startRepeatRecognition(){
 
 function getSentenceKeywords(sentence){
   const vocab = Array.isArray(sentence.vocab) ? sentence.vocab : [];
-  let keywords = vocab.map(v => String(v).split("＝")[0].split(":")[0].trim());
-  return [...new Set(keywords.filter(w => w))];
+  let keywords = vocab.map(v => String(v).split("＝")[0].split("=")[0].split(":")[0].trim());
+
+  // Quita palabras genéricas que no ayudan a evaluar.
+  keywords = keywords.filter(w =>
+    w &&
+    !["重点词","句子","意思","把","了","要","最"].includes(w)
+  );
+
+  return [...new Set(keywords)];
 }
 
 function flexibleRepeatCheck(expectedSentence, heardText){
@@ -1402,18 +1408,18 @@ function flexibleRepeatCheck(expectedSentence, heardText){
   const detectedChars = expectedChars.filter(ch => heard.includes(ch));
   const charScore = expectedChars.length ? detectedChars.length / expectedChars.length : 0;
 
-  const finalScore = Math.round(((keywordScore * 0.7) + (charScore * 0.3)) * 100);
+  const finalScore = Math.round(((keywordScore * 0.65) + (charScore * 0.35)) * 100);
 
   let level = "";
   let message = "";
 
-  if(finalScore >= 80){
+  if(finalScore >= 75){
     level = "Excelente";
     message = "Se entendió muy bien. Ahora intenta mantener ritmo natural y tonos claros.";
-  }else if(finalScore >= 55){
+  }else if(finalScore >= 50){
     level = "Bien entendido";
     message = "La idea principal se entendió. Repite una vez más cuidando las palabras que faltaron.";
-  }else if(finalScore >= 35){
+  }else if(finalScore >= 30){
     level = "Intención entendible";
     message = "Se entiende parte de la intención. Escucha otra vez y repite por bloques cortos.";
   }else{
