@@ -1374,31 +1374,133 @@ function speakCurrentSentence(){
 }
 
 function startRepeatRecognition(){
+ function normalizeChineseText(text){
+  return (text || "")
+    .replace(/[，。！？；：、“”‘’（）()\s]/g,"")
+    .replace(/儿/g,"")
+    .trim();
+}
+
+function getSentenceKeywords(sentence){
+  const vocab = Array.isArray(sentence.vocab) ? sentence.vocab : [];
+  let keywords = vocab.map(v => String(v).split("＝")[0].split(":")[0].trim());
+  return [...new Set(keywords.filter(w => w))];
+}
+
+function flexibleRepeatCheck(expectedSentence, heardText){
+  const expected = normalizeChineseText(expectedSentence.text);
+  const heard = normalizeChineseText(heardText);
+  const keywords = getSentenceKeywords(expectedSentence);
+
+  const detectedKeywords = keywords.filter(word =>
+    heard.includes(normalizeChineseText(word))
+  );
+
+  const keywordScore = keywords.length ? detectedKeywords.length / keywords.length : 0;
+
+  const expectedChars = [...new Set(expected.split(""))];
+  const detectedChars = expectedChars.filter(ch => heard.includes(ch));
+  const charScore = expectedChars.length ? detectedChars.length / expectedChars.length : 0;
+
+  const finalScore = Math.round(((keywordScore * 0.7) + (charScore * 0.3)) * 100);
+
+  let level = "";
+  let message = "";
+
+  if(finalScore >= 80){
+    level = "Excelente";
+    message = "Se entendió muy bien. Ahora intenta mantener ritmo natural y tonos claros.";
+  }else if(finalScore >= 55){
+    level = "Bien entendido";
+    message = "La idea principal se entendió. Repite una vez más cuidando las palabras que faltaron.";
+  }else if(finalScore >= 35){
+    level = "Intención entendible";
+    message = "Se entiende parte de la intención. Escucha otra vez y repite por bloques cortos.";
+  }else{
+    level = "Necesita otro intento";
+    message = "Todavía falta claridad. Escucha de nuevo, repite lento y después prueba otra vez.";
+  }
+
+  return {
+    score: finalScore,
+    level,
+    message,
+    detectedKeywords,
+    missingKeywords: keywords.filter(w => !detectedKeywords.includes(w))
+  };
+}
+
+function showFlexibleFeedback(result, rawHeardText){
+  const box = document.getElementById("repeatTranscript");
+
+  const detected = result.detectedKeywords.length
+    ? result.detectedKeywords.map(w => `<span class="vocab-chip">${w}</span>`).join("")
+    : "Todavía no detectó palabras clave.";
+
+  const missing = result.missingKeywords.length
+    ? result.missingKeywords.slice(0,5).map(w => `<span class="vocab-chip">${w}</span>`).join("")
+    : "Muy bien, no faltaron palabras clave importantes.";
+
+  box.innerHTML = `
+    <h3>${result.level} · ${result.score}/100</h3>
+    <p><strong>La computadora escuchó:</strong> ${rawHeardText || "No detectó texto claro."}</p>
+    <p><strong>Palabras clave detectadas:</strong><br>${detected}</p>
+    <p><strong>Para mejorar:</strong><br>${missing}</p>
+    <p>${result.message}</p>
+  `;
+}
+
+function startRepeatRecognition(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
   if(!SpeechRecognition){
-    alert('Tu navegador no soporta reconocimiento de voz. Usa Google Chrome.');
+    alert("Tu navegador no soporta reconocimiento de voz. Usa Google Chrome.");
     return;
   }
+
   stopRepeatRecognition();
+
+  const expectedSentence = hskkExams[currentExamIndex].sentences[currentSentenceIndex];
+
   repeatRecognition = new SpeechRecognition();
-  repeatRecognition.lang = 'zh-CN';
+  repeatRecognition.lang = "zh-CN";
   repeatRecognition.continuous = false;
   repeatRecognition.interimResults = true;
   repeatRecording = true;
-  document.getElementById('repeatTranscript').innerText = 'Escuchando tu repetición...';
+
+  let finalHeardText = "";
+  let interimHeardText = "";
+
+  document.getElementById("repeatTranscript").innerText = "Escuchando tu repetición...";
+
   repeatRecognition.onresult = event=>{
-    let text = '';
+    interimHeardText = "";
+
     for(let i = event.resultIndex; i < event.results.length; i++){
-      text += event.results[i][0].transcript;
+      const text = event.results[i][0].transcript;
+
+      if(event.results[i].isFinal){
+        finalHeardText += text + " ";
+      }else{
+        interimHeardText += text;
+      }
     }
-    document.getElementById('repeatTranscript').innerText = text;
+
+    document.getElementById("repeatTranscript").innerText =
+      "Escuchando: " + (finalHeardText + interimHeardText);
   };
+
   repeatRecognition.onerror = event=>{
-    document.getElementById('repeatTranscript').innerText = 'Error: ' + event.error;
+    document.getElementById("repeatTranscript").innerText = "Error: " + event.error;
   };
+
   repeatRecognition.onend = ()=>{
     repeatRecording = false;
+    const heard = (finalHeardText + interimHeardText).trim();
+    const result = flexibleRepeatCheck(expectedSentence, heard);
+    showFlexibleFeedback(result, heard);
   };
+
   repeatRecognition.start();
 }
 
