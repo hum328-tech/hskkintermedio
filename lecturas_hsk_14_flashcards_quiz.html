@@ -1,0 +1,3194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lecturas HSK Interactivas · 14 lecturas</title>
+<style>
+:root {
+  --blue:#2563eb; --dark:#1e3a8a; --bg:#f4f7fb; --card:#fff; --soft:#eff6ff;
+  --gold:#fef3c7; --green:#ecfdf5; --red:#dc2626; --purple:#7c3aed;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#1f2937}
+.app{max-width:1240px;margin:auto;padding:20px}
+h1{text-align:center;color:var(--dark);margin:8px 0}
+.nav,.game-controls{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0}
+button{border:none;border-radius:14px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;cursor:pointer;font-size:15px}
+button:hover{filter:brightness(.92)}
+button.secondary{background:#475569} button.danger{background:var(--red)} button.success{background:#059669}
+.counter{font-weight:700;color:var(--dark);background:white;padding:10px 14px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.layout{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+.card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.reader{font-size:28px;line-height:2.05}
+.word{cursor:pointer;padding:4px 6px;border-radius:10px;display:inline-block;transition:.15s}
+.word:hover{background:#dbeafe} .word.saved{background:var(--gold)}
+.punct{display:inline-block;margin-right:4px}
+#infoBox{margin-top:18px;background:var(--soft);border-left:6px solid var(--blue);border-radius:14px;padding:16px;display:none}
+#infoWord{margin:0 0 8px;font-size:30px;color:#1d4ed8}
+.pinyin{color:var(--purple);font-weight:700;margin:4px 0}
+.translation{font-size:18px;margin:6px 0}
+.grammar{background:white;border-radius:12px;padding:10px;margin-top:10px;font-size:16px}
+.answer-box{margin-top:16px;padding:12px;border-radius:14px;background:var(--green);color:#065f46;font-weight:700;display:none}
+.glossary-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.glossary-item{background:#f9fafb;border-radius:14px;padding:12px;margin:10px 0;border:1px solid #e5e7eb}
+.glossary-item strong{font-size:22px;color:#111827} .empty{color:#6b7280;font-style:italic}
+.hidden{display:none!important}
+.game-panel{margin-top:18px;background:#fff7ed;border:2px solid #fed7aa;border-radius:20px;padding:18px;display:none}
+.flash-card{min-height:180px;display:flex;align-items:center;justify-content:center;text-align:center;background:white;border-radius:18px;padding:22px;font-size:34px;font-weight:800;box-shadow:inset 0 0 0 2px #fde68a}
+.flash-sub{font-size:20px;font-weight:500;color:#6b7280;margin-top:8px}
+.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.option-btn{background:white;color:#111827;border:2px solid #cbd5e1;text-align:center;min-height:62px}
+.option-btn.correct{background:#dcfce7;border-color:#16a34a}
+.option-btn.wrong{background:#fee2e2;border-color:#dc2626}
+.small-note{text-align:center;color:#64748b;margin:8px 0}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.reader{font-size:24px}.app{padding:12px}.option-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<h1 id="readingTitle">Lecturas HSK</h1>
+
+<div class="nav">
+  <button onclick="prevReading()">⬅ Anterior</button>
+  <span id="counter" class="counter"></span>
+  <button onclick="nextReading()">Siguiente ➡</button>
+  <button onclick="toggleGlossary()">📚 Mostrar/Ocultar glosario</button>
+  <button onclick="toggleAnswer()">✅ Ver respuesta</button>
+  <button class="success" onclick="openFlashcards()">🃏 Flashcards</button>
+  <button class="success" onclick="openQuiz()">🎮 Opción múltiple</button>
+</div>
+
+<div id="gamePanel" class="game-panel">
+  <div class="game-controls">
+    <button onclick="setDirection('es-zh')">ES → 中文</button>
+    <button onclick="setDirection('zh-es')">中文 → ES</button>
+    <button onclick="togglePinyin()">👁️ Pinyin ON/OFF</button>
+    <button onclick="speakCurrentChinese()">🔊 Escuchar chino</button>
+    <button class="secondary" onclick="closeGames()">Cerrar juego</button>
+  </div>
+  <p class="small-note" id="gameModeLabel"></p>
+  <div id="flashcardArea" class="hidden">
+    <div class="flash-card" id="flashFront"></div>
+    <div class="game-controls">
+      <button onclick="flipFlashcard()">Voltear</button>
+      <button onclick="nextFlashcard()">Siguiente tarjeta</button>
+    </div>
+  </div>
+  <div id="quizArea" class="hidden">
+    <div class="flash-card" id="quizQuestion"></div>
+    <div class="option-grid" id="quizOptions"></div>
+    <div class="game-controls"><button onclick="nextQuizQuestion()">Nueva pregunta</button></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="card">
+    <div id="reader" class="reader"></div>
+    <div id="answerBox" class="answer-box"></div>
+    <div id="infoBox">
+      <h2 id="infoWord"></h2>
+      <div class="pinyin" id="infoPinyin"></div>
+      <div class="translation" id="infoTranslation"></div>
+      <div class="grammar" id="infoGrammar"></div>
+    </div>
+  </div>
+
+  <div class="card" id="glossaryCard">
+    <div class="glossary-head">
+      <h2>📚 Glosario global</h2>
+      <button class="danger" onclick="clearGlossary()">Limpiar</button>
+    </div>
+    <p>Las palabras tocadas en cualquier lectura se guardan aquí.</p>
+    <div id="glossaryList"></div>
+  </div>
+</div>
+</div>
+
+<script>
+const readings = [
+  {
+    "title": "Lectura 1 · Salud dental",
+    "answer": "A 使用温水",
+    "words": [
+      {
+        "text": "刷牙",
+        "pinyin": "shuā yá",
+        "translation": "cepillarse los dientes",
+        "grammar": "Verbo compuesto: 刷 = cepillar, 牙 = dientes."
+      },
+      {
+        "text": "的时候",
+        "pinyin": "de shíhou",
+        "translation": "cuando / al momento de",
+        "grammar": "Verbo + 的时候 = cuando se hace esa acción."
+      },
+      {
+        "text": "，",
+        "punctuation": true
+      },
+      {
+        "text": "水",
+        "pinyin": "shuǐ",
+        "translation": "agua"
+      },
+      {
+        "text": "太",
+        "pinyin": "tài",
+        "translation": "demasiado / muy",
+        "grammar": "太 + adjetivo = demasiado..."
+      },
+      {
+        "text": "冷",
+        "pinyin": "lěng",
+        "translation": "frío"
+      },
+      {
+        "text": "或者",
+        "pinyin": "huòzhě",
+        "translation": "o / u"
+      },
+      {
+        "text": "太",
+        "pinyin": "tài",
+        "translation": "demasiado / muy"
+      },
+      {
+        "text": "热",
+        "pinyin": "rè",
+        "translation": "caliente"
+      },
+      {
+        "text": "，",
+        "punctuation": true
+      },
+      {
+        "text": "都",
+        "pinyin": "dōu",
+        "translation": "todos / ambos casos"
+      },
+      {
+        "text": "会",
+        "pinyin": "huì",
+        "translation": "puede / suele"
+      },
+      {
+        "text": "给",
+        "pinyin": "gěi",
+        "translation": "a / para / causar a"
+      },
+      {
+        "text": "牙",
+        "pinyin": "yá",
+        "translation": "dientes"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "健康",
+        "pinyin": "jiànkāng",
+        "translation": "salud"
+      },
+      {
+        "text": "带来",
+        "pinyin": "dàilái",
+        "translation": "traer / causar"
+      },
+      {
+        "text": "不好",
+        "pinyin": "bù hǎo",
+        "translation": "malo / negativo"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "partícula modificadora"
+      },
+      {
+        "text": "影响",
+        "pinyin": "yǐngxiǎng",
+        "translation": "influencia / efecto"
+      },
+      {
+        "text": "。",
+        "punctuation": true
+      },
+      {
+        "text": "研究",
+        "pinyin": "yánjiū",
+        "translation": "investigación / estudiar"
+      },
+      {
+        "text": "发现",
+        "pinyin": "fāxiàn",
+        "translation": "descubrir / encontrar"
+      },
+      {
+        "text": "，",
+        "punctuation": true
+      },
+      {
+        "text": "用",
+        "pinyin": "yòng",
+        "translation": "usar / con"
+      },
+      {
+        "text": "35",
+        "pinyin": "sānshíwǔ",
+        "translation": "treinta y cinco"
+      },
+      {
+        "text": "度",
+        "pinyin": "dù",
+        "translation": "grados"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "温水",
+        "pinyin": "wēnshuǐ",
+        "translation": "agua tibia"
+      },
+      {
+        "text": "刷牙",
+        "pinyin": "shuā yá",
+        "translation": "cepillarse los dientes"
+      },
+      {
+        "text": "才",
+        "pinyin": "cái",
+        "translation": "solo entonces / precisamente"
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "ser / es"
+      },
+      {
+        "text": "最",
+        "pinyin": "zuì",
+        "translation": "más / el más"
+      },
+      {
+        "text": "合适",
+        "pinyin": "héshì",
+        "translation": "adecuado / apropiado"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "partícula final"
+      },
+      {
+        "text": "。",
+        "punctuation": true
+      },
+      {
+        "text": "★",
+        "punctuation": true
+      },
+      {
+        "text": "刷牙",
+        "pinyin": "shuā yá",
+        "translation": "cepillarse los dientes"
+      },
+      {
+        "text": "时",
+        "pinyin": "shí",
+        "translation": "cuando",
+        "grammar": "Forma breve y escrita de 的时候."
+      },
+      {
+        "text": "，",
+        "punctuation": true
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "应该",
+        "pinyin": "yīnggāi",
+        "translation": "deberíamos / debemos"
+      },
+      {
+        "text": "：",
+        "punctuation": true
+      },
+      {
+        "text": "A",
+        "punctuation": true
+      },
+      {
+        "text": "使用",
+        "pinyin": "shǐyòng",
+        "translation": "usar / utilizar"
+      },
+      {
+        "text": "温水",
+        "pinyin": "wēnshuǐ",
+        "translation": "agua tibia"
+      },
+      {
+        "text": "B",
+        "punctuation": true
+      },
+      {
+        "text": "常",
+        "pinyin": "cháng",
+        "translation": "frecuentemente"
+      },
+      {
+        "text": "换",
+        "pinyin": "huàn",
+        "translation": "cambiar"
+      },
+      {
+        "text": "牙刷",
+        "pinyin": "yáshuā",
+        "translation": "cepillo de dientes"
+      },
+      {
+        "text": "C",
+        "punctuation": true
+      },
+      {
+        "text": "早晚",
+        "pinyin": "zǎowǎn",
+        "translation": "mañana y noche"
+      },
+      {
+        "text": "各",
+        "pinyin": "gè",
+        "translation": "cada uno / respectivamente"
+      },
+      {
+        "text": "一次",
+        "pinyin": "yí cì",
+        "translation": "una vez"
+      },
+      {
+        "text": "D",
+        "punctuation": true
+      },
+      {
+        "text": "至少",
+        "pinyin": "zhìshǎo",
+        "translation": "al menos"
+      },
+      {
+        "text": "刷",
+        "pinyin": "shuā",
+        "translation": "cepillar"
+      },
+      {
+        "text": "5",
+        "pinyin": "wǔ",
+        "translation": "cinco"
+      },
+      {
+        "text": "分钟",
+        "pinyin": "fēnzhōng",
+        "translation": "minutos"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 2 · Botellas de vino",
+    "answer": "C 酒瓶很特别",
+    "words": [
+      {
+        "text": "这种",
+        "pinyin": "zhè zhǒng",
+        "translation": "este tipo de / esta clase de"
+      },
+      {
+        "text": "葡萄酒",
+        "pinyin": "pútáojiǔ",
+        "translation": "vino"
+      },
+      {
+        "text": "，",
+        "punctuation": true
+      },
+      {
+        "text": "不仅",
+        "pinyin": "bùjǐn",
+        "translation": "no solamente",
+        "grammar": "Estructura: 不仅...而且... = no solo..., sino también..."
+      },
+      {
+        "text": "味道",
+        "pinyin": "wèidào",
+        "translation": "sabor"
+      },
+      {
+        "text": "好",
+        "pinyin": "hǎo",
+        "translation": "bueno / rico"
+      },
+      {
+        "text": "，",
+        "punctuation": true
+      },
+      {
+        "text": "而且",
+        "pinyin": "érqiě",
+        "translation": "sino también / además"
+      },
+      {
+        "text": "每个",
+        "pinyin": "měi gè",
+        "translation": "cada"
+      },
+      {
+        "text": "酒瓶",
+        "pinyin": "jiǔpíng",
+        "translation": "botella de vino"
+      },
+      {
+        "text": "也",
+        "pinyin": "yě",
+        "translation": "también"
+      },
+      {
+        "text": "都",
+        "pinyin": "dōu",
+        "translation": "todos / incluso"
+      },
+      {
+        "text": "像",
+        "pinyin": "xiàng",
+        "translation": "parecerse a / ser como"
+      },
+      {
+        "text": "一件",
+        "pinyin": "yí jiàn",
+        "translation": "una pieza",
+        "grammar": "件 es clasificador para objetos, ropa u obras."
+      },
+      {
+        "text": "高级",
+        "pinyin": "gāojí",
+        "translation": "de alta categoría / de lujo"
+      },
+      {
+        "text": "艺术品",
+        "pinyin": "yìshùpǐn",
+        "translation": "obra de arte"
+      },
+      {
+        "text": "。",
+        "punctuation": true
+      },
+      {
+        "text": "很多",
+        "pinyin": "hěn duō",
+        "translation": "muchos"
+      },
+      {
+        "text": "人",
+        "pinyin": "rén",
+        "translation": "personas"
+      },
+      {
+        "text": "愿意",
+        "pinyin": "yuànyì",
+        "translation": "estar dispuesto a"
+      },
+      {
+        "text": "出",
+        "pinyin": "chū",
+        "translation": "pagar / desembolsar",
+        "grammar": "出高价 = pagar un precio alto."
+      },
+      {
+        "text": "高价",
+        "pinyin": "gāojià",
+        "translation": "precio elevado"
+      },
+      {
+        "text": "购买",
+        "pinyin": "gòumǎi",
+        "translation": "comprar"
+      },
+      {
+        "text": "它",
+        "pinyin": "tā",
+        "translation": "lo / ello"
+      },
+      {
+        "text": "，",
+        "punctuation": true
+      },
+      {
+        "text": "很多",
+        "pinyin": "hěn duō",
+        "translation": "muchas"
+      },
+      {
+        "text": "时候",
+        "pinyin": "shíhou",
+        "translation": "veces / ocasiones"
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "es"
+      },
+      {
+        "text": "被",
+        "pinyin": "bèi",
+        "translation": "ser + verbo / voz pasiva",
+        "grammar": "被 introduce la voz pasiva."
+      },
+      {
+        "text": "那些",
+        "pinyin": "nàxiē",
+        "translation": "aquellos / esos"
+      },
+      {
+        "text": "特别",
+        "pinyin": "tèbié",
+        "translation": "especial"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "partícula modificadora"
+      },
+      {
+        "text": "酒瓶",
+        "pinyin": "jiǔpíng",
+        "translation": "botellas de vino"
+      },
+      {
+        "text": "吸引",
+        "pinyin": "xīyǐn",
+        "translation": "atraer"
+      },
+      {
+        "text": "了",
+        "pinyin": "le",
+        "translation": "partícula aspectual"
+      },
+      {
+        "text": "。",
+        "punctuation": true
+      },
+      {
+        "text": "★",
+        "punctuation": true
+      },
+      {
+        "text": "这种",
+        "pinyin": "zhè zhǒng",
+        "translation": "este tipo de"
+      },
+      {
+        "text": "葡萄酒",
+        "pinyin": "pútáojiǔ",
+        "translation": "vino"
+      },
+      {
+        "text": "：",
+        "punctuation": true
+      },
+      {
+        "text": "A",
+        "punctuation": true
+      },
+      {
+        "text": "比较",
+        "pinyin": "bǐjiào",
+        "translation": "relativamente / bastante"
+      },
+      {
+        "text": "甜",
+        "pinyin": "tián",
+        "translation": "dulce"
+      },
+      {
+        "text": "B",
+        "punctuation": true
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "ser / es"
+      },
+      {
+        "text": "艺术品",
+        "pinyin": "yìshùpǐn",
+        "translation": "obra de arte"
+      },
+      {
+        "text": "C",
+        "punctuation": true
+      },
+      {
+        "text": "酒瓶",
+        "pinyin": "jiǔpíng",
+        "translation": "botella de vino"
+      },
+      {
+        "text": "很",
+        "pinyin": "hěn",
+        "translation": "muy"
+      },
+      {
+        "text": "特别",
+        "pinyin": "tèbié",
+        "translation": "especial"
+      },
+      {
+        "text": "D",
+        "punctuation": true
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "ser / es"
+      },
+      {
+        "text": "当地",
+        "pinyin": "dāngdì",
+        "translation": "local / del lugar"
+      },
+      {
+        "text": "制造",
+        "pinyin": "zhìzào",
+        "translation": "fabricar"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "partícula estructural"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 3 · Lectura y educación",
+    "answer": "A 收入高",
+    "words": [
+      {
+        "text": "阅读能力",
+        "pinyin": "yuèdú nénglì",
+        "translation": "capacidad de lectura"
+      },
+      {
+        "text": "好",
+        "pinyin": "hǎo",
+        "translation": "buena"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "partícula modificadora"
+      },
+      {
+        "text": "人",
+        "pinyin": "rén",
+        "translation": "persona"
+      },
+      {
+        "text": "不但",
+        "pinyin": "bùdàn",
+        "translation": "no solo"
+      },
+      {
+        "text": "容易",
+        "pinyin": "róngyì",
+        "translation": "fácilmente"
+      },
+      {
+        "text": "找到",
+        "pinyin": "zhǎodào",
+        "translation": "encontrar"
+      },
+      {
+        "text": "工作",
+        "pinyin": "gōngzuò",
+        "translation": "trabajo"
+      },
+      {
+        "text": "而且",
+        "pinyin": "érqiě",
+        "translation": "sino también"
+      },
+      {
+        "text": "工资",
+        "pinyin": "gōngzī",
+        "translation": "salario"
+      },
+      {
+        "text": "也",
+        "pinyin": "yě",
+        "translation": "también"
+      },
+      {
+        "text": "比较",
+        "pinyin": "bǐjiào",
+        "translation": "relativamente"
+      },
+      {
+        "text": "高",
+        "pinyin": "gāo",
+        "translation": "alto"
+      },
+      {
+        "text": "另外",
+        "pinyin": "lìngwài",
+        "translation": "además"
+      },
+      {
+        "text": "阅读考试",
+        "pinyin": "yuèdú kǎoshì",
+        "translation": "examen de lectura"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "分数",
+        "pinyin": "fēnshù",
+        "translation": "puntaje"
+      },
+      {
+        "text": "往往",
+        "pinyin": "wǎngwǎng",
+        "translation": "a menudo"
+      },
+      {
+        "text": "还",
+        "pinyin": "hái",
+        "translation": "también"
+      },
+      {
+        "text": "能",
+        "pinyin": "néng",
+        "translation": "poder"
+      },
+      {
+        "text": "反映",
+        "pinyin": "fǎnyìng",
+        "translation": "reflejar"
+      },
+      {
+        "text": "一个",
+        "pinyin": "yí gè",
+        "translation": "un"
+      },
+      {
+        "text": "国家",
+        "pinyin": "guójiā",
+        "translation": "país"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "教育水平",
+        "pinyin": "jiàoyù shuǐpíng",
+        "translation": "nivel educativo"
+      },
+      {
+        "text": "阅读能力",
+        "pinyin": "yuèdú nénglì",
+        "translation": "capacidad de lectura"
+      },
+      {
+        "text": "好",
+        "pinyin": "hǎo",
+        "translation": "buena"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "人",
+        "pinyin": "rén",
+        "translation": "persona"
+      },
+      {
+        "text": "一般",
+        "pinyin": "yìbān",
+        "translation": "generalmente"
+      },
+      {
+        "text": "收入",
+        "pinyin": "shōurù",
+        "translation": "ingresos"
+      },
+      {
+        "text": "高",
+        "pinyin": "gāo",
+        "translation": "altos"
+      },
+      {
+        "text": "烦恼",
+        "pinyin": "fánnǎo",
+        "translation": "preocupaciones"
+      },
+      {
+        "text": "少",
+        "pinyin": "shǎo",
+        "translation": "pocas"
+      },
+      {
+        "text": "经历",
+        "pinyin": "jīnglì",
+        "translation": "experiencias"
+      },
+      {
+        "text": "丰富",
+        "pinyin": "fēngfù",
+        "translation": "ricas/abundantes"
+      },
+      {
+        "text": "年龄",
+        "pinyin": "niánlíng",
+        "translation": "edad"
+      },
+      {
+        "text": "比较",
+        "pinyin": "bǐjiào",
+        "translation": "relativamente"
+      },
+      {
+        "text": "大",
+        "pinyin": "dà",
+        "translation": "grande/mayor"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 4 · Cambiar de trabajo",
+    "answer": "D 相信新工作更好",
+    "words": [
+      {
+        "text": "有些人",
+        "pinyin": "yǒuxiē rén",
+        "translation": "algunas personas"
+      },
+      {
+        "text": "喜欢",
+        "pinyin": "xǐhuān",
+        "translation": "gustar"
+      },
+      {
+        "text": "不停地",
+        "pinyin": "bù tíng de",
+        "translation": "sin parar"
+      },
+      {
+        "text": "换工作",
+        "pinyin": "huàn gōngzuò",
+        "translation": "cambiar de trabajo"
+      },
+      {
+        "text": "他们",
+        "pinyin": "tāmen",
+        "translation": "ellos"
+      },
+      {
+        "text": "总",
+        "pinyin": "zǒng",
+        "translation": "siempre"
+      },
+      {
+        "text": "以为",
+        "pinyin": "yǐwéi",
+        "translation": "creer equivocadamente"
+      },
+      {
+        "text": "新工作",
+        "pinyin": "xīn gōngzuò",
+        "translation": "trabajo nuevo"
+      },
+      {
+        "text": "一定",
+        "pinyin": "yídìng",
+        "translation": "seguramente"
+      },
+      {
+        "text": "比",
+        "pinyin": "bǐ",
+        "translation": "comparado con"
+      },
+      {
+        "text": "现在的",
+        "pinyin": "xiànzài de",
+        "translation": "el actual"
+      },
+      {
+        "text": "好",
+        "pinyin": "hǎo",
+        "translation": "mejor"
+      },
+      {
+        "text": "实际上",
+        "pinyin": "shíjì shàng",
+        "translation": "en realidad"
+      },
+      {
+        "text": "一般情况下",
+        "pinyin": "yìbān qíngkuàng xià",
+        "translation": "en general"
+      },
+      {
+        "text": "完全",
+        "pinyin": "wánquán",
+        "translation": "completamente"
+      },
+      {
+        "text": "适应",
+        "pinyin": "shìyìng",
+        "translation": "adaptarse"
+      },
+      {
+        "text": "一个",
+        "pinyin": "yí gè",
+        "translation": "un"
+      },
+      {
+        "text": "新的",
+        "pinyin": "xīn de",
+        "translation": "nuevo"
+      },
+      {
+        "text": "工作",
+        "pinyin": "gōngzuò",
+        "translation": "trabajo"
+      },
+      {
+        "text": "需要",
+        "pinyin": "xūyào",
+        "translation": "necesitar"
+      },
+      {
+        "text": "一年",
+        "pinyin": "yì nián",
+        "translation": "un año"
+      },
+      {
+        "text": "时间",
+        "pinyin": "shíjiān",
+        "translation": "tiempo"
+      },
+      {
+        "text": "因此",
+        "pinyin": "yīncǐ",
+        "translation": "por eso"
+      },
+      {
+        "text": "经常",
+        "pinyin": "jīngcháng",
+        "translation": "frecuentemente"
+      },
+      {
+        "text": "换工作",
+        "pinyin": "huàn gōngzuò",
+        "translation": "cambiar trabajo"
+      },
+      {
+        "text": "不一定",
+        "pinyin": "bù yídìng",
+        "translation": "no necesariamente"
+      },
+      {
+        "text": "好",
+        "pinyin": "hǎo",
+        "translation": "bueno"
+      },
+      {
+        "text": "根据",
+        "pinyin": "gēnjù",
+        "translation": "según"
+      },
+      {
+        "text": "自己的",
+        "pinyin": "zìjǐ de",
+        "translation": "propias"
+      },
+      {
+        "text": "条件",
+        "pinyin": "tiáojiàn",
+        "translation": "condiciones"
+      },
+      {
+        "text": "把",
+        "pinyin": "bǎ",
+        "translation": "partícula 把"
+      },
+      {
+        "text": "一份",
+        "pinyin": "yí fèn",
+        "translation": "un/a"
+      },
+      {
+        "text": "工作",
+        "pinyin": "gōngzuò",
+        "translation": "trabajo"
+      },
+      {
+        "text": "坚持",
+        "pinyin": "jiānchí",
+        "translation": "perseverar"
+      },
+      {
+        "text": "做到",
+        "pinyin": "zuòdào",
+        "translation": "lograr hacer"
+      },
+      {
+        "text": "最好",
+        "pinyin": "zuì hǎo",
+        "translation": "lo mejor"
+      },
+      {
+        "text": "才",
+        "pinyin": "cái",
+        "translation": "solo entonces"
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "es"
+      },
+      {
+        "text": "正确",
+        "pinyin": "zhèngquè",
+        "translation": "correcto"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "partícula"
+      },
+      {
+        "text": "有些人",
+        "pinyin": "yǒuxiē rén",
+        "translation": "algunas personas"
+      },
+      {
+        "text": "经常",
+        "pinyin": "jīngcháng",
+        "translation": "frecuentemente"
+      },
+      {
+        "text": "换工作",
+        "pinyin": "huàn gōngzuò",
+        "translation": "cambian de trabajo"
+      },
+      {
+        "text": "是因为",
+        "pinyin": "shì yīnwèi",
+        "translation": "es porque"
+      },
+      {
+        "text": "相信",
+        "pinyin": "xiāngxìn",
+        "translation": "creer"
+      },
+      {
+        "text": "新工作",
+        "pinyin": "xīn gōngzuò",
+        "translation": "nuevo trabajo"
+      },
+      {
+        "text": "更好",
+        "pinyin": "gèng hǎo",
+        "translation": "mejor"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 5 · El periódico",
+    "answer": "C 广告少",
+    "words": [
+      {
+        "text": "我",
+        "pinyin": "wǒ",
+        "translation": "yo"
+      },
+      {
+        "text": "喜欢",
+        "pinyin": "xǐhuān",
+        "translation": "gustar"
+      },
+      {
+        "text": "读",
+        "pinyin": "dú",
+        "translation": "leer"
+      },
+      {
+        "text": "这份",
+        "pinyin": "zhè fèn",
+        "translation": "este/a"
+      },
+      {
+        "text": "报纸",
+        "pinyin": "bàozhǐ",
+        "translation": "periódico"
+      },
+      {
+        "text": "因为",
+        "pinyin": "yīnwèi",
+        "translation": "porque"
+      },
+      {
+        "text": "它",
+        "pinyin": "tā",
+        "translation": "ello"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "内容",
+        "pinyin": "nèiróng",
+        "translation": "contenido"
+      },
+      {
+        "text": "丰富",
+        "pinyin": "fēngfù",
+        "translation": "rico/abundante"
+      },
+      {
+        "text": "而且",
+        "pinyin": "érqiě",
+        "translation": "además"
+      },
+      {
+        "text": "广告",
+        "pinyin": "guǎnggào",
+        "translation": "anuncios"
+      },
+      {
+        "text": "少",
+        "pinyin": "shǎo",
+        "translation": "pocos"
+      },
+      {
+        "text": "最重要的是",
+        "pinyin": "zuì zhòngyào de shì",
+        "translation": "lo más importante es que"
+      },
+      {
+        "text": "经济",
+        "pinyin": "jīngjì",
+        "translation": "economía"
+      },
+      {
+        "text": "方面",
+        "pinyin": "fāngmiàn",
+        "translation": "aspecto/área"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "新闻",
+        "pinyin": "xīnwén",
+        "translation": "noticias"
+      },
+      {
+        "text": "对",
+        "pinyin": "duì",
+        "translation": "para / respecto a"
+      },
+      {
+        "text": "我",
+        "pinyin": "wǒ",
+        "translation": "yo"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "工作",
+        "pinyin": "gōngzuò",
+        "translation": "trabajo"
+      },
+      {
+        "text": "很",
+        "pinyin": "hěn",
+        "translation": "muy"
+      },
+      {
+        "text": "有帮助",
+        "pinyin": "yǒu bāngzhù",
+        "translation": "ser útil"
+      },
+      {
+        "text": "他",
+        "pinyin": "tā",
+        "translation": "él"
+      },
+      {
+        "text": "喜欢",
+        "pinyin": "xǐhuān",
+        "translation": "gusta"
+      },
+      {
+        "text": "这份",
+        "pinyin": "zhè fèn",
+        "translation": "este"
+      },
+      {
+        "text": "报纸",
+        "pinyin": "bàozhǐ",
+        "translation": "periódico"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "原因",
+        "pinyin": "yuányīn",
+        "translation": "razón"
+      },
+      {
+        "text": "之一",
+        "pinyin": "zhī yī",
+        "translation": "una de"
+      },
+      {
+        "text": "广告",
+        "pinyin": "guǎnggào",
+        "translation": "anuncios"
+      },
+      {
+        "text": "少",
+        "pinyin": "shǎo",
+        "translation": "pocos"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 6 · Medicinas para resfriado",
+    "answer": "B 两个",
+    "words": [
+      {
+        "text": "医生",
+        "pinyin": "yīshēng",
+        "translation": "doctor"
+      },
+      {
+        "text": "提醒",
+        "pinyin": "tíxǐng",
+        "translation": "recordar/advertir"
+      },
+      {
+        "text": "人们",
+        "pinyin": "rénmen",
+        "translation": "personas"
+      },
+      {
+        "text": "在",
+        "pinyin": "zài",
+        "translation": "al/en"
+      },
+      {
+        "text": "使用",
+        "pinyin": "shǐyòng",
+        "translation": "usar"
+      },
+      {
+        "text": "感冒药",
+        "pinyin": "gǎnmào yào",
+        "translation": "medicina para resfriado"
+      },
+      {
+        "text": "之前",
+        "pinyin": "zhīqián",
+        "translation": "antes"
+      },
+      {
+        "text": "一定",
+        "pinyin": "yídìng",
+        "translation": "sin falta"
+      },
+      {
+        "text": "要",
+        "pinyin": "yào",
+        "translation": "deber"
+      },
+      {
+        "text": "仔细",
+        "pinyin": "zǐxì",
+        "translation": "cuidadosamente"
+      },
+      {
+        "text": "阅读",
+        "pinyin": "yuèdú",
+        "translation": "leer"
+      },
+      {
+        "text": "说明书",
+        "pinyin": "shuōmíngshū",
+        "translation": "instructivo"
+      },
+      {
+        "text": "并且",
+        "pinyin": "bìngqiě",
+        "translation": "además"
+      },
+      {
+        "text": "最好",
+        "pinyin": "zuì hǎo",
+        "translation": "lo mejor es"
+      },
+      {
+        "text": "只",
+        "pinyin": "zhǐ",
+        "translation": "solo"
+      },
+      {
+        "text": "选择",
+        "pinyin": "xuǎnzé",
+        "translation": "elegir"
+      },
+      {
+        "text": "一种",
+        "pinyin": "yì zhǒng",
+        "translation": "un tipo"
+      },
+      {
+        "text": "感冒药",
+        "pinyin": "gǎnmào yào",
+        "translation": "medicina"
+      },
+      {
+        "text": "否则",
+        "pinyin": "fǒuzé",
+        "translation": "de lo contrario"
+      },
+      {
+        "text": "药物",
+        "pinyin": "yàowù",
+        "translation": "medicamentos"
+      },
+      {
+        "text": "之间",
+        "pinyin": "zhījiān",
+        "translation": "entre"
+      },
+      {
+        "text": "可能",
+        "pinyin": "kěnéng",
+        "translation": "posiblemente"
+      },
+      {
+        "text": "互相作用",
+        "pinyin": "hùxiāng zuòyòng",
+        "translation": "interactuar"
+      },
+      {
+        "text": "会",
+        "pinyin": "huì",
+        "translation": "puede"
+      },
+      {
+        "text": "影响",
+        "pinyin": "yǐngxiǎng",
+        "translation": "afectar"
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "健康",
+        "pinyin": "jiànkāng",
+        "translation": "salud"
+      },
+      {
+        "text": "医生",
+        "pinyin": "yīshēng",
+        "translation": "doctor"
+      },
+      {
+        "text": "一共",
+        "pinyin": "yígòng",
+        "translation": "en total"
+      },
+      {
+        "text": "有",
+        "pinyin": "yǒu",
+        "translation": "hay/tener"
+      },
+      {
+        "text": "几个",
+        "pinyin": "jǐ ge",
+        "translation": "cuántos"
+      },
+      {
+        "text": "提醒",
+        "pinyin": "tíxǐng",
+        "translation": "recordatorios"
+      },
+      {
+        "text": "两个",
+        "pinyin": "liǎng ge",
+        "translation": "dos"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 7 · Música y京剧",
+    "answer": "C 受到京剧影响",
+    "words": [
+      {
+        "text": "在中国",
+        "pinyin": "zài Zhōngguó",
+        "translation": "en China"
+      },
+      {
+        "text": "生活",
+        "pinyin": "shēnghuó",
+        "translation": "vivir"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "三年",
+        "pinyin": "sān nián",
+        "translation": "tres años"
+      },
+      {
+        "text": "使",
+        "pinyin": "shǐ",
+        "translation": "hacer que"
+      },
+      {
+        "text": "他",
+        "pinyin": "tā",
+        "translation": "él"
+      },
+      {
+        "text": "在",
+        "pinyin": "zài",
+        "translation": "en"
+      },
+      {
+        "text": "音乐",
+        "pinyin": "yīnyuè",
+        "translation": "música"
+      },
+      {
+        "text": "方面",
+        "pinyin": "fāngmiàn",
+        "translation": "aspecto"
+      },
+      {
+        "text": "有了",
+        "pinyin": "yǒu le",
+        "translation": "tuvo"
+      },
+      {
+        "text": "很多",
+        "pinyin": "hěn duō",
+        "translation": "muchas"
+      },
+      {
+        "text": "新的",
+        "pinyin": "xīn de",
+        "translation": "nuevas"
+      },
+      {
+        "text": "想法",
+        "pinyin": "xiǎngfǎ",
+        "translation": "ideas"
+      },
+      {
+        "text": "他",
+        "pinyin": "tā",
+        "translation": "él"
+      },
+      {
+        "text": "把",
+        "pinyin": "bǎ",
+        "translation": "partícula 把"
+      },
+      {
+        "text": "京剧",
+        "pinyin": "jīngjù",
+        "translation": "ópera de Pekín"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "一些",
+        "pinyin": "yìxiē",
+        "translation": "algunos"
+      },
+      {
+        "text": "特点",
+        "pinyin": "tèdiǎn",
+        "translation": "rasgos/características"
+      },
+      {
+        "text": "增加到",
+        "pinyin": "zēngjiā dào",
+        "translation": "añadir a"
+      },
+      {
+        "text": "自己的",
+        "pinyin": "zìjǐ de",
+        "translation": "su propio/a"
+      },
+      {
+        "text": "音乐",
+        "pinyin": "yīnyuè",
+        "translation": "música"
+      },
+      {
+        "text": "中",
+        "pinyin": "zhōng",
+        "translation": "dentro"
+      },
+      {
+        "text": "取得",
+        "pinyin": "qǔdé",
+        "translation": "obtener"
+      },
+      {
+        "text": "了",
+        "pinyin": "le",
+        "translation": "partícula"
+      },
+      {
+        "text": "很好",
+        "pinyin": "hěn hǎo",
+        "translation": "muy buen"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "效果",
+        "pinyin": "xiàoguǒ",
+        "translation": "efecto"
+      },
+      {
+        "text": "受到",
+        "pinyin": "shòudào",
+        "translation": "recibir/estar influido"
+      },
+      {
+        "text": "京剧",
+        "pinyin": "jīngjù",
+        "translation": "ópera de Pekín"
+      },
+      {
+        "text": "影响",
+        "pinyin": "yǐngxiǎng",
+        "translation": "influencia"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 8 · El hijo tímido",
+    "answer": "A 当了律师",
+    "words": [
+      {
+        "text": "儿子",
+        "pinyin": "érzi",
+        "translation": "hijo"
+      },
+      {
+        "text": "小时候",
+        "pinyin": "xiǎoshíhou",
+        "translation": "cuando era pequeño"
+      },
+      {
+        "text": "一说话",
+        "pinyin": "yì shuōhuà",
+        "translation": "apenas hablaba"
+      },
+      {
+        "text": "就",
+        "pinyin": "jiù",
+        "translation": "entonces"
+      },
+      {
+        "text": "脸红",
+        "pinyin": "liǎnhóng",
+        "translation": "sonrojarse"
+      },
+      {
+        "text": "回答",
+        "pinyin": "huídá",
+        "translation": "responder"
+      },
+      {
+        "text": "老师",
+        "pinyin": "lǎoshī",
+        "translation": "maestro"
+      },
+      {
+        "text": "问题",
+        "pinyin": "wèntí",
+        "translation": "pregunta"
+      },
+      {
+        "text": "的时候",
+        "pinyin": "de shíhou",
+        "translation": "cuando"
+      },
+      {
+        "text": "声音",
+        "pinyin": "shēngyīn",
+        "translation": "voz"
+      },
+      {
+        "text": "也",
+        "pinyin": "yě",
+        "translation": "también"
+      },
+      {
+        "text": "很",
+        "pinyin": "hěn",
+        "translation": "muy"
+      },
+      {
+        "text": "小",
+        "pinyin": "xiǎo",
+        "translation": "baja/pequeña"
+      },
+      {
+        "text": "我",
+        "pinyin": "wǒ",
+        "translation": "yo"
+      },
+      {
+        "text": "当时",
+        "pinyin": "dāngshí",
+        "translation": "en ese momento"
+      },
+      {
+        "text": "很",
+        "pinyin": "hěn",
+        "translation": "muy"
+      },
+      {
+        "text": "替",
+        "pinyin": "tì",
+        "translation": "por/en nombre de"
+      },
+      {
+        "text": "他",
+        "pinyin": "tā",
+        "translation": "él"
+      },
+      {
+        "text": "担心",
+        "pinyin": "dānxīn",
+        "translation": "preocuparse"
+      },
+      {
+        "text": "但",
+        "pinyin": "dàn",
+        "translation": "pero"
+      },
+      {
+        "text": "随着",
+        "pinyin": "suízhe",
+        "translation": "conforme"
+      },
+      {
+        "text": "年龄",
+        "pinyin": "niánlíng",
+        "translation": "edad"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "增长",
+        "pinyin": "zēngzhǎng",
+        "translation": "crecimiento"
+      },
+      {
+        "text": "他",
+        "pinyin": "tā",
+        "translation": "él"
+      },
+      {
+        "text": "逐渐",
+        "pinyin": "zhújiàn",
+        "translation": "gradualmente"
+      },
+      {
+        "text": "成熟",
+        "pinyin": "chéngshú",
+        "translation": "madurar"
+      },
+      {
+        "text": "了",
+        "pinyin": "le",
+        "translation": "partícula"
+      },
+      {
+        "text": "大学",
+        "pinyin": "dàxué",
+        "translation": "universidad"
+      },
+      {
+        "text": "毕业后",
+        "pinyin": "bìyè hòu",
+        "translation": "después de graduarse"
+      },
+      {
+        "text": "成了",
+        "pinyin": "chéng le",
+        "translation": "se convirtió en"
+      },
+      {
+        "text": "一名",
+        "pinyin": "yì míng",
+        "translation": "un"
+      },
+      {
+        "text": "优秀",
+        "pinyin": "yōuxiù",
+        "translation": "excelente"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "律师",
+        "pinyin": "lǜshī",
+        "translation": "abogado"
+      },
+      {
+        "text": "真",
+        "pinyin": "zhēn",
+        "translation": "realmente"
+      },
+      {
+        "text": "让人",
+        "pinyin": "ràng rén",
+        "translation": "hacer que la gente"
+      },
+      {
+        "text": "吃惊",
+        "pinyin": "chījīng",
+        "translation": "sorprenderse"
+      },
+      {
+        "text": "当了",
+        "pinyin": "dāng le",
+        "translation": "llegó a ser"
+      },
+      {
+        "text": "律师",
+        "pinyin": "lǜshī",
+        "translation": "abogado"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 9 · Negocios y mercado",
+    "answer": "D 了解市场需求",
+    "words": [
+      {
+        "text": "做生意",
+        "pinyin": "zuò shēngyì",
+        "translation": "hacer negocios"
+      },
+      {
+        "text": "时",
+        "pinyin": "shí",
+        "translation": "cuando"
+      },
+      {
+        "text": "会",
+        "pinyin": "huì",
+        "translation": "puede"
+      },
+      {
+        "text": "遇到",
+        "pinyin": "yùdào",
+        "translation": "encontrar"
+      },
+      {
+        "text": "竞争",
+        "pinyin": "jìngzhēng",
+        "translation": "competencia"
+      },
+      {
+        "text": "带来",
+        "pinyin": "dàilái",
+        "translation": "traer"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "压力",
+        "pinyin": "yālì",
+        "translation": "presión"
+      },
+      {
+        "text": "但是",
+        "pinyin": "dànshì",
+        "translation": "pero"
+      },
+      {
+        "text": "大家",
+        "pinyin": "dàjiā",
+        "translation": "todos"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "机会",
+        "pinyin": "jīhuì",
+        "translation": "oportunidad"
+      },
+      {
+        "text": "也",
+        "pinyin": "yě",
+        "translation": "también"
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "es"
+      },
+      {
+        "text": "相同",
+        "pinyin": "xiāngtóng",
+        "translation": "igual"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "partícula"
+      },
+      {
+        "text": "清楚地",
+        "pinyin": "qīngchǔ de",
+        "translation": "claramente"
+      },
+      {
+        "text": "了解",
+        "pinyin": "liǎojiě",
+        "translation": "entender/conocer"
+      },
+      {
+        "text": "市场",
+        "pinyin": "shìchǎng",
+        "translation": "mercado"
+      },
+      {
+        "text": "和",
+        "pinyin": "hé",
+        "translation": "y"
+      },
+      {
+        "text": "顾客",
+        "pinyin": "gùkè",
+        "translation": "clientes"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "需要",
+        "pinyin": "xūyào",
+        "translation": "necesidades"
+      },
+      {
+        "text": "做",
+        "pinyin": "zuò",
+        "translation": "hacer"
+      },
+      {
+        "text": "一个",
+        "pinyin": "yí gè",
+        "translation": "un"
+      },
+      {
+        "text": "符合",
+        "pinyin": "fúhé",
+        "translation": "estar de acuerdo con"
+      },
+      {
+        "text": "市场",
+        "pinyin": "shìchǎng",
+        "translation": "mercado"
+      },
+      {
+        "text": "发展",
+        "pinyin": "fāzhǎn",
+        "translation": "desarrollo"
+      },
+      {
+        "text": "需要",
+        "pinyin": "xūyào",
+        "translation": "necesidad"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "计划",
+        "pinyin": "jìhuà",
+        "translation": "plan"
+      },
+      {
+        "text": "非常",
+        "pinyin": "fēicháng",
+        "translation": "muy"
+      },
+      {
+        "text": "重要",
+        "pinyin": "zhòngyào",
+        "translation": "importante"
+      },
+      {
+        "text": "做生意",
+        "pinyin": "zuò shēngyì",
+        "translation": "hacer negocios"
+      },
+      {
+        "text": "需要",
+        "pinyin": "xūyào",
+        "translation": "necesita"
+      },
+      {
+        "text": "重视",
+        "pinyin": "zhòngshì",
+        "translation": "dar importancia"
+      },
+      {
+        "text": "了解",
+        "pinyin": "liǎojiě",
+        "translation": "entender"
+      },
+      {
+        "text": "市场需求",
+        "pinyin": "shìchǎng xūqiú",
+        "translation": "demanda del mercado"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 10 · Perdonarse",
+    "answer": "C 原谅自己",
+    "words": [
+      {
+        "text": "原谅",
+        "pinyin": "yuánliàng",
+        "translation": "perdonar"
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "es"
+      },
+      {
+        "text": "一种",
+        "pinyin": "yì zhǒng",
+        "translation": "un tipo de"
+      },
+      {
+        "text": "美",
+        "pinyin": "měi",
+        "translation": "belleza"
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "常说",
+        "pinyin": "cháng shuō",
+        "translation": "solemos decir"
+      },
+      {
+        "text": "要",
+        "pinyin": "yào",
+        "translation": "deber"
+      },
+      {
+        "text": "学会",
+        "pinyin": "xuéhuì",
+        "translation": "aprender a"
+      },
+      {
+        "text": "原谅",
+        "pinyin": "yuánliàng",
+        "translation": "perdonar"
+      },
+      {
+        "text": "别人",
+        "pinyin": "biérén",
+        "translation": "otros"
+      },
+      {
+        "text": "但",
+        "pinyin": "dàn",
+        "translation": "pero"
+      },
+      {
+        "text": "也",
+        "pinyin": "yě",
+        "translation": "también"
+      },
+      {
+        "text": "要",
+        "pinyin": "yào",
+        "translation": "deber"
+      },
+      {
+        "text": "试着",
+        "pinyin": "shìzhe",
+        "translation": "intentar"
+      },
+      {
+        "text": "原谅",
+        "pinyin": "yuánliàng",
+        "translation": "perdonar"
+      },
+      {
+        "text": "自己",
+        "pinyin": "zìjǐ",
+        "translation": "uno mismo"
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "都",
+        "pinyin": "dōu",
+        "translation": "todos"
+      },
+      {
+        "text": "有",
+        "pinyin": "yǒu",
+        "translation": "tener"
+      },
+      {
+        "text": "缺点",
+        "pinyin": "quēdiǎn",
+        "translation": "defectos"
+      },
+      {
+        "text": "不可能",
+        "pinyin": "bù kěnéng",
+        "translation": "no es posible"
+      },
+      {
+        "text": "把",
+        "pinyin": "bǎ",
+        "translation": "partícula 把"
+      },
+      {
+        "text": "每件事",
+        "pinyin": "měi jiàn shì",
+        "translation": "cada cosa"
+      },
+      {
+        "text": "都",
+        "pinyin": "dōu",
+        "translation": "todo"
+      },
+      {
+        "text": "做得",
+        "pinyin": "zuò de",
+        "translation": "hacer de cierta manera"
+      },
+      {
+        "text": "很",
+        "pinyin": "hěn",
+        "translation": "muy"
+      },
+      {
+        "text": "好",
+        "pinyin": "hǎo",
+        "translation": "bien"
+      },
+      {
+        "text": "这段话",
+        "pinyin": "zhè duàn huà",
+        "translation": "este texto"
+      },
+      {
+        "text": "主要",
+        "pinyin": "zhǔyào",
+        "translation": "principalmente"
+      },
+      {
+        "text": "说",
+        "pinyin": "shuō",
+        "translation": "dice"
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "应该",
+        "pinyin": "yīnggāi",
+        "translation": "deberíamos"
+      },
+      {
+        "text": "原谅自己",
+        "pinyin": "yuánliàng zìjǐ",
+        "translation": "perdonarnos"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 11 · Servicio de traducción",
+    "answer": "C 介绍",
+    "words": [
+      {
+        "text": "您好",
+        "pinyin": "nín hǎo",
+        "translation": "hola formal"
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "翻译",
+        "pinyin": "fānyì",
+        "translation": "traducimos / traducción"
+      },
+      {
+        "text": "每",
+        "pinyin": "měi",
+        "translation": "cada"
+      },
+      {
+        "text": "1000",
+        "pinyin": "yì qiān",
+        "translation": "mil"
+      },
+      {
+        "text": "字",
+        "pinyin": "zì",
+        "translation": "caracteres"
+      },
+      {
+        "text": "150",
+        "pinyin": "yì bǎi wǔ shí",
+        "translation": "ciento cincuenta"
+      },
+      {
+        "text": "元",
+        "pinyin": "yuán",
+        "translation": "yuanes"
+      },
+      {
+        "text": "人民币",
+        "pinyin": "rénmínbì",
+        "translation": "RMB"
+      },
+      {
+        "text": "这些",
+        "pinyin": "zhèxiē",
+        "translation": "estos"
+      },
+      {
+        "text": "信息",
+        "pinyin": "xìnxī",
+        "translation": "datos/información"
+      },
+      {
+        "text": "在",
+        "pinyin": "zài",
+        "translation": "en"
+      },
+      {
+        "text": "公司",
+        "pinyin": "gōngsī",
+        "translation": "empresa"
+      },
+      {
+        "text": "网站",
+        "pinyin": "wǎngzhàn",
+        "translation": "sitio web"
+      },
+      {
+        "text": "上",
+        "pinyin": "shàng",
+        "translation": "en/sobre"
+      },
+      {
+        "text": "都",
+        "pinyin": "dōu",
+        "translation": "todo"
+      },
+      {
+        "text": "有",
+        "pinyin": "yǒu",
+        "translation": "hay"
+      },
+      {
+        "text": "详细",
+        "pinyin": "xiángxì",
+        "translation": "detallado"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "介绍",
+        "pinyin": "jièshào",
+        "translation": "introducción/presentación"
+      },
+      {
+        "text": "您",
+        "pinyin": "nín",
+        "translation": "usted"
+      },
+      {
+        "text": "有",
+        "pinyin": "yǒu",
+        "translation": "tener"
+      },
+      {
+        "text": "什么",
+        "pinyin": "shénme",
+        "translation": "qué"
+      },
+      {
+        "text": "特别",
+        "pinyin": "tèbié",
+        "translation": "especial"
+      },
+      {
+        "text": "要求",
+        "pinyin": "yāoqiú",
+        "translation": "requisito"
+      },
+      {
+        "text": "或",
+        "pinyin": "huò",
+        "translation": "o"
+      },
+      {
+        "text": "任何",
+        "pinyin": "rènhé",
+        "translation": "cualquier"
+      },
+      {
+        "text": "不清楚",
+        "pinyin": "bù qīngchǔ",
+        "translation": "no claro"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "地方",
+        "pinyin": "dìfang",
+        "translation": "lugar/aspecto"
+      },
+      {
+        "text": "欢迎",
+        "pinyin": "huānyíng",
+        "translation": "bienvenido"
+      },
+      {
+        "text": "和",
+        "pinyin": "hé",
+        "translation": "con"
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "联系",
+        "pinyin": "liánxì",
+        "translation": "contactar"
+      },
+      {
+        "text": "说话人",
+        "pinyin": "shuōhuà rén",
+        "translation": "hablante"
+      },
+      {
+        "text": "正在",
+        "pinyin": "zhèngzài",
+        "translation": "estar haciendo"
+      },
+      {
+        "text": "做",
+        "pinyin": "zuò",
+        "translation": "hacer"
+      },
+      {
+        "text": "什么",
+        "pinyin": "shénme",
+        "translation": "qué"
+      },
+      {
+        "text": "介绍",
+        "pinyin": "jièshào",
+        "translation": "presentar"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 12 · Horas de sueño",
+    "answer": "D 大部分人",
+    "words": [
+      {
+        "text": "大部分人",
+        "pinyin": "dà bùfen rén",
+        "translation": "la mayoría de las personas"
+      },
+      {
+        "text": "每天",
+        "pinyin": "měitiān",
+        "translation": "cada día"
+      },
+      {
+        "text": "晚上",
+        "pinyin": "wǎnshang",
+        "translation": "por la noche"
+      },
+      {
+        "text": "至少",
+        "pinyin": "zhìshǎo",
+        "translation": "al menos"
+      },
+      {
+        "text": "应该",
+        "pinyin": "yīnggāi",
+        "translation": "deberían"
+      },
+      {
+        "text": "睡",
+        "pinyin": "shuì",
+        "translation": "dormir"
+      },
+      {
+        "text": "7",
+        "pinyin": "qī",
+        "translation": "siete"
+      },
+      {
+        "text": "个",
+        "pinyin": "ge",
+        "translation": "clasificador"
+      },
+      {
+        "text": "小时",
+        "pinyin": "xiǎoshí",
+        "translation": "horas"
+      },
+      {
+        "text": "但是",
+        "pinyin": "dànshì",
+        "translation": "pero"
+      },
+      {
+        "text": "这个",
+        "pinyin": "zhège",
+        "translation": "este"
+      },
+      {
+        "text": "标准",
+        "pinyin": "biāozhǔn",
+        "translation": "estándar"
+      },
+      {
+        "text": "并不",
+        "pinyin": "bìng bù",
+        "translation": "realmente no"
+      },
+      {
+        "text": "适合",
+        "pinyin": "shìhé",
+        "translation": "adecuado para"
+      },
+      {
+        "text": "每一个人",
+        "pinyin": "měi yí gè rén",
+        "translation": "cada persona"
+      },
+      {
+        "text": "有些人",
+        "pinyin": "yǒuxiē rén",
+        "translation": "algunas personas"
+      },
+      {
+        "text": "即使",
+        "pinyin": "jíshǐ",
+        "translation": "aunque"
+      },
+      {
+        "text": "只",
+        "pinyin": "zhǐ",
+        "translation": "solo"
+      },
+      {
+        "text": "睡",
+        "pinyin": "shuì",
+        "translation": "dormir"
+      },
+      {
+        "text": "5",
+        "pinyin": "wǔ",
+        "translation": "cinco"
+      },
+      {
+        "text": "个",
+        "pinyin": "ge",
+        "translation": "clasificador"
+      },
+      {
+        "text": "小时",
+        "pinyin": "xiǎoshí",
+        "translation": "horas"
+      },
+      {
+        "text": "也",
+        "pinyin": "yě",
+        "translation": "también"
+      },
+      {
+        "text": "很",
+        "pinyin": "hěn",
+        "translation": "muy"
+      },
+      {
+        "text": "有精神",
+        "pinyin": "yǒu jīngshén",
+        "translation": "tener energía"
+      },
+      {
+        "text": "每天晚上",
+        "pinyin": "měitiān wǎnshang",
+        "translation": "cada noche"
+      },
+      {
+        "text": "睡",
+        "pinyin": "shuì",
+        "translation": "dormir"
+      },
+      {
+        "text": "7",
+        "pinyin": "qī",
+        "translation": "siete"
+      },
+      {
+        "text": "个小时",
+        "pinyin": "gè xiǎoshí",
+        "translation": "horas"
+      },
+      {
+        "text": "适合",
+        "pinyin": "shìhé",
+        "translation": "es adecuado para"
+      },
+      {
+        "text": "大部分人",
+        "pinyin": "dà bùfen rén",
+        "translation": "la mayoría"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 13 · Berrinches",
+    "answer": "C 想得到好处",
+    "words": [
+      {
+        "text": "很多时候",
+        "pinyin": "hěn duō shíhou",
+        "translation": "muchas veces"
+      },
+      {
+        "text": "孩子",
+        "pinyin": "háizi",
+        "translation": "niño"
+      },
+      {
+        "text": "发脾气",
+        "pinyin": "fā píqi",
+        "translation": "hacer berrinche/enojarse"
+      },
+      {
+        "text": "是为了",
+        "pinyin": "shì wèile",
+        "translation": "es para"
+      },
+      {
+        "text": "得到",
+        "pinyin": "dédào",
+        "translation": "obtener"
+      },
+      {
+        "text": "一些",
+        "pinyin": "yìxiē",
+        "translation": "algunos"
+      },
+      {
+        "text": "好处",
+        "pinyin": "hǎochù",
+        "translation": "beneficios"
+      },
+      {
+        "text": "父母",
+        "pinyin": "fùmǔ",
+        "translation": "padres"
+      },
+      {
+        "text": "不能",
+        "pinyin": "bù néng",
+        "translation": "no pueden"
+      },
+      {
+        "text": "因为",
+        "pinyin": "yīnwèi",
+        "translation": "porque"
+      },
+      {
+        "text": "孩子",
+        "pinyin": "háizi",
+        "translation": "niño"
+      },
+      {
+        "text": "发脾气",
+        "pinyin": "fā píqi",
+        "translation": "hace berrinche"
+      },
+      {
+        "text": "就",
+        "pinyin": "jiù",
+        "translation": "entonces"
+      },
+      {
+        "text": "给",
+        "pinyin": "gěi",
+        "translation": "dar"
+      },
+      {
+        "text": "他",
+        "pinyin": "tā",
+        "translation": "él"
+      },
+      {
+        "text": "好处",
+        "pinyin": "hǎochù",
+        "translation": "beneficio"
+      },
+      {
+        "text": "如果",
+        "pinyin": "rúguǒ",
+        "translation": "si"
+      },
+      {
+        "text": "我们",
+        "pinyin": "wǒmen",
+        "translation": "nosotros"
+      },
+      {
+        "text": "不",
+        "pinyin": "bù",
+        "translation": "no"
+      },
+      {
+        "text": "重视",
+        "pinyin": "zhòngshì",
+        "translation": "dar importancia"
+      },
+      {
+        "text": "这个",
+        "pinyin": "zhège",
+        "translation": "este"
+      },
+      {
+        "text": "问题",
+        "pinyin": "wèntí",
+        "translation": "problema"
+      },
+      {
+        "text": "他",
+        "pinyin": "tā",
+        "translation": "él"
+      },
+      {
+        "text": "就",
+        "pinyin": "jiù",
+        "translation": "entonces"
+      },
+      {
+        "text": "容易",
+        "pinyin": "róngyì",
+        "translation": "fácilmente"
+      },
+      {
+        "text": "养成",
+        "pinyin": "yǎngchéng",
+        "translation": "formar/adquirir"
+      },
+      {
+        "text": "发脾气",
+        "pinyin": "fā píqi",
+        "translation": "hacer berrinche"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "坏习惯",
+        "pinyin": "huài xíguàn",
+        "translation": "mal hábito"
+      },
+      {
+        "text": "孩子",
+        "pinyin": "háizi",
+        "translation": "niño"
+      },
+      {
+        "text": "发脾气",
+        "pinyin": "fā píqi",
+        "translation": "hace berrinche"
+      },
+      {
+        "text": "主要",
+        "pinyin": "zhǔyào",
+        "translation": "principalmente"
+      },
+      {
+        "text": "是因为",
+        "pinyin": "shì yīnwèi",
+        "translation": "es porque"
+      },
+      {
+        "text": "想",
+        "pinyin": "xiǎng",
+        "translation": "quiere"
+      },
+      {
+        "text": "得到",
+        "pinyin": "dédào",
+        "translation": "obtener"
+      },
+      {
+        "text": "好处",
+        "pinyin": "hǎochù",
+        "translation": "beneficios"
+      }
+    ]
+  },
+  {
+    "title": "Lectura 14 · Verdaderos amigos",
+    "answer": "D 什么是真朋友",
+    "words": [
+      {
+        "text": "什么",
+        "pinyin": "shénme",
+        "translation": "qué"
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "es"
+      },
+      {
+        "text": "真正",
+        "pinyin": "zhēnzhèng",
+        "translation": "verdadero"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "朋友",
+        "pinyin": "péngyou",
+        "translation": "amigo"
+      },
+      {
+        "text": "有些人",
+        "pinyin": "yǒuxiē rén",
+        "translation": "algunas personas"
+      },
+      {
+        "text": "觉得",
+        "pinyin": "juéde",
+        "translation": "pensar/sentir"
+      },
+      {
+        "text": "就是",
+        "pinyin": "jiùshì",
+        "translation": "precisamente es"
+      },
+      {
+        "text": "能",
+        "pinyin": "néng",
+        "translation": "poder"
+      },
+      {
+        "text": "和",
+        "pinyin": "hé",
+        "translation": "con"
+      },
+      {
+        "text": "自己",
+        "pinyin": "zìjǐ",
+        "translation": "uno mismo"
+      },
+      {
+        "text": "一起",
+        "pinyin": "yìqǐ",
+        "translation": "juntos"
+      },
+      {
+        "text": "快乐",
+        "pinyin": "kuàilè",
+        "translation": "feliz"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "人",
+        "pinyin": "rén",
+        "translation": "persona"
+      },
+      {
+        "text": "其实",
+        "pinyin": "qíshí",
+        "translation": "en realidad"
+      },
+      {
+        "text": "朋友",
+        "pinyin": "péngyou",
+        "translation": "amigo"
+      },
+      {
+        "text": "应该",
+        "pinyin": "yīnggāi",
+        "translation": "debería"
+      },
+      {
+        "text": "像",
+        "pinyin": "xiàng",
+        "translation": "ser como"
+      },
+      {
+        "text": "镜子",
+        "pinyin": "jìngzi",
+        "translation": "espejo"
+      },
+      {
+        "text": "能",
+        "pinyin": "néng",
+        "translation": "poder"
+      },
+      {
+        "text": "帮",
+        "pinyin": "bāng",
+        "translation": "ayudar"
+      },
+      {
+        "text": "你",
+        "pinyin": "nǐ",
+        "translation": "tú"
+      },
+      {
+        "text": "看清",
+        "pinyin": "kànqīng",
+        "translation": "ver claramente"
+      },
+      {
+        "text": "自己",
+        "pinyin": "zìjǐ",
+        "translation": "propio"
+      },
+      {
+        "text": "的",
+        "pinyin": "de",
+        "translation": "de"
+      },
+      {
+        "text": "缺点",
+        "pinyin": "quēdiǎn",
+        "translation": "defectos"
+      },
+      {
+        "text": "无论",
+        "pinyin": "wúlùn",
+        "translation": "sin importar"
+      },
+      {
+        "text": "你",
+        "pinyin": "nǐ",
+        "translation": "tú"
+      },
+      {
+        "text": "成功",
+        "pinyin": "chénggōng",
+        "translation": "tener éxito"
+      },
+      {
+        "text": "或者",
+        "pinyin": "huòzhě",
+        "translation": "o"
+      },
+      {
+        "text": "失败",
+        "pinyin": "shībài",
+        "translation": "fracasar"
+      },
+      {
+        "text": "永远",
+        "pinyin": "yǒngyuǎn",
+        "translation": "siempre"
+      },
+      {
+        "text": "都",
+        "pinyin": "dōu",
+        "translation": "siempre/todo"
+      },
+      {
+        "text": "支持",
+        "pinyin": "zhīchí",
+        "translation": "apoyar"
+      },
+      {
+        "text": "你",
+        "pinyin": "nǐ",
+        "translation": "a ti"
+      },
+      {
+        "text": "这段话",
+        "pinyin": "zhè duàn huà",
+        "translation": "este texto"
+      },
+      {
+        "text": "主要",
+        "pinyin": "zhǔyào",
+        "translation": "principalmente"
+      },
+      {
+        "text": "谈",
+        "pinyin": "tán",
+        "translation": "habla de"
+      },
+      {
+        "text": "什么",
+        "pinyin": "shénme",
+        "translation": "qué"
+      },
+      {
+        "text": "是",
+        "pinyin": "shì",
+        "translation": "es"
+      },
+      {
+        "text": "真朋友",
+        "pinyin": "zhēn péngyou",
+        "translation": "verdadero amigo"
+      }
+    ]
+  }
+];
+
+let currentReadingIndex = Number(localStorage.getItem("currentReadingIndexHSK")) || 0;
+let glossary = JSON.parse(localStorage.getItem("globalHSKGlossary")) || [];
+let answerVisible = false;
+let gameType = "flash";
+let direction = "zh-es";
+let showPinyin = true;
+let flashIndex = 0;
+let flipped = false;
+let currentQuizItem = null;
+
+function cleanGlossaryItems(){
+  return glossary.filter(x => !x.punctuation && x.text && x.translation);
+}
+
+function renderReader(){
+  const reading = readings[currentReadingIndex];
+  const reader = document.getElementById("reader");
+  document.getElementById("readingTitle").textContent = reading.title;
+  document.getElementById("counter").textContent = `${currentReadingIndex + 1} / ${readings.length}`;
+  reader.innerHTML = "";
+
+  reading.words.forEach(item => {
+    if(item.punctuation){
+      const span = document.createElement("span");
+      span.className = "punct";
+      span.textContent = item.text + " ";
+      reader.appendChild(span);
+      if(item.text === "。" || item.text === "：") reader.appendChild(document.createElement("br"));
+      return;
+    }
+    const span = document.createElement("span");
+    span.className = "word";
+    if(glossary.some(g => g.text === item.text)) span.classList.add("saved");
+    span.textContent = item.text;
+    span.onclick = () => showInfo(item);
+    reader.appendChild(span);
+    reader.appendChild(document.createTextNode(" "));
+  });
+  renderAnswer();
+}
+
+function showInfo(item){
+  document.getElementById("infoBox").style.display = "block";
+  document.getElementById("infoWord").textContent = item.text;
+  document.getElementById("infoPinyin").textContent = item.pinyin || "";
+  document.getElementById("infoTranslation").textContent = item.translation || "";
+  document.getElementById("infoGrammar").textContent = item.grammar ? "Gramática: " + item.grammar : "Sin explicación gramatical especial.";
+  addToGlossary(item);
+}
+
+function addToGlossary(item){
+  if(!glossary.some(g => g.text === item.text)){
+    glossary.push(item);
+    localStorage.setItem("globalHSKGlossary", JSON.stringify(glossary));
+  }
+  renderGlossary();
+  renderReader();
+}
+
+function renderGlossary(){
+  const list = document.getElementById("glossaryList");
+  list.innerHTML = "";
+  if(glossary.length === 0){
+    list.innerHTML = '<p class="empty">Todavía no hay palabras guardadas.</p>';
+    return;
+  }
+  glossary.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "glossary-item";
+    div.innerHTML = `<strong>${item.text}</strong>
+      <div class="pinyin">${item.pinyin || ""}</div>
+      <div>${item.translation || ""}</div>
+      ${item.grammar ? `<small>📌 ${item.grammar}</small>` : ""}
+      <div style="margin-top:8px"><button onclick='speakChinese(${JSON.stringify(item.text)})'>🔊</button></div>`;
+    list.appendChild(div);
+  });
+}
+
+function clearGlossary(){
+  glossary = [];
+  localStorage.removeItem("globalHSKGlossary");
+  renderGlossary();
+  renderReader();
+}
+
+function nextReading(){
+  if(currentReadingIndex < readings.length - 1){
+    currentReadingIndex++;
+    localStorage.setItem("currentReadingIndexHSK", currentReadingIndex);
+    document.getElementById("infoBox").style.display = "none";
+    answerVisible = false;
+    renderReader();
+  }
+}
+
+function prevReading(){
+  if(currentReadingIndex > 0){
+    currentReadingIndex--;
+    localStorage.setItem("currentReadingIndexHSK", currentReadingIndex);
+    document.getElementById("infoBox").style.display = "none";
+    answerVisible = false;
+    renderReader();
+  }
+}
+
+function toggleGlossary(){ document.getElementById("glossaryCard").classList.toggle("hidden"); }
+function toggleAnswer(){ answerVisible = !answerVisible; renderAnswer(); }
+
+function renderAnswer(){
+  const box = document.getElementById("answerBox");
+  const reading = readings[currentReadingIndex];
+  if(answerVisible && reading.answer){
+    box.style.display = "block";
+    box.textContent = "Respuesta correcta: " + reading.answer;
+  } else {
+    box.style.display = "none";
+  }
+}
+
+function openFlashcards(){
+  if(cleanGlossaryItems().length === 0){ alert("Primero toca algunas palabras para agregarlas al glosario."); return; }
+  gameType = "flash"; flipped = false; flashIndex = 0;
+  document.getElementById("gamePanel").style.display = "block";
+  document.getElementById("flashcardArea").classList.remove("hidden");
+  document.getElementById("quizArea").classList.add("hidden");
+  renderFlashcard();
+}
+
+function openQuiz(){
+  if(cleanGlossaryItems().length < 4){ alert("Necesitas al menos 4 palabras en el glosario para opción múltiple."); return; }
+  gameType = "quiz";
+  document.getElementById("gamePanel").style.display = "block";
+  document.getElementById("quizArea").classList.remove("hidden");
+  document.getElementById("flashcardArea").classList.add("hidden");
+  nextQuizQuestion();
+}
+
+function closeGames(){ document.getElementById("gamePanel").style.display = "none"; }
+function setDirection(d){ direction = d; updateGameLabel(); if(gameType==="flash") renderFlashcard(); else nextQuizQuestion(); }
+function togglePinyin(){ showPinyin = !showPinyin; if(gameType==="flash") renderFlashcard(); else renderQuizQuestion(currentQuizItem); }
+function updateGameLabel(){
+  document.getElementById("gameModeLabel").textContent =
+    `Modo: ${direction === "zh-es" ? "Pregunta en chino → respuesta en español" : "Pregunta en español → respuesta en chino"} · Pinyin: ${showPinyin ? "visible" : "oculto"}`;
+}
+
+function renderFlashcard(){
+  updateGameLabel();
+  const items = cleanGlossaryItems();
+  const item = items[flashIndex % items.length];
+  const front = document.getElementById("flashFront");
+  const chinese = `<div>${item.text}</div>${showPinyin ? `<div class="flash-sub">${item.pinyin || ""}</div>` : ""}`;
+  const spanish = `<div>${item.translation}</div>`;
+  if(!flipped){
+    front.innerHTML = direction === "zh-es" ? chinese : spanish;
+  } else {
+    front.innerHTML = direction === "zh-es" ? spanish : chinese;
+  }
+}
+
+function flipFlashcard(){ flipped = !flipped; renderFlashcard(); }
+function nextFlashcard(){ flashIndex++; flipped = false; renderFlashcard(); }
+
+function nextQuizQuestion(){
+  const items = cleanGlossaryItems();
+  currentQuizItem = items[Math.floor(Math.random()*items.length)];
+  renderQuizQuestion(currentQuizItem);
+}
+
+function renderQuizQuestion(item){
+  if(!item) return;
+  updateGameLabel();
+  const q = document.getElementById("quizQuestion");
+  const options = document.getElementById("quizOptions");
+  const items = cleanGlossaryItems();
+  const correct = item;
+  const pool = items.filter(x => x.text !== correct.text).sort(() => Math.random() - 0.5).slice(0,3);
+  const all = [correct, ...pool].sort(() => Math.random() - 0.5);
+
+  if(direction === "zh-es"){
+    q.innerHTML = `<div>${correct.text}</div>${showPinyin ? `<div class="flash-sub">${correct.pinyin || ""}</div>` : ""}`;
+  } else {
+    q.innerHTML = `<div>${correct.translation}</div>`;
+  }
+
+  options.innerHTML = "";
+  all.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.innerHTML = direction === "zh-es"
+      ? opt.translation
+      : `${opt.text}${showPinyin ? `<div class="flash-sub">${opt.pinyin || ""}</div>` : ""}`;
+    btn.onclick = () => {
+      if(opt.text === correct.text){
+        btn.classList.add("correct");
+        speakChinese(correct.text);
+      } else {
+        btn.classList.add("wrong");
+      }
+    };
+    options.appendChild(btn);
+  });
+}
+
+function speakChinese(text){
+  if(!("speechSynthesis" in window)){
+    alert("Este navegador no soporta voz.");
+    return;
+  }
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "zh-CN";
+  utter.rate = 0.78;
+  utter.pitch = 1;
+  speechSynthesis.speak(utter);
+}
+
+function speakCurrentChinese(){
+  let item = null;
+  if(gameType === "flash") item = cleanGlossaryItems()[flashIndex % cleanGlossaryItems().length];
+  if(gameType === "quiz") item = currentQuizItem;
+  if(item) speakChinese(item.text);
+}
+
+renderReader();
+renderGlossary();
+updateGameLabel();
+</script>
+</body>
+</html>
