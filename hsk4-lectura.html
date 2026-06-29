@@ -726,9 +726,7 @@ const readings = [
 
       { text:"水平", pinyin:"shuǐpíng", translation:"nivel" },
 
-{ text:"。", punctuation:true },
-
-{ text:"★", punctuation:true },
+      { text:"★", punctuation:true },
 
       { text:"阅读", pinyin:"yuèdú", translation:"lectura" },
       { text:"能力", pinyin:"nénglì", translation:"capacidad" },
@@ -2868,31 +2866,13 @@ function renderReader(){
 
   reading.words.forEach(item => {
     if(item.punctuation){
-  const span = document.createElement("span");
-  span.className = "punct";
-  span.textContent = item.text + " ";
-  reader.appendChild(span);
-
-  if(item.text === "。"){
-    reader.appendChild(document.createElement("br"));
-    reader.appendChild(document.createElement("br"));
-  }
-
-  if(item.text === "★"){
-    reader.appendChild(document.createElement("br"));
-  }
-
-  if(item.text === "："){
-    reader.appendChild(document.createElement("br"));
-  }
-
-  if(item.text === "A" || item.text === "B" || item.text === "C" || item.text === "D"){
-    reader.appendChild(document.createElement("br"));
-  }
-
-  return;
-}
-    
+      const span = document.createElement("span");
+      span.className = "punct";
+      span.textContent = item.text + " ";
+      reader.appendChild(span);
+      if(item.text === "。" || item.text === "：") reader.appendChild(document.createElement("br"));
+      return;
+    }
     const span = document.createElement("span");
     span.className = "word";
     if(glossary.some(g => g.text === item.text)) span.classList.add("saved");
