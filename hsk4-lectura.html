@@ -42,6 +42,18 @@ button.secondary{background:#475569} button.danger{background:var(--red)} button
 .option-btn.correct{background:#dcfce7;border-color:#16a34a}
 .option-btn.wrong{background:#fee2e2;border-color:#dc2626}
 .small-note{text-align:center;color:#64748b;margin:8px 0}
+
+.progress-pill{font-weight:800;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:9px 13px;border-radius:999px;text-align:center}
+.end-box{display:none;text-align:center;background:#ecfdf5;border:2px solid #86efac;border-radius:18px;padding:18px;margin-top:14px;color:#065f46;font-weight:800}
+.icon-btn{padding:8px 10px;border-radius:10px;font-size:13px}
+.remove-btn{background:#ef4444;margin-left:8px}
+.flash-card.done{background:#ecfdf5;box-shadow:inset 0 0 0 2px #86efac;color:#065f46}
+.pronounce-wrap{text-align:center}
+.blur-field{filter:blur(6px);user-select:none;transition:.2s;background:#e5e7eb;border-radius:10px;padding:6px 10px;display:inline-block}
+.blur-field.revealed{filter:none;background:transparent;user-select:auto}
+.hanzi-hidden{visibility:hidden}
+.mic-status{margin-top:10px;font-weight:700;color:#1e3a8a}
+.result-box{margin-top:12px;background:white;border-radius:14px;padding:12px;border:1px solid #cbd5e1}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.reader{font-size:24px}.app{padding:12px}.option-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -57,6 +69,7 @@ button.secondary{background:#475569} button.danger{background:var(--red)} button
   <button onclick="toggleAnswer()">✅ Ver respuesta</button>
   <button class="success" onclick="openFlashcards()">🃏 Flashcards</button>
   <button class="success" onclick="openQuiz()">🎮 Opción múltiple</button>
+  <button class="success" onclick="openPronunciation()">🎙️ Pronunciación</button>
 </div>
 
 <div id="gamePanel" class="game-panel">
@@ -65,20 +78,45 @@ button.secondary{background:#475569} button.danger{background:var(--red)} button
     <button onclick="setDirection('zh-es')">中文 → ES</button>
     <button onclick="togglePinyin()">👁️ Pinyin ON/OFF</button>
     <button onclick="speakCurrentChinese()">🔊 Escuchar chino</button>
+    <button class="secondary" onclick="previousStudyItem()">⬅ Palabra anterior</button>
     <button class="secondary" onclick="closeGames()">Cerrar juego</button>
   </div>
   <p class="small-note" id="gameModeLabel"></p>
+  <div class="progress-pill" id="studyCounter">Glosario: 0 · Repasadas: 0 / 0</div>
+
   <div id="flashcardArea" class="hidden">
     <div class="flash-card" id="flashFront"></div>
     <div class="game-controls">
+      <button onclick="previousFlashcard()">⬅ Anterior</button>
       <button onclick="flipFlashcard()">Voltear</button>
-      <button onclick="nextFlashcard()">Siguiente tarjeta</button>
+      <button onclick="nextFlashcard()">Siguiente tarjeta ➡</button>
     </div>
+    <div id="flashEnd" class="end-box">🎉 Terminaste de repasar todas las flashcards.<br><br><button onclick="restartFlashcards()">Reiniciar flashcards</button></div>
   </div>
+
   <div id="quizArea" class="hidden">
     <div class="flash-card" id="quizQuestion"></div>
     <div class="option-grid" id="quizOptions"></div>
-    <div class="game-controls"><button onclick="nextQuizQuestion()">Nueva pregunta</button></div>
+    <div class="game-controls">
+      <button onclick="previousQuizQuestion()">⬅ Anterior</button>
+      <button onclick="nextQuizQuestion()">Siguiente pregunta ➡</button>
+    </div>
+    <div id="quizEnd" class="end-box">🎉 Terminaste todas las palabras del glosario.<br><br><button onclick="restartQuiz()">Reiniciar opción múltiple</button></div>
+  </div>
+
+  <div id="pronunciationArea" class="hidden pronounce-wrap">
+    <div class="flash-card" id="pronunciationCard"></div>
+    <div class="game-controls">
+      <button onclick="previousPronunciationItem()">⬅ Anterior</button>
+      <button onclick="speakCurrentChinese()">🔊 Escuchar</button>
+      <button onclick="startPronunciationRecognition()">🎙️ Repetir ahora</button>
+      <button onclick="togglePronunciationHanzi()">👁️ Hanzi ON/OFF</button>
+      <button onclick="togglePronunciationHelp()">Mostrar/Ocultar ayuda</button>
+      <button onclick="nextPronunciationItem()">Siguiente ➡</button>
+    </div>
+    <div id="pronunciationStatus" class="mic-status">Escucha la palabra y repítela.</div>
+    <div id="pronunciationResult" class="result-box hidden"></div>
+    <div id="pronunciationEnd" class="end-box">🎉 Terminaste la práctica de pronunciación.<br><br><button onclick="restartPronunciation()">Reiniciar pronunciación</button></div>
   </div>
 </div>
 
@@ -1716,9 +1754,37 @@ let showPinyin = true;
 let flashIndex = 0;
 let flipped = false;
 let currentQuizItem = null;
+let studyDeck = [];
+let quizDeck = [];
+let quizIndex = 0;
+let quizAnswered = false;
+let pronunciationDeck = [];
+let pronunciationIndex = 0;
+let pronunciationShowHanzi = true;
+let pronunciationHelpVisible = false;
 
 function cleanGlossaryItems(){
   return glossary.filter(x => !x.punctuation && x.text && x.translation);
+}
+
+function shuffleArray(arr){
+  const copy = [...arr];
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function saveGlossary(){
+  localStorage.setItem("globalHSKGlossary", JSON.stringify(glossary));
+}
+
+function updateStudyCounter(done=0,total=null){
+  const items = cleanGlossaryItems();
+  const finalTotal = total ?? items.length;
+  const box = document.getElementById("studyCounter");
+  box.textContent = `Glosario: ${items.length} · Repasadas: ${Math.min(done, finalTotal)} / ${finalTotal}`;
 }
 
 function renderReader(){
@@ -1759,11 +1825,25 @@ function showInfo(item){
 
 function addToGlossary(item){
   if(!glossary.some(g => g.text === item.text)){
-    glossary.push(item);
-    localStorage.setItem("globalHSKGlossary", JSON.stringify(glossary));
+    glossary.unshift(item);
+    saveGlossary();
   }
   renderGlossary();
   renderReader();
+}
+
+function removeFromGlossary(text){
+  glossary = glossary.filter(item => item.text !== text);
+  saveGlossary();
+  renderGlossary();
+  renderReader();
+  if(document.getElementById("gamePanel").style.display === "block"){
+    const items = cleanGlossaryItems();
+    if(items.length === 0){ closeGames(); return; }
+    if(gameType === "flash") restartFlashcards();
+    if(gameType === "quiz" && items.length >= 4) restartQuiz();
+    if(gameType === "pronunciation") restartPronunciation();
+  }
 }
 
 function renderGlossary(){
@@ -1780,7 +1860,10 @@ function renderGlossary(){
       <div class="pinyin">${item.pinyin || ""}</div>
       <div>${item.translation || ""}</div>
       ${item.grammar ? `<small>📌 ${item.grammar}</small>` : ""}
-      <div style="margin-top:8px"><button onclick='speakChinese(${JSON.stringify(item.text)})'>🔊</button></div>`;
+      <div style="margin-top:8px">
+        <button class="icon-btn" onclick='speakChinese(${JSON.stringify(item.text)})'>🔊</button>
+        <button class="icon-btn remove-btn" onclick='removeFromGlossary(${JSON.stringify(item.text)})'>Quitar</button>
+      </div>`;
     list.appendChild(div);
   });
 }
@@ -1790,6 +1873,7 @@ function clearGlossary(){
   localStorage.removeItem("globalHSKGlossary");
   renderGlossary();
   renderReader();
+  closeGames();
 }
 
 function nextReading(){
@@ -1826,65 +1910,143 @@ function renderAnswer(){
   }
 }
 
+function showOnlyGame(areaId){
+  document.getElementById("gamePanel").style.display = "block";
+  document.getElementById("flashcardArea").classList.add("hidden");
+  document.getElementById("quizArea").classList.add("hidden");
+  document.getElementById("pronunciationArea").classList.add("hidden");
+  document.getElementById(areaId).classList.remove("hidden");
+}
+
 function openFlashcards(){
   if(cleanGlossaryItems().length === 0){ alert("Primero toca algunas palabras para agregarlas al glosario."); return; }
-  gameType = "flash"; flipped = false; flashIndex = 0;
-  document.getElementById("gamePanel").style.display = "block";
-  document.getElementById("flashcardArea").classList.remove("hidden");
-  document.getElementById("quizArea").classList.add("hidden");
+  gameType = "flash";
+  showOnlyGame("flashcardArea");
+  restartFlashcards();
+}
+
+function restartFlashcards(){
+  studyDeck = shuffleArray(cleanGlossaryItems());
+  flashIndex = 0;
+  flipped = false;
+  document.getElementById("flashEnd").style.display = "none";
+  document.getElementById("flashFront").classList.remove("done");
   renderFlashcard();
 }
 
 function openQuiz(){
   if(cleanGlossaryItems().length < 4){ alert("Necesitas al menos 4 palabras en el glosario para opción múltiple."); return; }
   gameType = "quiz";
-  document.getElementById("gamePanel").style.display = "block";
-  document.getElementById("quizArea").classList.remove("hidden");
-  document.getElementById("flashcardArea").classList.add("hidden");
-  nextQuizQuestion();
+  showOnlyGame("quizArea");
+  restartQuiz();
+}
+
+function restartQuiz(){
+  quizDeck = shuffleArray(cleanGlossaryItems());
+  quizIndex = 0;
+  quizAnswered = false;
+  document.getElementById("quizEnd").style.display = "none";
+  document.getElementById("quizQuestion").classList.remove("done");
+  renderQuizQuestion(quizDeck[quizIndex]);
+}
+
+function openPronunciation(){
+  if(cleanGlossaryItems().length === 0){ alert("Primero toca algunas palabras para agregarlas al glosario."); return; }
+  gameType = "pronunciation";
+  showOnlyGame("pronunciationArea");
+  restartPronunciation();
+}
+
+function restartPronunciation(){
+  pronunciationDeck = shuffleArray(cleanGlossaryItems());
+  pronunciationIndex = 0;
+  pronunciationShowHanzi = true;
+  pronunciationHelpVisible = false;
+  document.getElementById("pronunciationEnd").style.display = "none";
+  document.getElementById("pronunciationCard").classList.remove("done");
+  document.getElementById("pronunciationResult").classList.add("hidden");
+  document.getElementById("pronunciationStatus").textContent = "Escucha la palabra y repítela.";
+  renderPronunciationCard();
 }
 
 function closeGames(){ document.getElementById("gamePanel").style.display = "none"; }
-function setDirection(d){ direction = d; updateGameLabel(); if(gameType==="flash") renderFlashcard(); else nextQuizQuestion(); }
-function togglePinyin(){ showPinyin = !showPinyin; if(gameType==="flash") renderFlashcard(); else renderQuizQuestion(currentQuizItem); }
+function setDirection(d){ direction = d; updateGameLabel(); if(gameType==="flash") renderFlashcard(); if(gameType==="quiz") renderQuizQuestion(quizDeck[quizIndex]); }
+function togglePinyin(){ showPinyin = !showPinyin; if(gameType==="flash") renderFlashcard(); if(gameType==="quiz") renderQuizQuestion(quizDeck[quizIndex]); }
 function updateGameLabel(){
-  document.getElementById("gameModeLabel").textContent =
-    `Modo: ${direction === "zh-es" ? "Pregunta en chino → respuesta en español" : "Pregunta en español → respuesta en chino"} · Pinyin: ${showPinyin ? "visible" : "oculto"}`;
+  let mode = "";
+  if(gameType === "flash") mode = direction === "zh-es" ? "Flashcard: chino → español" : "Flashcard: español → chino";
+  if(gameType === "quiz") mode = direction === "zh-es" ? "Opción múltiple: chino → español" : "Opción múltiple: español → chino";
+  if(gameType === "pronunciation") mode = "Pronunciación: escuchar → repetir → recibir retroalimentación";
+  document.getElementById("gameModeLabel").textContent = `${mode} · Pinyin: ${showPinyin ? "visible" : "oculto"}`;
 }
 
 function renderFlashcard(){
   updateGameLabel();
-  const items = cleanGlossaryItems();
-  const item = items[flashIndex % items.length];
   const front = document.getElementById("flashFront");
+  const end = document.getElementById("flashEnd");
+  if(studyDeck.length === 0) return;
+  if(flashIndex >= studyDeck.length){
+    front.classList.add("done");
+    front.innerHTML = "🎉 Repaso terminado";
+    end.style.display = "block";
+    updateStudyCounter(studyDeck.length, studyDeck.length);
+    return;
+  }
+  end.style.display = "none";
+  front.classList.remove("done");
+  const item = studyDeck[flashIndex];
   const chinese = `<div>${item.text}</div>${showPinyin ? `<div class="flash-sub">${item.pinyin || ""}</div>` : ""}`;
   const spanish = `<div>${item.translation}</div>`;
-  if(!flipped){
-    front.innerHTML = direction === "zh-es" ? chinese : spanish;
-  } else {
-    front.innerHTML = direction === "zh-es" ? spanish : chinese;
-  }
+  front.innerHTML = !flipped ? (direction === "zh-es" ? chinese : spanish) : (direction === "zh-es" ? spanish : chinese);
+  updateStudyCounter(flashIndex, studyDeck.length);
 }
 
 function flipFlashcard(){ flipped = !flipped; renderFlashcard(); }
-function nextFlashcard(){ flashIndex++; flipped = false; renderFlashcard(); }
+function nextFlashcard(){ if(flashIndex < studyDeck.length){ flashIndex++; flipped = false; renderFlashcard(); } }
+function previousFlashcard(){ if(flashIndex > 0){ flashIndex--; flipped = false; renderFlashcard(); } }
+function previousStudyItem(){
+  if(gameType === "flash") previousFlashcard();
+  if(gameType === "quiz") previousQuizQuestion();
+  if(gameType === "pronunciation") previousPronunciationItem();
+}
 
 function nextQuizQuestion(){
-  const items = cleanGlossaryItems();
-  currentQuizItem = items[Math.floor(Math.random()*items.length)];
-  renderQuizQuestion(currentQuizItem);
+  if(!quizAnswered){ alert("Primero contesta esta palabra para avanzar."); return; }
+  quizIndex++;
+  quizAnswered = false;
+  if(quizIndex >= quizDeck.length){
+    document.getElementById("quizQuestion").classList.add("done");
+    document.getElementById("quizQuestion").innerHTML = "🎉 Opción múltiple terminado";
+    document.getElementById("quizOptions").innerHTML = "";
+    document.getElementById("quizEnd").style.display = "block";
+    updateStudyCounter(quizDeck.length, quizDeck.length);
+    return;
+  }
+  renderQuizQuestion(quizDeck[quizIndex]);
+}
+
+function previousQuizQuestion(){
+  if(quizIndex > 0){
+    quizIndex--;
+    quizAnswered = false;
+    document.getElementById("quizEnd").style.display = "none";
+    document.getElementById("quizQuestion").classList.remove("done");
+    renderQuizQuestion(quizDeck[quizIndex]);
+  }
 }
 
 function renderQuizQuestion(item){
   if(!item) return;
   updateGameLabel();
+  currentQuizItem = item;
   const q = document.getElementById("quizQuestion");
   const options = document.getElementById("quizOptions");
   const items = cleanGlossaryItems();
   const correct = item;
-  const pool = items.filter(x => x.text !== correct.text).sort(() => Math.random() - 0.5).slice(0,3);
-  const all = [correct, ...pool].sort(() => Math.random() - 0.5);
+  const pool = shuffleArray(items.filter(x => x.text !== correct.text)).slice(0,3);
+  const all = shuffleArray([correct, ...pool]);
 
+  q.classList.remove("done");
   if(direction === "zh-es"){
     q.innerHTML = `<div>${correct.text}</div>${showPinyin ? `<div class="flash-sub">${correct.pinyin || ""}</div>` : ""}`;
   } else {
@@ -1899,15 +2061,97 @@ function renderQuizQuestion(item){
       ? opt.translation
       : `${opt.text}${showPinyin ? `<div class="flash-sub">${opt.pinyin || ""}</div>` : ""}`;
     btn.onclick = () => {
+      if(quizAnswered) return;
+      quizAnswered = true;
+      Array.from(options.children).forEach(b => b.disabled = true);
       if(opt.text === correct.text){
         btn.classList.add("correct");
         speakChinese(correct.text);
       } else {
         btn.classList.add("wrong");
+        Array.from(options.children).forEach(b => {
+          if(b.innerHTML.includes(correct.text) || b.textContent.trim() === correct.translation) b.classList.add("correct");
+        });
       }
+      updateStudyCounter(quizIndex + 1, quizDeck.length);
     };
     options.appendChild(btn);
   });
+  updateStudyCounter(quizIndex, quizDeck.length);
+}
+
+function renderPronunciationCard(){
+  updateGameLabel();
+  const card = document.getElementById("pronunciationCard");
+  const end = document.getElementById("pronunciationEnd");
+  if(pronunciationDeck.length === 0) return;
+  if(pronunciationIndex >= pronunciationDeck.length){
+    card.classList.add("done");
+    card.innerHTML = "🎉 Pronunciación terminada";
+    end.style.display = "block";
+    updateStudyCounter(pronunciationDeck.length, pronunciationDeck.length);
+    return;
+  }
+  end.style.display = "none";
+  card.classList.remove("done");
+  const item = pronunciationDeck[pronunciationIndex];
+  const hanziClass = pronunciationShowHanzi ? "" : "hanzi-hidden";
+  const helpClass = pronunciationHelpVisible ? "blur-field revealed" : "blur-field";
+  card.innerHTML = `<div>
+    <div class="${hanziClass}" style="font-size:42px">${item.text}</div>
+    <div class="flash-sub ${helpClass}" id="pronunciationPinyin">${item.pinyin || "sin pinyin"}</div>
+    <div class="flash-sub ${helpClass}" id="pronunciationSpanish">${item.translation || ""}</div>
+  </div>`;
+  updateStudyCounter(pronunciationIndex, pronunciationDeck.length);
+}
+
+function togglePronunciationHanzi(){ pronunciationShowHanzi = !pronunciationShowHanzi; renderPronunciationCard(); }
+function togglePronunciationHelp(){ pronunciationHelpVisible = !pronunciationHelpVisible; renderPronunciationCard(); }
+function nextPronunciationItem(){
+  if(pronunciationIndex < pronunciationDeck.length){
+    pronunciationIndex++;
+    document.getElementById("pronunciationResult").classList.add("hidden");
+    document.getElementById("pronunciationStatus").textContent = "Escucha la palabra y repítela.";
+    renderPronunciationCard();
+  }
+}
+function previousPronunciationItem(){
+  if(pronunciationIndex > 0){
+    pronunciationIndex--;
+    document.getElementById("pronunciationResult").classList.add("hidden");
+    document.getElementById("pronunciationStatus").textContent = "Escucha la palabra y repítela.";
+    renderPronunciationCard();
+  }
+}
+
+function startPronunciationRecognition(){
+  const item = pronunciationDeck[pronunciationIndex];
+  if(!item) return;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    alert("Este navegador no soporta reconocimiento de voz. Usa Chrome o Edge.");
+    return;
+  }
+  const recognition = new SpeechRecognition();
+  recognition.lang = "zh-CN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+  document.getElementById("pronunciationStatus").textContent = "Escuchando... repite la palabra.";
+  recognition.start();
+  recognition.onresult = (event) => {
+    const said = event.results[0][0].transcript.trim();
+    const ok = said.replace(/\s/g,"") === item.text.replace(/\s/g,"") || said.includes(item.text) || item.text.includes(said);
+    const result = document.getElementById("pronunciationResult");
+    result.classList.remove("hidden");
+    result.innerHTML = ok
+      ? `✅ Muy bien. La computadora escuchó: <strong>${said}</strong>`
+      : `🟡 Inténtalo otra vez. La computadora escuchó: <strong>${said}</strong><br>Meta: <strong>${item.text}</strong>`;
+    document.getElementById("pronunciationStatus").textContent = ok ? "Buen intento. Puedes avanzar o repetir." : "Escucha de nuevo y vuelve a intentarlo.";
+    if(ok) updateStudyCounter(pronunciationIndex + 1, pronunciationDeck.length);
+  };
+  recognition.onerror = () => {
+    document.getElementById("pronunciationStatus").textContent = "No pude escuchar bien. Intenta otra vez más cerca del micrófono.";
+  };
 }
 
 function speakChinese(text){
@@ -1925,13 +2169,23 @@ function speakChinese(text){
 
 function speakCurrentChinese(){
   let item = null;
-  if(gameType === "flash") item = cleanGlossaryItems()[flashIndex % cleanGlossaryItems().length];
+  if(gameType === "flash") item = studyDeck[flashIndex];
   if(gameType === "quiz") item = currentQuizItem;
+  if(gameType === "pronunciation") item = pronunciationDeck[pronunciationIndex];
   if(item) speakChinese(item.text);
 }
 
+document.addEventListener("keydown", (e) => {
+  const panelOpen = document.getElementById("gamePanel").style.display === "block";
+  if(!panelOpen || gameType !== "flash") return;
+  if(e.code === "ArrowRight"){ e.preventDefault(); nextFlashcard(); }
+  if(e.code === "ArrowLeft"){ e.preventDefault(); previousFlashcard(); }
+  if(e.code === "Space"){ e.preventDefault(); flipFlashcard(); }
+});
+
 renderReader();
 renderGlossary();
+updateStudyCounter();
 updateGameLabel();
 </script>
 </body>
