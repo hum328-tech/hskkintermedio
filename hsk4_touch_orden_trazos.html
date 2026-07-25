@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#5848e7">
+<title>HSK4 Touch + Orden de trazos</title>
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.3/dist/hanzi-writer.min.js"></script>
+<style>
+:root{--p:#5848e7;--p2:#7b70f2;--bg:#f4f6fb;--card:#fff;--text:#222538;--muted:#6e7487;--line:#dce0ec;--bad:#c53c4b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text)}
+body{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
+button{font:inherit;touch-action:manipulation}
+.wrap{max-width:760px;margin:auto;padding:12px 0 24px}
+.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border-radius:22px;padding:18px}
+.hero h1{margin:0 0 5px;font-size:1.55rem}.hero p{margin:0;line-height:1.4}
+.card{background:#fff;border-radius:22px;padding:16px;margin-top:14px;box-shadow:0 8px 24px rgba(39,42,68,.09)}
+.title{text-align:center}.char{font-size:5rem;line-height:1}.pinyin{color:var(--p);font-size:1.5rem;font-weight:800}.meaning{margin:8px 0 14px;line-height:1.45}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.info{border:1px solid var(--line);border-radius:13px;padding:10px;text-align:center;background:#fafbff}.info small{display:block;color:var(--muted)}
+.section{margin-top:20px}.section h2{font-size:1.12rem;margin:0 0 10px}
+.animBox{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fbfbff}
+.writerWrap,.pad{position:relative;width:min(86vw,360px);aspect-ratio:1;margin:auto;border:3px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+.writerWrap{width:min(78vw,320px)}
+.crossV,.crossH,.diag1,.diag2,.v,.h,.d1,.d2{position:absolute;background:#e4e7ef;pointer-events:none}
+.crossV,.v{left:50%;top:0;width:1px;height:100%}.crossH,.h{top:50%;left:0;height:1px;width:100%}
+.diag1,.diag2,.d1,.d2{left:-20%;top:50%;width:140%;height:1px}.diag1,.d1{transform:rotate(45deg)}.diag2,.d2{transform:rotate(-45deg)}
+#writerTarget{position:absolute;inset:0}
+.controls,.drawButtons,.speedRow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+button{border:0;border-radius:14px;padding:13px 8px;font-weight:800}
+.primary{background:var(--p);color:#fff}.soft{background:#eceaff;color:#4034bd}.danger{background:#ffe9ec;color:var(--bad)}
+.speedBtn.active{background:var(--p);color:#fff}.animStatus,.status{text-align:center;color:var(--muted);font-weight:700;min-height:22px;margin-top:8px}
+.pad{touch-action:none;overscroll-behavior:contain;width:100%;max-width:430px}
+.guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:min(66vw,320px);color:#e6e8f0;pointer-events:none;user-select:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.words{display:grid;gap:8px}.word{display:grid;grid-template-columns:80px 112px 1fr;gap:8px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fcfcff}
+.zh{font-size:1.3rem;font-weight:800}.py{color:#493dc4;font-weight:700}.es{font-size:.94rem}
+.note{background:#f0eeff;border-left:5px solid var(--p);padding:12px;border-radius:0 13px 13px 0;line-height:1.45}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+@media(max-width:390px){.controls,.drawButtons{grid-template-columns:1fr}.word{grid-template-columns:68px 96px 1fr;font-size:.9rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero"><h1>Machete HSK 4</h1><p>Primero observa el orden correcto. Después imítalo con el dedo.</p></section>
+<section class="card">
+<div class="title"><div class="char" id="char">按</div><div class="pinyin" id="pinyin">àn</div><div class="meaning" id="meaning"></div></div>
+<div class="meta"><div class="info"><small>Radical</small><b id="radical"></b></div><div class="info"><small>Trazos</small><b id="strokes"></b></div><div class="info"><small>Tono</small><b id="tone"></b></div></div>
+
+<section class="section">
+<h2>1. Mira cómo se escribe</h2>
+<div class="animBox">
+<div class="writerWrap" id="writerWrap"><div class="crossV"></div><div class="crossH"></div><div class="diag1"></div><div class="diag2"></div><div id="writerTarget"></div></div>
+<div class="controls"><button class="primary" id="playBtn">▶ Ver orden</button><button class="soft" id="repeatBtn">↻ Repetir</button><button class="soft" id="hideBtn">Ocultar carácter</button></div>
+<div class="speedRow"><button class="speedBtn soft" data-speed="slow">🐢 Lento</button><button class="speedBtn soft active" data-speed="normal">Normal</button><button class="speedBtn soft" data-speed="fast">Rápido</button></div>
+<div class="animStatus" id="animStatus">Toca “Ver orden”.</div>
+</div>
+</section>
+
+<section class="section">
+<h2>2. Practícalo con el dedo</h2>
+<div class="pad" id="pad"><div class="guide" id="guide">按</div><div class="v"></div><div class="h"></div><div class="d1"></div><div class="d2"></div><canvas id="canvas"></canvas></div>
+<div class="drawButtons"><button class="soft" id="guideBtn">Ocultar modelo</button><button class="danger" id="clearBtn">Borrar</button><button class="primary" id="doneBtn">Lo dominé ✓</button></div>
+<div class="status" id="status">Traza encima del carácter con el dedo.</div>
+</section>
+
+<section class="section"><h2>3. Palabras en las que aparece</h2><div class="words" id="words"></div></section>
+<section class="section"><h2>Ayuda para recordarlo</h2><div class="note" id="note"></div></section>
+<div class="nav"><button class="soft" id="prevBtn">← Anterior</button><button class="primary" id="nextBtn">Siguiente →</button></div>
+</section>
+</div>
+
+<script>
+(() => {
+const data=[
+ {c:"按",p:"àn",m:"presionar, pulsar, controlar; según o de acuerdo con",r:"扌",s:9,t:"4.º",n:"扌 representa una mano. Relaciónalo con presionar algo con la mano.",w:[["按时","ànshí","a tiempo"],["按照","ànzhào","según, de acuerdo con"],["按摩","ànmó","masaje; masajear"]]},
+ {c:"案",p:"àn",m:"caso, expediente, archivo, plan o propuesta",r:"木",s:10,t:"4.º",n:"木 puede ayudarte a recordar una mesa de madera donde se colocan documentos o expedientes.",w:[["答案","dá'àn","respuesta"],["方案","fāng'àn","plan, propuesta"],["案件","ànjiàn","caso legal"],["案例","ànlì","caso, estudio de caso"],["草案","cǎo'àn","borrador"],["档案","dàng'àn","archivo"],["图案","tú'àn","diseño, patrón"]]},
+ {c:"傲",p:"ào",m:"orgulloso, arrogante, altivo",r:"亻",s:12,t:"4.º",n:"亻 representa una persona; aquí se relaciona con la actitud de una persona orgullosa.",w:[["骄傲","jiāo'ào","orgulloso; arrogante"]]},
+ {c:"败",p:"bài",m:"ser derrotado, fracasar, perder",r:"贝",s:8,t:"4.º",n:"贝 se relacionaba con bienes o dinero; perderlos puede asociarse con fracaso o derrota.",w:[["失败","shībài","fracasar"],["败坏","bàihuài","corromper, deteriorar"],["腐败","fǔbài","corrupción"]]}
+];
+
+const $=id=>document.getElementById(id);
+let index=0,writer=null,speedMode="normal",characterVisible=true;
+function speedSettings(){if(speedMode==="slow")return{strokeAnimationSpeed:.55,delayBetweenStrokes:500};if(speedMode==="fast")return{strokeAnimationSpeed:1.8,delayBetweenStrokes:120};return{strokeAnimationSpeed:1,delayBetweenStrokes:260}}
+function buildWriter(){
+ $("writerTarget").innerHTML="";
+ if(typeof HanziWriter==="undefined"){$("animStatus").textContent="Abre esta página alojada en internet para cargar la animación.";return}
+ const size=Math.floor($("writerWrap").getBoundingClientRect().width),cfg=speedSettings();
+ writer=HanziWriter.create("writerTarget",data[index].c,{width:size,height:size,padding:20,showOutline:true,showCharacter:true,strokeAnimationSpeed:cfg.strokeAnimationSpeed,delayBetweenStrokes:cfg.delayBetweenStrokes,strokeColor:"#222538",outlineColor:"#d9dce7"});
+ characterVisible=true;$("hideBtn").textContent="Ocultar carácter";$("animStatus").textContent="Toca “Ver orden”.";
+}
+function playAnimation(){
+ if(!writer)return;
+ writer.showCharacter({duration:0});characterVisible=true;$("hideBtn").textContent="Ocultar carácter";$("animStatus").textContent="Observa cada trazo…";
+ writer.animateCharacter({onComplete:()=>{$("animStatus").textContent="Listo. Ahora cópialo con el dedo.";}})
+}
+document.querySelectorAll(".speedBtn").forEach(btn=>btn.addEventListener("click",()=>{speedMode=btn.dataset.speed;document.querySelectorAll(".speedBtn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");buildWriter();playAnimation()}));
+$("playBtn").onclick=playAnimation;
+$("repeatBtn").onclick=()=>{buildWriter();playAnimation()};
+$("hideBtn").onclick=()=>{if(!writer)return;characterVisible=!characterVisible;if(characterVisible){writer.showCharacter();$("hideBtn").textContent="Ocultar carácter"}else{writer.hideCharacter();$("hideBtn").textContent="Mostrar carácter"}};
+
+const canvas=$("canvas"),ctx=canvas.getContext("2d");
+let drawing=false,activePointer=null,lastX=0,lastY=0,guideVisible=true;
+function resizeCanvas(){
+ const rect=$("pad").getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1);
+ canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineWidth=13;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#5848e7";
+}
+function pnt(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function down(e){e.preventDefault();drawing=true;activePointer=e.pointerId;try{canvas.setPointerCapture(e.pointerId)}catch(_){ }const p=pnt(e);lastX=p.x;lastY=p.y;$("status").textContent="Escribiendo…"}
+function move(e){if(!drawing||e.pointerId!==activePointer)return;e.preventDefault();const p=pnt(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y}
+function up(e){if(e.pointerId!==activePointer)return;e.preventDefault();drawing=false;activePointer=null;$("status").textContent="Trazo registrado. Continúa."}
+if(window.PointerEvent){
+ canvas.addEventListener("pointerdown",down,{passive:false});canvas.addEventListener("pointermove",move,{passive:false});canvas.addEventListener("pointerup",up,{passive:false});canvas.addEventListener("pointercancel",up,{passive:false});
+}else{
+ let td=false;
+ canvas.addEventListener("touchstart",e=>{e.preventDefault();td=true;const t=e.touches[0],r=canvas.getBoundingClientRect();lastX=t.clientX-r.left;lastY=t.clientY-r.top},{passive:false});
+ canvas.addEventListener("touchmove",e=>{if(!td)return;e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect(),x=t.clientX-r.left,y=t.clientY-r.top;ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();lastX=x;lastY=y},{passive:false});
+ canvas.addEventListener("touchend",e=>{e.preventDefault();td=false},{passive:false});
+}
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);$("status").textContent="Cuadro limpio."}
+$("clearBtn").onclick=clearCanvas;
+$("guideBtn").onclick=()=>{guideVisible=!guideVisible;$("guide").style.display=guideVisible?"flex":"none";$("guideBtn").textContent=guideVisible?"Ocultar modelo":"Mostrar modelo"};
+$("doneBtn").onclick=()=>{$("status").textContent="Marcado como dominado ✓"};
+
+function render(){
+ const x=data[index];$("char").textContent=x.c;$("pinyin").textContent=x.p;$("meaning").textContent=x.m;$("radical").textContent=x.r;$("strokes").textContent=x.s;$("tone").textContent=x.t;$("guide").textContent=x.c;$("note").textContent=x.n;
+ $("words").innerHTML=x.w.map(v=>`<div class="word"><div class="zh">${v[0]}</div><div class="py">${v[1]}</div><div class="es">${v[2]}</div></div>`).join("");
+ guideVisible=true;$("guide").style.display="flex";$("guideBtn").textContent="Ocultar modelo";resizeCanvas();clearCanvas();buildWriter();
+}
+$("prevBtn").onclick=()=>{index=(index-1+data.length)%data.length;render()};
+$("nextBtn").onclick=()=>{index=(index+1)%data.length;render()};
+let timer;window.addEventListener("resize",()=>{clearTimeout(timer);timer=setTimeout(()=>{resizeCanvas();clearCanvas();buildWriter()},200)});
+render();
+})();
+</script>
+</body>
+</html>
