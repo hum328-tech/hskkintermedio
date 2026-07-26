@@ -1,914 +1,474 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#14213d" />
-  <title>HSK 4 · Laboratorio de escucha</title>
-
-  <style>
-    :root {
-      --navy: #14213d;
-      --blue: #2f80ed;
-      --sky: #eaf4ff;
-      --cyan: #56ccf2;
-      --green: #27ae60;
-      --yellow: #f2c94c;
-      --orange: #f2994a;
-      --red: #eb5757;
-      --ink: #182230;
-      --muted: #6b7280;
-      --line: #dce5ef;
-      --panel: #ffffff;
-      --bg: #f3f7fb;
-      --shadow: 0 16px 45px rgba(20, 33, 61, 0.12);
-      --radius: 24px;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      font-family: Inter, ui-rounded, "Segoe UI", Arial, sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 10% 0%, #dff3ff 0, transparent 32%),
-        radial-gradient(circle at 100% 10%, #fff0cf 0, transparent 28%),
-        var(--bg);
-    }
-
-    button, input { font: inherit; }
-    button { -webkit-tap-highlight-color: transparent; }
-
-    .app {
-      width: min(1180px, 100%);
-      margin: 0 auto;
-      padding: 22px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-icon {
-      width: 58px;
-      height: 58px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      background: var(--navy);
-      color: white;
-      font-size: 29px;
-      box-shadow: var(--shadow);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(1.35rem, 3vw, 2.1rem);
-      letter-spacing: -0.03em;
-    }
-
-    .subtitle {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 0.96rem;
-    }
-
-    .progress-pill {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 15px;
-      min-width: 150px;
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(20,33,61,.07);
-      font-weight: 800;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.55fr) minmax(310px, .75fr);
-      gap: 20px;
-      align-items: start;
-    }
-
-    .card {
-      background: rgba(255,255,255,.94);
-      border: 1px solid rgba(220,229,239,.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .player-card { padding: 24px; }
-
-    .lesson-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .lesson-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--blue);
-      background: var(--sky);
-      border-radius: 999px;
-      font-size: .82rem;
-      font-weight: 900;
-      padding: 7px 11px;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-
-    h2 {
-      margin: 9px 0 5px;
-      font-size: clamp(1.25rem, 2.7vw, 1.8rem);
-    }
-
-    .instruction {
-      color: var(--muted);
-      line-height: 1.5;
-      margin: 0;
-    }
-
-    .mascot {
-      width: 74px;
-      height: 74px;
-      flex: 0 0 74px;
-      display: grid;
-      place-items: center;
-      font-size: 48px;
-      border-radius: 22px;
-      background: #fff6dd;
-      border: 1px solid #ffe2a2;
-    }
-
-    .now-playing {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      gap: 16px;
-      padding: 18px;
-      background: linear-gradient(135deg, var(--navy), #254d83);
-      border-radius: 22px;
-      color: white;
-      margin-bottom: 18px;
-    }
-
-    .main-play {
-      width: 66px;
-      height: 66px;
-      border: 0;
-      border-radius: 50%;
-      background: white;
-      color: var(--navy);
-      font-size: 28px;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0,0,0,.18);
-    }
-
-    .main-play:active { transform: scale(.97); }
-
-    .time-title {
-      font-weight: 900;
-      margin-bottom: 5px;
-    }
-
-    .time-readout {
-      font-variant-numeric: tabular-nums;
-      color: #d8eaff;
-      font-size: .93rem;
-    }
-
-    .speed-control {
-      border: 1px solid rgba(255,255,255,.25);
-      background: rgba(255,255,255,.12);
-      color: white;
-      border-radius: 14px;
-      padding: 11px 13px;
-      font-weight: 900;
-      cursor: pointer;
-    }
-
-    .seek {
-      width: 100%;
-      accent-color: var(--cyan);
-      cursor: pointer;
-      margin: 3px 0 20px;
-    }
-
-    .segment-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      color: var(--muted);
-      font-size: .84rem;
-      font-weight: 700;
-    }
-
-    .dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 5px;
-    }
-
-    .dot.current { background: var(--blue); }
-    .dot.saved { background: var(--orange); }
-    .dot.mastered { background: var(--green); }
-
-    .timeline {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(31px, 1fr));
-      gap: 6px;
-      max-height: 240px;
-      overflow: auto;
-      overscroll-behavior: contain;
-      padding: 6px 4px 10px;
-      scrollbar-width: thin;
-    }
-
-    .segment {
-      min-height: 36px;
-      border: 0;
-      border-radius: 9px;
-      background: #e7edf5;
-      color: #536173;
-      font-size: .72rem;
-      font-weight: 900;
-      cursor: pointer;
-      transition: transform .12s ease, background .18s ease, color .18s ease;
-    }
-
-    .segment:hover { transform: translateY(-1px); }
-    .segment.active { background: var(--blue); color: white; transform: scale(1.08); }
-    .segment.saved { background: #ffe1bd; color: #8c4a00; }
-    .segment.mastered { background: #cff2dc; color: #126f38; }
-    .segment.active.saved { background: var(--orange); color: white; }
-    .segment.active.mastered { background: var(--green); color: white; }
-
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .action {
-      min-height: 60px;
-      border: 0;
-      border-radius: 17px;
-      padding: 13px 18px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: transform .12s ease;
-    }
-
-    .action:active { transform: scale(.98); }
-
-    .repeat {
-      background: var(--sky);
-      color: #1459a6;
-      border: 1px solid #bddcff;
-    }
-
-    .unknown {
-      background: linear-gradient(135deg, #ffb15e, var(--orange));
-      color: #492400;
-      box-shadow: 0 10px 25px rgba(242,153,74,.25);
-    }
-
-    .side-card {
-      padding: 20px;
-      position: sticky;
-      top: 18px;
-    }
-
-    .side-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 13px;
-    }
-
-    .side-title h3 {
-      margin: 0;
-      font-size: 1.18rem;
-    }
-
-    .count {
-      min-width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: var(--orange);
-      color: white;
-      font-weight: 900;
-    }
-
-    .glossary {
-      display: grid;
-      gap: 11px;
-      max-height: 600px;
-      overflow: auto;
-      padding-right: 3px;
-    }
-
-    .empty {
-      padding: 34px 18px;
-      border: 2px dashed var(--line);
-      border-radius: 18px;
-      text-align: center;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .empty-icon { font-size: 36px; margin-bottom: 8px; }
-
-    .glossary-item {
-      border: 1px solid var(--line);
-      background: #fbfdff;
-      border-radius: 17px;
-      padding: 13px;
-    }
-
-    .glossary-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .segment-name {
-      font-weight: 900;
-      color: var(--navy);
-    }
-
-    .segment-time {
-      font-size: .78rem;
-      color: var(--muted);
-      margin-top: 2px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .remove {
-      border: 0;
-      background: #ffe7e7;
-      color: #a22424;
-      border-radius: 10px;
-      width: 34px;
-      height: 34px;
-      cursor: pointer;
-      font-weight: 900;
-    }
-
-    .glossary-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .mini {
-      min-height: 40px;
-      border-radius: 11px;
-      border: 1px solid var(--line);
-      background: white;
-      cursor: pointer;
-      font-size: .83rem;
-      font-weight: 900;
-    }
-
-    .mini.play-fragment { color: var(--blue); }
-    .mini.master { color: var(--green); }
-    .mini.master.done { background: var(--green); color: white; border-color: var(--green); }
-
-    .clear {
-      width: 100%;
-      border: 0;
-      background: transparent;
-      color: var(--red);
-      padding: 13px 4px 2px;
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 24px;
-      transform: translate(-50%, 140%);
-      background: var(--navy);
-      color: white;
-      padding: 13px 18px;
-      border-radius: 14px;
-      font-weight: 800;
-      box-shadow: var(--shadow);
-      transition: transform .25s ease;
-      z-index: 20;
-      text-align: center;
-    }
-
-    .toast.show { transform: translate(-50%, 0); }
-
-    .footer-note {
-      text-align: center;
-      color: var(--muted);
-      font-size: .8rem;
-      margin: 18px 0 4px;
-    }
-
-    @media (max-width: 850px) {
-      .layout { grid-template-columns: 1fr; }
-      .side-card { position: static; }
-      .glossary { max-height: none; }
-    }
-
-    @media (max-width: 560px) {
-      .app { padding: 12px; }
-      .topbar { align-items: flex-start; }
-      .progress-pill { display: none; }
-      .player-card, .side-card { padding: 16px; border-radius: 20px; }
-      .mascot { width: 58px; height: 58px; flex-basis: 58px; font-size: 38px; }
-      .now-playing { grid-template-columns: auto 1fr; }
-      .speed-control { grid-column: 1 / -1; width: 100%; }
-      .actions { grid-template-columns: 1fr; }
-      .timeline { max-height: 210px; grid-template-columns: repeat(auto-fill, minmax(29px, 1fr)); }
-    }
-  
-    .back-platform{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      margin-bottom:14px;
-      padding:10px 14px;
-      border-radius:14px;
-      background:#ffffff;
-      border:1px solid #dce5ef;
-      color:#14213d;
-      text-decoration:none;
-      font-weight:900;
-      box-shadow:0 8px 24px rgba(20,33,61,.07);
-    }
-  
-    .study-open{margin-top:12px;width:100%;min-height:50px;border:0;border-radius:14px;background:linear-gradient(135deg,#2f80ed,#56ccf2);color:white;font-weight:900;cursor:pointer}
-    .study-view{display:none;width:min(1180px,100%);margin:0 auto;padding:22px}.study-view.active{display:block}.main-view.hidden{display:none}
-    .study-header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}.study-list{display:grid;gap:16px}
-    .study-card{background:white;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
-    .study-card-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-    .study-audio-actions,.reveal-buttons{display:flex;gap:8px;flex-wrap:wrap}.reveal-buttons{margin:12px 0}
-    .study-audio-actions button,.reveal-buttons button{min-height:42px;border:1px solid var(--line);border-radius:12px;background:white;font-weight:900;cursor:pointer;padding:9px 13px}
-    .language-panel{display:none;border-radius:15px;padding:14px;margin-top:10px;line-height:1.7}.language-panel.visible{display:block}
-    .language-panel.chinese{background:#fff8dd;border:1px solid #f2d87b;font-size:1.35rem;font-weight:800}.language-panel.pinyin{background:#eaf4ff;border:1px solid #b9d8ff;color:#1459a6;font-size:1.05rem}.language-panel.spanish{background:#eaf9ef;border:1px solid #bce5ca;color:#126f38}
-    .transcript-pending{color:var(--muted);font-style:italic;font-weight:600}.study-empty{background:white;border:2px dashed var(--line);border-radius:22px;padding:34px;text-align:center;color:var(--muted)}
-    .back-study{border:0;border-radius:14px;padding:12px 16px;background:var(--navy);color:white;font-weight:900;cursor:pointer}
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HSK4 · Laboratorio de audio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans SC",sans-serif;background:#f5f7fb;color:#20242a}
+.wrap{max-width:780px;margin:0 auto;padding:18px}
+h1{font-size:24px;margin:0 0 8px}
+.sub{color:#606774;margin-bottom:18px}
+.card,.practice-card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 6px 20px rgba(0,0,0,.07)}
+.fragment,.review-item{border:2px solid #e6eaf0;border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}
+.num,.progress{font-size:14px;font-weight:bold;color:#6b7280;margin-bottom:8px}
+.hanzi{font-size:27px;line-height:1.45;margin-bottom:12px}
+.blurred{filter:blur(8px);user-select:none;transition:filter .25s ease}
+.blurred.visible{filter:blur(0);user-select:text}
+button{width:100%;min-height:52px;border:0;border-radius:14px;font-size:17px;font-weight:bold;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.99)}
+.play,.back,.practice-btn,.check-btn,.next-audio{background:#222;color:#fff}
+.show-text,.review-top,.remove,.prev-audio,.next-btn{background:#e8edf5;color:#20242a}
+.didnt-understand{background:#fff1f1;color:#9f1d1d;margin-top:10px}
+.show-text{margin-bottom:10px}
+.review-top{margin:0 0 16px}
+.controls{display:grid;gap:10px;margin-top:16px}
+.nav-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.nav-controls.one{grid-template-columns:1fr}
+.review-screen,.transcription-screen{display:none}
+.back{margin-bottom:16px}
+.empty-review{background:#fff;border-radius:16px;padding:20px;text-align:center;color:#6b7280}
+.practice-btn{margin-bottom:14px}
+.remove{margin-top:10px}
+.transcription-input{width:100%;min-height:58px;border:2px solid #dfe3ea;border-radius:14px;padding:12px 14px;font-size:22px;font-family:Arial,"Noto Sans SC",sans-serif;margin:12px 0 10px}
+.feedback{min-height:28px;margin-top:12px;font-weight:bold;text-align:center}
+.success{color:#19733a}.error{color:#b42318}
+.next-btn{margin-top:10px;display:none}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef1f6;color:#59616d;font-size:13px;font-weight:bold;margin-bottom:12px}
+@media(max-width:520px){
+  .wrap{padding:12px}
+  .hanzi{font-size:24px}
+  .nav-controls{grid-template-columns:1fr}
+}
+</style>
 </head>
-
 <body>
-  <main class="app main-view" id="mainView">
-    <a class="back-platform" href="index.html">← Volver a la plataforma</a>
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-icon">听</div>
-        <div>
-          <h1>Laboratorio de escucha HSK 4</h1>
-          <p class="subtitle">Escucha, identifica y practica lo que todavía no comprendes.</p>
-        </div>
-      </div>
-      <div class="progress-pill"><span id="savedTop">0</span> por practicar</div>
-    </header>
+<div class="wrap">
 
-    <section class="layout">
-      <article class="card player-card">
-        <div class="lesson-heading">
-          <div>
-            <span class="lesson-label">🎧 Comprensión auditiva</span>
-            <h2>Escucha el examen</h2>
-            <p class="instruction">
-              Cuando una parte no quede clara, toca <strong>“No entendí esta parte”</strong>.
-              También puedes tocar cualquier bloque para repetirlo.
-            </p>
-          </div>
-          <div class="mascot" aria-hidden="true">🐼</div>
-        </div>
+<section id="lessonScreen">
+  <h1 id="lessonTitle">HSK4 · Audio 1</h1>
+  <div class="sub">Escucha primero el audio completo y después trabaja cada parte.</div>
+  <button class="review-top" onclick="openReview()">🔁 Repasar audios <span id="reviewCount"></span></button>
+  <div id="lessonContent"></div>
+</section>
 
-        <audio id="audio" preload="metadata" src="listening.mp3"></audio>
+<section id="reviewScreen" class="review-screen">
+  <button class="back" onclick="closeReview()">← Volver a los audios</button>
+  <h1>Repasar audios</h1>
+  <div class="sub">Aquí se acumulan las partes que marcaste como “No entendí”.</div>
+  <button class="practice-btn" onclick="startTranscriptionPractice()">✍ Practicar transcripción</button>
+  <div id="reviewList"></div>
+</section>
 
-        <div class="now-playing">
-          <button id="playBtn" class="main-play" aria-label="Reproducir">▶</button>
-          <div>
-            <div class="time-title" id="currentLabel">Audio completo · reproducción continua</div>
-            <div class="time-readout">
-              <span id="currentTime">00:00</span> / <span id="duration">00:00</span>
-            </div>
-          </div>
-          <button id="speedBtn" class="speed-control">1× velocidad</button>
-        </div>
+<section id="transcriptionScreen" class="transcription-screen">
+  <button class="back" onclick="exitTranscriptionPractice()">← Volver a repasar audios</button>
+  <h1>Práctica de transcripción</h1>
+  <div class="sub">Escucha y escribe los caracteres. La puntuación y los espacios no cuentan.</div>
+  <div class="practice-card">
+    <div class="progress" id="transcriptionProgress"></div>
+    <button class="play" onclick="playCurrentTranscription()">▶ Escuchar audio</button>
+    <input id="transcriptionInput" class="transcription-input" type="text"
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+      placeholder="Escribe aquí lo que escuchas">
+    <button class="check-btn" onclick="checkTranscription()">Comprobar</button>
+    <div id="transcriptionFeedback" class="feedback"></div>
+    <button id="nextTranscriptionBtn" class="next-btn" onclick="nextTranscription()">Siguiente audio →</button>
+  </div>
+</section>
 
-        <input id="seek" class="seek" type="range" min="0" max="100" value="0" step="0.01" aria-label="Posición del audio" />
-        <p style="margin:-8px 0 18px;color:var(--muted);font-size:.9rem;line-height:1.5;">
-          El botón grande reproduce todo el examen sin detenerse. El mapa seguirá el audio automáticamente.
-          Toca un bloque para escuchar únicamente ese fragmento.
-        </p>
+</div>
 
-        <div class="segment-toolbar">
-          <strong>Mapa del audio</strong>
-          <div class="legend">
-            <span><i class="dot current"></i>Actual</span>
-            <span><i class="dot saved"></i>Por practicar</span>
-            <span><i class="dot mastered"></i>Dominado</span>
-          </div>
-        </div>
+<script>
+const lessons = [
+  {
+    id: 1,
+    complete: "喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吧？图书馆门口儿见？今天天气不错。",
+    parts: [
+      "喂？我们去树林里走走吧，",
+      "今天的阳光多好啊，",
+      "很暖和。",
+      "好吧？图书馆门口儿见？",
+      "今天天气不错。"
+    ]
+  },
+  {
+    id: 2,
+    complete: "我经常在电梯里遇到她，可能她也在这座大楼里上班，但是我们从来没有说过话，只是看着很熟悉。他们俩经常聊天。",
+    parts: [
+      "我经常在电梯里遇到她，",
+      "可能她也在这座大楼里上班，",
+      "但是我们从来没有说过话，",
+      "只是看着很熟悉。",
+      "他们俩经常聊天。"
+    ]
+  },
+  {
+    id: 3,
+    complete: "西红柿鸡蛋汤的做法很简单，一点儿也不复杂，准备几个西红柿和鸡蛋就可以了，我保证你一次就能学会。做西红柿鸡蛋汤很简单。",
+    parts: [
+      "西红柿鸡蛋汤的做法很简单，",
+      "一点儿也不复杂，",
+      "准备几个西红柿和鸡蛋就可以了，",
+      "我保证你一次就能学会。",
+      "做西红柿鸡蛋汤很简单。"
+    ]
+  },
+  {
+    id: 4,
+    complete: "身高只有一米六零，他是世界上最著名的矮个子篮球运动员，他曾经说过：“篮球不只是让那些高个子打的，也是给那些喜欢它的人们打的。”他爱打篮球。",
+    parts: [
+      "身高只有一米六零，",
+      "他是世界上最著名的",
+      "矮个子篮球运动员，",
+      "他曾经说过：",
+      "篮球不只是让那些高个子打的，",
+      "也是给那些喜欢它的人们打的。",
+      "他爱打篮球。"
+    ]
+  },
+  {
+    id: 5,
+    complete: "小刘已经提前完成了全年任务，我希望你们各位也都能像小刘一样，希望你们加油！好，现在让我们一起鼓掌祝贺小刘！小刘受到了表扬。",
+    parts: [
+      "小刘已经提前完成了全年任务，",
+      "我希望你们各位也都能像小刘一样，",
+      "希望你们加油！",
+      "好，",
+      "现在让我们一起鼓掌祝贺小刘！",
+      "小刘受到了表扬。"
+    ]
+  },
+  {
+    id: 6,
+    complete: "喂，是你啊，我今天去北京出差。我现在在机场，等我到了北京以后再给你打电话好吗？飞机马上就要起飞了。他刚下飞机。",
+    parts: [
+      "喂，",
+      "是你啊，",
+      "我今天去北京出差。",
+      "我现在在机场，",
+      "等我到了北京以后再给你打电话好吗？",
+      "飞机马上就要起飞了。",
+      "他刚下飞机。"
+    ]
+  },
+  {
+    id: 7,
+    complete: "虽然她俩是姐妹，性格却很不一样。姐姐非常安静，极少说话，妹妹正好相反，最喜欢和人聊天。姐妹俩性格差不多。",
+    parts: [
+      "虽然她俩是姐妹，",
+      "性格却很不一样。",
+      "姐姐非常安静，",
+      "极少说话，",
+      "妹妹正好相反，",
+      "最喜欢和人聊天。",
+      "姐妹俩性格差不多。"
+    ]
+  },
+  {
+    id: 8,
+    complete: "老王，我今晚要加班，这张票浪费了就可惜了。你去看吧，听说这次演出邀请了许多著名的演员，很精彩的。他想给老王一张演出票。",
+    parts: [
+      "老王，",
+      "我今晚要加班，",
+      "这张票浪费了就可惜了。",
+      "你去看吧，",
+      "听说这次演出邀请了许多著名的演员，",
+      "很精彩的。",
+      "他想给老王一张演出票。"
+    ]
+  },
+  {
+    id: 9,
+    complete: "小张，你这份计划书写得不错，就按照这个计划去做市场调查吧。下个月我要看调查结果。小张的调查结果写得很好。",
+    parts: [
+      "小张，",
+      "你这份计划书写得不错，",
+      "就按照这个计划去做市场调查吧。",
+      "下个月我要看调查结果。",
+      "小张的调查结果写得很好。"
+    ]
+  },
+  {
+    id: 10,
+    complete: "女儿发烧了，我带她去医院。大夫给她打了一针，三岁的女儿尽管很害怕打针，不过她没有哭。女儿不同意打针。",
+    parts: [
+      "女儿发烧了，",
+      "我带她去医院。",
+      "大夫给她打了一针，",
+      "三岁的女儿尽管很害怕打针，",
+      "不过她没有哭。",
+      "女儿不同意打针。"
+    ]
+  }
+];
 
-        <div id="currentChineseText" style="margin:16px 0 4px;padding:18px;border-radius:18px;background:#fff8dd;border:1px solid #f2d87b;font-size:1.35rem;font-weight:800;line-height:1.7;">
-          大家好！欢迎参加HSK（四级）考试。
-        </div>
-        <div id="timeline" class="timeline" aria-label="Segmentos del audio"></div>
+let currentLessonIndex = 0;
+const REVIEW_KEY = "hsk4_review_audios_v2";
 
-        <div class="actions">
-          <button id="repeatBtn" class="action repeat">↻ Repetir segmento actual</button>
-          <button id="unknownBtn" class="action unknown">＋ No entendí esta parte</button>
-        </div>
-      </article>
+function speak(text, onEnd){
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "zh-CN";
+  u.rate = 0.82;
+  u.pitch = 1;
+  if(onEnd) u.onend = onEnd;
+  speechSynthesis.speak(u);
+}
 
-      <aside class="card side-card">
-        <div class="side-title">
-          <h3>Mi glosario auditivo</h3>
-          <span id="savedCount" class="count">0</span>
-        </div>
+function getReviewItems(){
+  try{return JSON.parse(localStorage.getItem(REVIEW_KEY)) || []}
+  catch(e){return []}
+}
+function setReviewItems(items){
+  localStorage.setItem(REVIEW_KEY, JSON.stringify(items));
+  updateReviewCount();
+}
+function itemId(lessonId, partIndex){ return `audio${lessonId}-parte${partIndex+1}`; }
 
-        <div id="glossary" class="glossary"></div>
-        <button id="clearBtn" class="clear">Borrar todo el glosario</button>
-        <button id="openStudyBtn" class="study-open">📘 Estudiar mi glosario</button>
-      </aside>
-    </section>
+function renderLesson(){
+  const lesson = lessons[currentLessonIndex];
+  document.getElementById("lessonTitle").textContent = `HSK4 · Audio ${lesson.id}`;
 
-    <p class="footer-note">El progreso se guarda automáticamente en este dispositivo.</p>
-  </main>
+  const content = document.getElementById("lessonContent");
+  content.innerHTML = "";
 
-  <section id="studyView" class="study-view">
-    <div class="study-header"><div><span class="lesson-label">📘 Repaso guiado</span><h2>Estudiar mi glosario auditivo</h2><p class="instruction">Escucha cada fragmento y revela las ayudas solamente cuando las necesites.</p></div><button id="closeStudyBtn" class="back-study">← Volver al audio</button></div>
-    <div id="studyList" class="study-list"></div>
-  </section>
+  const card = document.createElement("div");
+  card.className = "card";
 
-  <div id="toast" class="toast" role="status"></div>
+  const complete = document.createElement("div");
+  complete.className = "fragment";
+  complete.innerHTML = `
+    <div class="num">Audio completo</div>
+    <div class="hanzi blurred" id="completeText">${lesson.complete}</div>
+    <button class="show-text" onclick="toggleText('completeText', this, 'Mostrar texto completo')">Mostrar texto completo</button>
+    <button class="play" onclick="speak(lessons[currentLessonIndex].complete)">▶ Escuchar audio completo</button>
+  `;
+  card.appendChild(complete);
 
-  <script>
-    // Los puntos de inicio y final están integrados aquí para que la página
-    // funcione con solo index.html + listening.mp3.
-    const SEGMENTS = [{"id":1,"start":0.0,"end":9.953,"duration":9.953,"text":"大家好！欢迎参加HSK（四级）考试。","status":"text-based-provisional"},{"id":2,"start":9.953,"end":19.906,"duration":9.953,"text":"大家好！欢迎参加HSK（四级）考试。","status":"text-based-provisional"},{"id":3,"start":19.906,"end":29.859,"duration":9.953,"text":"大家好！欢迎参加HSK（四级）考试。","status":"text-based-provisional"},{"id":4,"start":29.859,"end":41.945,"duration":12.086,"text":"HSK（四级）听力考试分三部分，共45题。","status":"text-based-provisional"},{"id":5,"start":41.945,"end":51.187,"duration":9.242,"text":"请大家注意，听力考试现在开始。","status":"text-based-provisional"},{"id":6,"start":51.187,"end":54.031,"duration":2.844,"text":"第一部分。","status":"text-based-provisional"},{"id":7,"start":54.031,"end":61.851,"duration":7.82,"text":"一共10个题，每题听一次。","status":"text-based-provisional"},{"id":8,"start":61.851,"end":80.335,"duration":18.484,"text":"例如：我想去办个信用卡，今天下午你有时间吗？陪我去一趟银行？","status":"text-based-provisional"},{"id":9,"start":80.335,"end":86.023,"duration":5.687,"text":"他打算下午去银行。","status":"text-based-provisional"},{"id":10,"start":86.023,"end":125.835,"duration":39.812,"text":"现在我很少看电视，其中一个原因是，广告太多了，不管什么时间，也不管什么节目，只要你打开电视，总能看到那么多的广告，浪费我的时间。","status":"text-based-provisional"},{"id":11,"start":125.835,"end":131.522,"duration":5.687,"text":"他喜欢看电视广告。","status":"text-based-provisional"},{"id":12,"start":131.522,"end":136.499,"duration":4.977,"text":"现在开始第1题。","status":"text-based-provisional"},{"id":13,"start":136.499,"end":157.827,"duration":21.328,"text":"喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吧？图书馆门口见呢？","status":"text-based-provisional"},{"id":14,"start":157.827,"end":162.092,"duration":4.266,"text":"今天天气不错。","status":"text-based-provisional"},{"id":15,"start":162.092,"end":190.53,"duration":28.437,"text":"我经常在电梯里遇到她，可能她也在这座大楼里上班。但是我们从来没有说过话，只是看着很熟悉。","status":"text-based-provisional"},{"id":16,"start":190.53,"end":195.506,"duration":4.977,"text":"他们俩经常聊天。","status":"text-based-provisional"},{"id":17,"start":195.506,"end":226.076,"duration":30.57,"text":"西红柿鸡蛋汤的做法很简单，一点儿也不复杂，准备几个西红柿和鸡蛋就可以了，我保证你一次就能学会。","status":"text-based-provisional"},{"id":18,"start":226.076,"end":233.185,"duration":7.109,"text":"做西红柿鸡蛋汤很简单。","status":"text-based-provisional"},{"id":19,"start":233.185,"end":272.998,"duration":39.812,"text":"身高只有一米六零，他是世界上最著名的矮个子篮球运动员。他曾经说过：“篮球不只是让那些高个子打的，也是给那些喜欢它的人们打的。”","status":"text-based-provisional"},{"id":20,"start":272.998,"end":276.552,"duration":3.555,"text":"他爱打篮球。","status":"text-based-provisional"},{"id":21,"start":276.552,"end":310.677,"duration":34.125,"text":"小刘已经提前完成了全年任务，我希望你们各位也都能像小刘一样，希望你们加油！好，现在让我们一起鼓掌祝贺小刘！","status":"text-based-provisional"},{"id":22,"start":310.677,"end":315.653,"duration":4.977,"text":"小刘受到了表扬。","status":"text-based-provisional"},{"id":23,"start":315.653,"end":346.223,"duration":30.57,"text":"喂，是你啊，我今天去北京出差。我现在在机场，等我到了北京以后再给你打电话好吗？飞机马上就要起飞了。","status":"text-based-provisional"},{"id":24,"start":346.223,"end":349.778,"duration":3.555,"text":"他刚下飞机。","status":"text-based-provisional"},{"id":25,"start":349.778,"end":376.083,"duration":26.304,"text":"虽然她俩是姐妹，性格却很不一样。姐姐非常安静，极少说话，妹妹正好相反，最喜欢和人聊天。","status":"text-based-provisional"},{"id":26,"start":376.083,"end":381.77,"duration":5.687,"text":"姐妹俩性格差不多。","status":"text-based-provisional"},{"id":27,"start":381.77,"end":411.629,"duration":29.859,"text":"老王，我今晚要加班，这张票浪费了就可惜了。你去看吧，听说这次演出邀请了许多著名的演员，很精彩的。","status":"text-based-provisional"},{"id":28,"start":411.629,"end":418.738,"duration":7.109,"text":"他想给老王一张演出票。","status":"text-based-provisional"},{"id":29,"start":418.738,"end":444.332,"duration":25.594,"text":"小张，你这份计划书写得不错，就按照这个计划去做市场调查吧。下个月我要看调查结果。","status":"text-based-provisional"},{"id":30,"start":444.332,"end":452.152,"duration":7.82,"text":"小张的调查结果写得很好。","status":"text-based-provisional"},{"id":31,"start":452.152,"end":478.457,"duration":26.304,"text":"女儿发烧了，我带她去医院。大夫给她打了一针，三岁的女儿尽管很害怕打针，不过她没有哭。","status":"text-based-provisional"},{"id":32,"start":478.457,"end":483.433,"duration":4.977,"text":"女儿不同意打针。","status":"text-based-provisional"},{"id":33,"start":483.433,"end":486.277,"duration":2.844,"text":"第二部分。","status":"text-based-provisional"},{"id":34,"start":486.277,"end":494.097,"duration":7.82,"text":"一共15个题，每题听一次。","status":"text-based-provisional"},{"id":35,"start":494.097,"end":506.894,"duration":12.797,"text":"例如：女：该加油了，去机场的路上有加油站吗？","status":"text-based-provisional"},{"id":36,"start":506.894,"end":511.159,"duration":4.266,"text":"男：有，你放心吧。","status":"text-based-provisional"},{"id":37,"start":511.159,"end":518.269,"duration":7.109,"text":"问：男的主要是什么意思？","status":"text-based-provisional"},{"id":38,"start":518.269,"end":523.956,"duration":5.687,"text":"现在开始第11题。","status":"text-based-provisional"},{"id":39,"start":523.956,"end":530.355,"duration":6.398,"text":"男：请问，附近有超市吗？","status":"text-based-provisional"},{"id":40,"start":530.355,"end":543.862,"duration":13.508,"text":"女：前面那儿有个银行，银行对面有一个小超市。","status":"text-based-provisional"},{"id":41,"start":543.862,"end":548.128,"duration":4.266,"text":"问：超市在哪儿？","status":"text-based-provisional"},{"id":42,"start":548.128,"end":558.081,"duration":9.953,"text":"女：天都这么晚了，你还出去干什么？","status":"text-based-provisional"},{"id":43,"start":558.081,"end":575.143,"duration":17.062,"text":"男：我们明天去上海旅游，我要去买一个轻一点儿的行李箱。","status":"text-based-provisional"},{"id":44,"start":575.143,"end":582.253,"duration":7.109,"text":"问：男的现在要去做什么？","status":"text-based-provisional"},{"id":45,"start":582.253,"end":597.182,"duration":14.93,"text":"男：怎么又买这么多饼干和巧克力，难道你不减肥了？","status":"text-based-provisional"},{"id":46,"start":597.182,"end":611.401,"duration":14.219,"text":"女：减了一个月都没有瘦下来，我实在没有信心了。","status":"text-based-provisional"},{"id":47,"start":611.401,"end":617.088,"duration":5.687,"text":"问：女的是什么意思？","status":"text-based-provisional"},{"id":48,"start":617.088,"end":627.041,"duration":9.953,"text":"女：明天几点到？八点来得及来不及？","status":"text-based-provisional"},{"id":49,"start":627.041,"end":640.549,"duration":13.508,"text":"男：提前点儿吧？咱们还得负责打印会议材料呢。","status":"text-based-provisional"},{"id":50,"start":640.549,"end":646.947,"duration":6.398,"text":"问：他们要提前做什么？","status":"text-based-provisional"},{"id":51,"start":646.947,"end":656.9,"duration":9.953,"text":"男：李老师，我下个月五号要结婚了。","status":"text-based-provisional"},{"id":52,"start":656.9,"end":668.986,"duration":12.086,"text":"女：你是在开玩笑吧？你们才认识一个月呀。","status":"text-based-provisional"},{"id":53,"start":668.986,"end":678.939,"duration":9.953,"text":"问：对于这个消息，女的觉得怎么样？","status":"text-based-provisional"},{"id":54,"start":678.939,"end":688.892,"duration":9.953,"text":"女：啊，外面下雪了。起来，你快来看看。","status":"text-based-provisional"},{"id":55,"start":688.892,"end":703.822,"duration":14.93,"text":"男：太好了！咱们去公园吧？试试你的新照相机，怎么样？","status":"text-based-provisional"},{"id":56,"start":703.822,"end":710.22,"duration":6.398,"text":"问：这个照相机怎么样？","status":"text-based-provisional"},{"id":57,"start":710.22,"end":725.861,"duration":15.64,"text":"男：我已经出发了，有点儿堵车，到学校大概要四十分钟。","status":"text-based-provisional"},{"id":58,"start":725.861,"end":735.814,"duration":9.953,"text":"女：好的，你路上小心，慢慢开，别着急。","status":"text-based-provisional"},{"id":59,"start":735.814,"end":741.501,"duration":5.687,"text":"问：男的怎么去学校？","status":"text-based-provisional"},{"id":60,"start":741.501,"end":749.321,"duration":7.82,"text":"女：听说你准备出国读博士？","status":"text-based-provisional"},{"id":61,"start":749.321,"end":765.673,"duration":16.351,"text":"男：是啊，已经申请了。如果顺利的话，下个月就可以出发了。","status":"text-based-provisional"},{"id":62,"start":765.673,"end":771.36,"duration":5.687,"text":"问：男的打算做什么？","status":"text-based-provisional"},{"id":63,"start":771.36,"end":779.891,"duration":8.531,"text":"男：小姐，我女儿多少钱一张票？","status":"text-based-provisional"},{"id":64,"start":779.891,"end":791.266,"duration":11.375,"text":"女：您好，您的六十，您孩子买儿童票，半价。","status":"text-based-provisional"},{"id":65,"start":791.266,"end":798.376,"duration":7.109,"text":"问：女儿的票多少钱一张？","status":"text-based-provisional"},{"id":66,"start":798.376,"end":811.172,"duration":12.797,"text":"女：今晚我穿这条裙子怎么样？今年最流行的。","status":"text-based-provisional"},{"id":67,"start":811.172,"end":831.078,"duration":19.906,"text":"男：很漂亮，不过我觉得这种打扮参加正式的舞会可能还是不太合适。","status":"text-based-provisional"},{"id":68,"start":831.078,"end":836.766,"duration":5.687,"text":"问：男的是什么意思？","status":"text-based-provisional"},{"id":69,"start":836.766,"end":855.25,"duration":18.484,"text":"男：来北方好几年了吧？你觉得北方和南方在气候上有什么区别？","status":"text-based-provisional"},{"id":70,"start":855.25,"end":871.601,"duration":16.351,"text":"女：夏天都差不多，只是冬天北方比较干燥，而南方更湿润。","status":"text-based-provisional"},{"id":71,"start":871.601,"end":876.578,"duration":4.977,"text":"问：他们在谈什么？","status":"text-based-provisional"},{"id":72,"start":876.578,"end":887.953,"duration":11.375,"text":"女：经理，您对新的办公室环境还满意吗？","status":"text-based-provisional"},{"id":73,"start":887.953,"end":902.171,"duration":14.219,"text":"男：不错，谢谢。你可以带我去看看公司别的地方吗？","status":"text-based-provisional"},{"id":74,"start":902.171,"end":907.148,"duration":4.977,"text":"问：说话人在哪里？","status":"text-based-provisional"},{"id":75,"start":907.148,"end":918.523,"duration":11.375,"text":"男：明天的面试很重要，你千万不要迟到。","status":"text-based-provisional"},{"id":76,"start":918.523,"end":930.609,"duration":12.086,"text":"女：我知道，你别担心了，我一定会准时到的。","status":"text-based-provisional"},{"id":77,"start":930.609,"end":937.718,"duration":7.109,"text":"问：男的希望女的怎么样？","status":"text-based-provisional"},{"id":78,"start":937.718,"end":945.538,"duration":7.82,"text":"女：你对小李的印象怎么样？","status":"text-based-provisional"},{"id":79,"start":945.538,"end":967.577,"duration":22.039,"text":"男：他的优点是有礼貌，诚实，能吃苦，就是太马虎、太粗心了，不适合我们的工作。","status":"text-based-provisional"},{"id":80,"start":967.577,"end":974.686,"duration":7.109,"text":"问：小李为什么被拒绝了？","status":"text-based-provisional"},{"id":81,"start":974.686,"end":984.639,"duration":9.953,"text":"男：怎么忽然想起买花了？要送谁啊？","status":"text-based-provisional"},{"id":82,"start":984.639,"end":998.147,"duration":13.508,"text":"女：今天是父亲节，你不会忘了吧？快去买礼物吧。","status":"text-based-provisional"},{"id":83,"start":998.147,"end":1003.835,"duration":5.687,"text":"问：女的为什么买花？","status":"text-based-provisional"},{"id":84,"start":1003.835,"end":1006.678,"duration":2.844,"text":"第三部分。","status":"text-based-provisional"},{"id":85,"start":1006.678,"end":1014.499,"duration":7.82,"text":"一共20个题，每题听一次。","status":"text-based-provisional"},{"id":86,"start":1014.499,"end":1031.561,"duration":17.062,"text":"例如：男：把这个文件复印五份，一会儿拿到会议室发给大家。","status":"text-based-provisional"},{"id":87,"start":1031.561,"end":1039.381,"duration":7.82,"text":"女：好的。会议是下午三点吗？","status":"text-based-provisional"},{"id":88,"start":1039.381,"end":1048.623,"duration":9.242,"text":"男：改了，三点半，推迟了半个小时。","status":"text-based-provisional"},{"id":89,"start":1048.623,"end":1055.022,"duration":6.398,"text":"女：好，六零一会议室吧？","status":"text-based-provisional"},{"id":90,"start":1055.022,"end":1057.865,"duration":2.844,"text":"男：对，没变。","status":"text-based-provisional"},{"id":91,"start":1057.865,"end":1062.842,"duration":4.977,"text":"问：会议几点开始？","status":"text-based-provisional"},{"id":92,"start":1062.842,"end":1068.529,"duration":5.687,"text":"现在开始第26题。","status":"text-based-provisional"},{"id":93,"start":1068.529,"end":1079.904,"duration":11.375,"text":"女：打了一下午羽毛球，肚子有点儿饿了。","status":"text-based-provisional"},{"id":94,"start":1079.904,"end":1087.724,"duration":7.82,"text":"男：稍等一会儿，饭马上就好。","status":"text-based-provisional"},{"id":95,"start":1087.724,"end":1093.412,"duration":5.687,"text":"女：真香，今天吃什么？","status":"text-based-provisional"},{"id":96,"start":1093.412,"end":1102.654,"duration":9.242,"text":"男：你鼻子真好，今晚我们吃饺子。","status":"text-based-provisional"},{"id":97,"start":1102.654,"end":1108.341,"duration":5.687,"text":"问：他们今晚吃什么？","status":"text-based-provisional"},{"id":98,"start":1108.341,"end":1121.138,"duration":12.797,"text":"男：小李，刚才跟你说话的那个女孩儿是谁啊？","status":"text-based-provisional"},{"id":99,"start":1121.138,"end":1127.537,"duration":6.398,"text":"女：我大学同学，你认识？","status":"text-based-provisional"},{"id":100,"start":1127.537,"end":1138.201,"duration":10.664,"text":"男：应该不认识，但是好像在哪儿见过。","status":"text-based-provisional"},{"id":101,"start":1138.201,"end":1150.997,"duration":12.797,"text":"女：那你可能是在我的大学毕业照上见过吧。","status":"text-based-provisional"},{"id":102,"start":1150.997,"end":1160.95,"duration":9.953,"text":"问：那个女孩儿和小李是什么关系？","status":"text-based-provisional"},{"id":103,"start":1160.95,"end":1168.771,"duration":7.82,"text":"女：你好，请问王师傅在家吗？","status":"text-based-provisional"},{"id":104,"start":1168.771,"end":1175.88,"duration":7.109,"text":"男：他不在家，他游泳去了。","status":"text-based-provisional"},{"id":105,"start":1175.88,"end":1182.989,"duration":7.109,"text":"女：那他什么时候回来呢？","status":"text-based-provisional"},{"id":106,"start":1182.989,"end":1189.388,"duration":6.398,"text":"男：一会儿就回来了吧。","status":"text-based-provisional"},{"id":107,"start":1189.388,"end":1202.184,"duration":12.797,"text":"女：好的，那我过一会儿再联系吧，打扰了，再见。","status":"text-based-provisional"},{"id":108,"start":1202.184,"end":1208.583,"duration":6.398,"text":"问：王师傅做什么去了？","status":"text-based-provisional"},{"id":109,"start":1208.583,"end":1219.958,"duration":11.375,"text":"男：上午刚借的那本杂志，怎么找不到了？","status":"text-based-provisional"},{"id":110,"start":1219.958,"end":1223.512,"duration":3.555,"text":"女：哪本杂志？","status":"text-based-provisional"},{"id":111,"start":1223.512,"end":1234.887,"duration":11.375,"text":"男：体育杂志，黄皮儿的，我就放在桌子上。","status":"text-based-provisional"},{"id":112,"start":1234.887,"end":1247.684,"duration":12.797,"text":"女：不用到处找了，我刚看了一下，在沙发上呢。","status":"text-based-provisional"},{"id":113,"start":1247.684,"end":1252.66,"duration":4.977,"text":"问：男的在找什么？","status":"text-based-provisional"},{"id":114,"start":1252.66,"end":1262.614,"duration":9.953,"text":"女：先生，对不起，我们这儿不能抽烟。","status":"text-based-provisional"},{"id":115,"start":1262.614,"end":1272.567,"duration":9.953,"text":"男：请问，附近有可以抽烟的地方吗？","status":"text-based-provisional"},{"id":116,"start":1272.567,"end":1284.652,"duration":12.086,"text":"女：有，请直走，然后向左，那儿有一个吸烟室。","status":"text-based-provisional"},{"id":117,"start":1284.652,"end":1287.496,"duration":2.844,"text":"男：谢谢。","status":"text-based-provisional"},{"id":118,"start":1287.496,"end":1293.894,"duration":6.398,"text":"问：他们最可能在哪儿？","status":"text-based-provisional"},{"id":119,"start":1293.894,"end":1304.558,"duration":10.664,"text":"男：李教授，这几篇文章您什么时候要？","status":"text-based-provisional"},{"id":120,"start":1304.558,"end":1318.066,"duration":13.508,"text":"女：不急，你自己安排，只要在寒假前交给我就行。","status":"text-based-provisional"},{"id":121,"start":1318.066,"end":1327.308,"duration":9.242,"text":"男：没问题，我肯定会提前完成的。","status":"text-based-provisional"},{"id":122,"start":1327.308,"end":1330.863,"duration":3.555,"text":"女：那样更好。","status":"text-based-provisional"},{"id":123,"start":1330.863,"end":1340.816,"duration":9.953,"text":"问：李教授什么时候要那几篇文章？","status":"text-based-provisional"},{"id":124,"start":1340.816,"end":1349.347,"duration":8.531,"text":"女：先生，这是您的房卡，请拿好。","status":"text-based-provisional"},{"id":125,"start":1349.347,"end":1358.589,"duration":9.242,"text":"男：谢谢！我的行李箱在哪儿取呢？","status":"text-based-provisional"},{"id":126,"start":1358.589,"end":1369.253,"duration":10.664,"text":"女：我们一会儿会直接送到您的房间。","status":"text-based-provisional"},{"id":127,"start":1369.253,"end":1374.941,"duration":5.687,"text":"男：谢谢！麻烦你们了。","status":"text-based-provisional"},{"id":128,"start":1374.941,"end":1377.784,"duration":2.844,"text":"女：不客气。","status":"text-based-provisional"},{"id":129,"start":1377.784,"end":1385.605,"duration":7.82,"text":"问：女的最可能是做什么的？","status":"text-based-provisional"},{"id":130,"start":1385.605,"end":1398.401,"duration":12.797,"text":"男：你好，我想要一个窗户旁边的座位，还有吗？","status":"text-based-provisional"},{"id":131,"start":1398.401,"end":1416.886,"duration":18.484,"text":"女：我查一下。对不起，您乘坐的这个航班没有窗户旁边的座位了。","status":"text-based-provisional"},{"id":132,"start":1416.886,"end":1421.151,"duration":4.266,"text":"男：好吧，没关系。","status":"text-based-provisional"},{"id":133,"start":1421.151,"end":1423.995,"duration":2.844,"text":"女：给您票。","status":"text-based-provisional"},{"id":134,"start":1423.995,"end":1431.815,"duration":7.82,"text":"问：男的想要什么样的座位？","status":"text-based-provisional"},{"id":135,"start":1431.815,"end":1446.034,"duration":14.219,"text":"女：把香蕉皮扔到垃圾桶里去，以后别随便扔东西。","status":"text-based-provisional"},{"id":136,"start":1446.034,"end":1450.299,"duration":4.266,"text":"男：知道了，奶奶。","status":"text-based-provisional"},{"id":137,"start":1450.299,"end":1456.698,"duration":6.398,"text":"女：数学作业写完了吗？","status":"text-based-provisional"},{"id":138,"start":1456.698,"end":1469.494,"duration":12.797,"text":"男：没呢，我先出去玩儿一会儿，您在家休息吧。","status":"text-based-provisional"},{"id":139,"start":1469.494,"end":1477.315,"duration":7.82,"text":"问：根据对话，可以知道什么？","status":"text-based-provisional"},{"id":140,"start":1477.315,"end":1487.268,"duration":9.953,"text":"男：你换球鞋干什么啊？又要出去啊？","status":"text-based-provisional"},{"id":141,"start":1487.268,"end":1503.619,"duration":16.351,"text":"女：去打网球。我约了小王，她打网球很厉害，你敢和她打吗？","status":"text-based-provisional"},{"id":142,"start":1503.619,"end":1506.463,"duration":2.844,"text":"男：当然敢。","status":"text-based-provisional"},{"id":143,"start":1506.463,"end":1522.814,"duration":16.351,"text":"女：那一起走！看看你究竟是赢还是输。走吧，人多了还热闹。","status":"text-based-provisional"},{"id":144,"start":1522.814,"end":1530.635,"duration":7.82,"text":"问：小王的网球打得怎么样？","status":"text-based-provisional"},{"id":145,"start":1530.635,"end":1582.532,"duration":51.898,"text":"这房子家具全，电视、空调、冰箱都有并且都很新；离火车站也很近，交通方便，离您公司也不远，您可以坐公共汽车甚至出租车上班，把身体也锻炼了；价格也比较便宜，真的很值得考虑。","status":"text-based-provisional"},{"id":146,"start":1582.532,"end":1590.353,"duration":7.82,"text":"说话人最可能是做什么的？","status":"text-based-provisional"},{"id":147,"start":1590.353,"end":1598.173,"duration":7.82,"text":"关于这房子，下列哪个正确？","status":"text-based-provisional"},{"id":148,"start":1598.173,"end":1639.407,"duration":41.234,"text":"狗是一种聪明的动物，它能听懂人的话，明白人的心情，会和人产生感情。人们喜欢养狗，是因为在孤单的时候，狗会陪着他们，互相信任，互相照顾。","status":"text-based-provisional"},{"id":149,"start":1639.407,"end":1647.227,"duration":7.82,"text":"根据这段话，狗有什么特点？","status":"text-based-provisional"},{"id":150,"start":1647.227,"end":1652.915,"duration":5.687,"text":"人们为什么喜欢狗？","status":"text-based-provisional"},{"id":151,"start":1652.915,"end":1702.68,"duration":49.765,"text":"这个节目我一直在看，它介绍了很多生活中的小知识，包括怎样选择育，擦脸应该用什么毛巾，怎样远离皮肤病等等。很多以前我没有注意到的问题，现在通过它了解了不少。","status":"text-based-provisional"},{"id":152,"start":1702.68,"end":1708.367,"duration":5.687,"text":"说话人在介绍什么？","status":"text-based-provisional"},{"id":153,"start":1708.367,"end":1716.898,"duration":8.531,"text":"说话人了解了哪方面的知识？","status":"text-based-provisional"},{"id":154,"start":1716.898,"end":1778.039,"duration":61.14,"text":"昨天，妻子让我陪她去买一双袜子。进了商店，她先去看帽子，觉得有个帽子很可爱，就买了一个。然后她又买了一条裤子、一件衬衫，把她身上带的钱全花完后我们就回家了。回家以后，我吃惊地发现，竟然没有买袜子。","status":"text-based-provisional"},{"id":155,"start":1778.039,"end":1783.015,"duration":4.977,"text":"他们计划买什么？","status":"text-based-provisional"},{"id":156,"start":1783.015,"end":1786.57,"duration":3.555,"text":"说话人是谁？","status":"text-based-provisional"},{"id":157,"start":1786.57,"end":1834.202,"duration":47.632,"text":"哭不一定是坏事。遇到伤心事，哭一场就会感觉心里舒服多了；人们成功的时候，因为激动会哭；人们获得爱情和友谊的时候，因为感动也会哭。所以说，哭不一定是坏事。","status":"text-based-provisional"},{"id":158,"start":1834.202,"end":1841.311,"duration":7.109,"text":"伤心时哭一哭会怎么样？","status":"text-based-provisional"},{"id":159,"start":1841.311,"end":1849.843,"duration":8.531,"text":"这段话主要想告诉我们什么？","status":"text-based-provisional"},{"id":160,"start":1849.843,"end":1855.53,"duration":5.687,"text":"听力考试现在结束。","status":"text-based-provisional"}];
+  lesson.parts.forEach((text, idx)=>{
+    const saved = getReviewItems().some(x => x.id === itemId(lesson.id, idx));
+    const block = document.createElement("div");
+    block.className = "fragment";
+    block.innerHTML = `
+      <div class="num">Parte ${idx+1} de ${lesson.parts.length}</div>
+      <div class="hanzi blurred" id="partText${idx}">${text}</div>
+      <button class="show-text" onclick="toggleText('partText${idx}', this, 'Mostrar texto parte ${idx+1}')">Mostrar texto parte ${idx+1}</button>
+      <button class="play" onclick="speak(lessons[currentLessonIndex].parts[${idx}])">▶ Escuchar parte ${idx+1}</button>
+      <button class="didnt-understand" ${saved ? "disabled" : ""} onclick="saveForReview(${idx}, this)">
+        ${saved ? "✓ Guardado para repasar" : "No entendí esta parte"}
+      </button>
+    `;
+    card.appendChild(block);
+  });
 
-    
-    const TRANSCRIPTS = {"1":{"chinese":"大家好！欢迎参加 HSK（四级）考试。HSK（四级）听力考试分三部分，共45题。请大家注意，听力考试现在开始。","pinyin":"Dàjiā hǎo! Huānyíng cānjiā HSK sì jí kǎoshì. HSK sì jí tīnglì kǎoshì fēn sān bùfen, gòng sìshíwǔ tí. Qǐng dàjiā zhùyì, tīnglì kǎoshì xiànzài kāishǐ.","spanish":"¡Hola a todos! Bienvenidos al examen HSK nivel 4. La prueba de comprensión auditiva tiene tres partes y 45 preguntas. Presten atención: el examen comienza ahora."},"2":{"chinese":"例如：我想去办个信用卡，今天下午你有时间吗？陪我去一趟银行？★ 他打算下午去银行。现在我很少看电视，其中一个原因是，广告太多了，不管什么时间，也不管什么节目，只要你打开电视，总能看到那么多的广告，浪费我的时间。★ 他喜欢看电视广告。","pinyin":"Lìrú: Wǒ xiǎng qù bàn ge xìnyòngkǎ, jīntiān xiàwǔ nǐ yǒu shíjiān ma? Péi wǒ qù yí tàng yínháng? Tā dǎsuàn xiàwǔ qù yínháng. Xiànzài wǒ hěn shǎo kàn diànshì, qízhōng yí ge yuányīn shì, guǎnggào tài duō le, bùguǎn shénme shíjiān, yě bùguǎn shénme jiémù, zhǐyào nǐ dǎkāi diànshì, zǒng néng kàndào nàme duō de guǎnggào, làngfèi wǒ de shíjiān. Tā xǐhuan kàn diànshì guǎnggào.","spanish":"Ejemplo: Quiero tramitar una tarjeta de crédito. ¿Tienes tiempo esta tarde? ¿Me acompañas al banco? Afirmación: Él planea ir al banco por la tarde. Ahora casi no veo televisión porque hay demasiados anuncios; aparecen a cualquier hora y en cualquier programa y me hacen perder tiempo. Afirmación: A él le gusta ver anuncios de televisión."},"3":{"chinese":"喂？我们去树林里走走吧，今天的阳光多好啊，很暖和。好吧？图书馆门口儿见？★ 今天天气不错。","pinyin":"Wéi? Wǒmen qù shùlín lǐ zǒuzou ba, jīntiān de yángguāng duō hǎo a, hěn nuǎnhuo. Hǎo ba? Túshūguǎn ménkǒur jiàn? Jīntiān tiānqì búcuò.","spanish":"¿Hola? Vamos a caminar por el bosque. Hoy hace muy buen sol y está cálido. ¿De acuerdo? Nos vemos en la entrada de la biblioteca. Afirmación: Hoy hace buen tiempo."},"4":{"chinese":"我经常在电梯里遇到她，可能她也在这座大楼里上班。但是我们从来没有说过话，只是看着很熟悉。★ 他们俩经常聊天。","pinyin":"Wǒ jīngcháng zài diàntī lǐ yùdào tā, kěnéng tā yě zài zhè zuò dàlóu lǐ shàngbān. Dànshì wǒmen cónglái méiyǒu shuōguo huà, zhǐshì kànzhe hěn shúxī. Tāmen liǎ jīngcháng liáotiān.","spanish":"A menudo me encuentro con ella en el ascensor. Quizá también trabaja en este edificio. Sin embargo, nunca hemos hablado; solamente me resulta familiar. Afirmación: Ellos dos conversan con frecuencia."},"5":{"chinese":"西红柿鸡蛋汤的做法很简单，一点儿也不复杂，准备几个西红柿和鸡蛋就可以了，我保证你一次就能学会。★ 做西红柿鸡蛋汤很简单。","pinyin":"Xīhóngshì jīdàn tāng de zuòfǎ hěn jiǎndān, yìdiǎnr yě bù fùzá, zhǔnbèi jǐ ge xīhóngshì hé jīdàn jiù kěyǐ le, wǒ bǎozhèng nǐ yí cì jiù néng xuéhuì. Zuò xīhóngshì jīdàn tāng hěn jiǎndān.","spanish":"Preparar sopa de tomate con huevo es muy sencillo y nada complicado. Solo necesitas algunos tomates y huevos; te garantizo que aprenderás a hacerla al primer intento. Afirmación: Hacer sopa de tomate con huevo es muy fácil."},"6":{"chinese":"身高只有一米六零，他是世界上最著名的矮个子篮球运动员。他曾经说过：‘篮球不只是让那些高个子打的，也是给那些喜欢它的人们打的。’★ 他爱打篮球。","pinyin":"Shēngāo zhǐyǒu yì mǐ liù líng, tā shì shìjiè shàng zuì zhùmíng de ǎigèzi lánqiú yùndòngyuán. Tā céngjīng shuōguo: ‘Lánqiú bù zhǐshì ràng nàxiē gāogèzi dǎ de, yě shì gěi nàxiē xǐhuan tā de rénmen dǎ de.’ Tā ài dǎ lánqiú.","spanish":"Mide solamente 1.60 metros y es el jugador de baloncesto de baja estatura más famoso del mundo. Dijo: ‘El baloncesto no es solo para las personas altas, sino para todos los que lo aman’. Afirmación: A él le encanta jugar baloncesto."},"7":{"chinese":"小刘已经提前完成了全年任务，我希望你们各位也都能像小刘一样，希望你们加油！好，现在让我们一起鼓掌祝贺小刘！★ 小刘受到了表扬。","pinyin":"Xiǎo Liú yǐjīng tíqián wánchéng le quánnián rènwu, wǒ xīwàng nǐmen gèwèi yě dōu néng xiàng Xiǎo Liú yíyàng, xīwàng nǐmen jiāyóu! Hǎo, xiànzài ràng wǒmen yìqǐ gǔzhǎng zhùhè Xiǎo Liú! Xiǎo Liú shòudào le biǎoyáng.","spanish":"Xiao Liu terminó anticipadamente la tarea de todo el año. Espero que todos puedan seguir su ejemplo y esforzarse. Ahora demos un aplauso para felicitarlo. Afirmación: Xiao Liu recibió un reconocimiento."},"8":{"chinese":"喂，是你啊，我今天去北京出差。我现在在机场，等我到了北京以后再给你打电话好吗？飞机马上就要起飞了。★ 他刚下飞机。","pinyin":"Wéi, shì nǐ a, wǒ jīntiān qù Běijīng chūchāi. Wǒ xiànzài zài jīchǎng, děng wǒ dào le Běijīng yǐhòu zài gěi nǐ dǎ diànhuà hǎo ma? Fēijī mǎshàng jiù yào qǐfēi le. Tā gāng xià fēijī.","spanish":"Hola, eres tú. Hoy viajo a Beijing por trabajo. Estoy en el aeropuerto; cuando llegue a Beijing te llamaré, ¿de acuerdo? El avión está a punto de despegar. Afirmación: Él acaba de bajar del avión."}};
+  const nav = document.createElement("div");
+  const first = currentLessonIndex === 0;
+  const last = currentLessonIndex === lessons.length - 1;
+  nav.className = "nav-controls" + (first || last ? " one" : "");
 
-    const STORAGE_KEY = "hsk4-audio-glossary-v1";
-    const audio = document.getElementById("audio");
-    const playBtn = document.getElementById("playBtn");
-    const seek = document.getElementById("seek");
-    const currentTimeEl = document.getElementById("currentTime");
-    const durationEl = document.getElementById("duration");
-    const currentLabel = document.getElementById("currentLabel");
-    const timeline = document.getElementById("timeline");
-    const glossary = document.getElementById("glossary");
-    const savedCount = document.getElementById("savedCount");
-    const savedTop = document.getElementById("savedTop");
-    const repeatBtn = document.getElementById("repeatBtn");
-    const unknownBtn = document.getElementById("unknownBtn");
-    const speedBtn = document.getElementById("speedBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const toast = document.getElementById("toast");
+  if(!first){
+    const prev = document.createElement("button");
+    prev.className = "prev-audio";
+    prev.textContent = "← Audio anterior";
+    prev.onclick = ()=>goLesson(-1);
+    nav.appendChild(prev);
+  }
+  if(!last){
+    const next = document.createElement("button");
+    next.className = "next-audio";
+    next.textContent = "Siguiente audio →";
+    next.onclick = ()=>goLesson(1);
+    nav.appendChild(next);
+  }
+  card.appendChild(nav);
+  content.appendChild(card);
+  updateReviewCount();
+}
 
-    const mainView = document.getElementById("mainView");
-    const studyView = document.getElementById("studyView");
-    const studyList = document.getElementById("studyList");
-    const openStudyBtn = document.getElementById("openStudyBtn");
-    const closeStudyBtn = document.getElementById("closeStudyBtn");
+function goLesson(delta){
+  currentLessonIndex += delta;
+  currentLessonIndex = Math.max(0, Math.min(lessons.length-1, currentLessonIndex));
+  speechSynthesis.cancel();
+  renderLesson();
+  window.scrollTo(0,0);
+}
 
+function toggleText(id, button, baseLabel){
+  const el = document.getElementById(id);
+  const visible = el.classList.toggle("visible");
+  button.textContent = visible ? "Ocultar texto" : baseLabel;
+}
 
-    let activeSegmentIndex = 0;
-    let stopAt = null;
-    let toastTimer = null;
-    let glossaryData = loadProgress();
-
-    function loadProgress() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        return saved && typeof saved === "object" ? saved : {};
-      } catch {
-        return {};
-      }
-    }
-
-    function saveProgress() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(glossaryData));
-    }
-
-    function formatTime(seconds) {
-      if (!Number.isFinite(seconds)) return "00:00";
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-    }
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
-    }
-
-    function getSegmentIndexAt(time) {
-      let low = 0;
-      let high = SEGMENTS.length - 1;
-      while (low <= high) {
-        const mid = Math.floor((low + high) / 2);
-        const seg = SEGMENTS[mid];
-        if (time < seg.start) high = mid - 1;
-        else if (time >= seg.end) low = mid + 1;
-        else return mid;
-      }
-      return Math.max(0, Math.min(low, SEGMENTS.length - 1));
-    }
-
-    function renderTimeline() {
-      timeline.innerHTML = "";
-      const fragment = document.createDocumentFragment();
-
-      SEGMENTS.forEach((segment, index) => {
-        const button = document.createElement("button");
-        button.className = "segment";
-        button.textContent = segment.id;
-        button.title = `Fragmento ${segment.id} · ${segment.text || ""}`;
-        button.dataset.index = index;
-        button.addEventListener("click", () => playSegment(index));
-        fragment.appendChild(button);
-      });
-
-      timeline.appendChild(fragment);
-      updateSegmentClasses();
-    }
-
-    function updateSegmentClasses() {
-      const buttons = timeline.querySelectorAll(".segment");
-      buttons.forEach((button, index) => {
-        const id = String(SEGMENTS[index].id);
-        const item = glossaryData[id];
-        button.classList.toggle("active", index === activeSegmentIndex);
-        button.classList.toggle("saved", Boolean(item) && !item.mastered);
-        button.classList.toggle("mastered", Boolean(item?.mastered));
-      });
-
-      const activeButton = buttons[activeSegmentIndex];
-      if (activeButton && !isElementVisible(activeButton, timeline)) {
-        activeButton.scrollIntoView({ block: "nearest", inline: "nearest" });
-      }
-    }
-
-    function isElementVisible(element, container) {
-      const e = element.getBoundingClientRect();
-      const c = container.getBoundingClientRect();
-      return e.top >= c.top && e.bottom <= c.bottom;
-    }
-
-    function setActiveSegment(index) {
-      activeSegmentIndex = Math.max(0, Math.min(index, SEGMENTS.length - 1));
-      const segment = SEGMENTS[activeSegmentIndex];
-      currentLabel.textContent = stopAt === null
-        ? `Audio completo · Fragmento ${segment.id} de ${SEGMENTS.length}`
-        : `Fragmento ${segment.id} · ${segment.duration.toFixed(1)} s`;
-      const currentText = document.getElementById("currentChineseText");
-      if (currentText) currentText.textContent = segment.text || "";
-      updateSegmentClasses();
-    }
-
-    function playSegment(index, speed = audio.playbackRate) {
-      setActiveSegment(index);
-      const segment = SEGMENTS[index];
-      audio.currentTime = segment.start;
-      audio.playbackRate = speed;
-      stopAt = segment.end;
-      audio.play().catch(() => showToast("Toca reproducir para iniciar el audio."));
-    }
-
-    function renderGlossary() {
-      const items = Object.values(glossaryData).sort((a, b) => a.id - b.id);
-      savedCount.textContent = items.length;
-      savedTop.textContent = items.filter(item => !item.mastered).length;
-
-      if (!items.length) {
-        glossary.innerHTML = `
-          <div class="empty">
-            <div class="empty-icon">👂</div>
-            Aquí aparecerán los fragmentos que quieras volver a practicar.
-          </div>`;
-        return;
-      }
-
-      glossary.innerHTML = items.map(item => `
-        <article class="glossary-item">
-          <div class="glossary-top">
-            <div>
-              <div class="segment-name">🎧 Fragmento ${item.id}</div>
-              <div class="segment-time">${formatTime(item.start)}–${formatTime(item.end)} · ${(item.end-item.start).toFixed(1)} s</div>
-              <div style="margin-top:9px;font-size:1.06rem;line-height:1.6;color:#182230;font-weight:800;">${item.text || SEGMENTS.find(s => s.id === item.id)?.text || ""}</div>
-            </div>
-            <button class="remove" data-remove="${item.id}" aria-label="Eliminar fragmento">×</button>
-          </div>
-          <div class="glossary-buttons">
-            <button class="mini play-fragment" data-play="${item.id}">▶ Escuchar</button>
-            <button class="mini play-fragment" data-slow="${item.id}">🐢 Lento</button>
-            <button class="mini master ${item.mastered ? "done" : ""}" data-master="${item.id}">
-              ${item.mastered ? "✓ Dominado" : "Marcar dominado"}
-            </button>
-            <button class="mini" data-go="${item.id}">Ver en mapa</button>
-          </div>
-        </article>
-      `).join("");
-
-      glossary.querySelectorAll("[data-play]").forEach(btn => {
-        btn.addEventListener("click", () => playSegmentById(Number(btn.dataset.play), 1));
-      });
-
-      glossary.querySelectorAll("[data-slow]").forEach(btn => {
-        btn.addEventListener("click", () => playSegmentById(Number(btn.dataset.slow), .75));
-      });
-
-      glossary.querySelectorAll("[data-master]").forEach(btn => {
-        btn.addEventListener("click", () => toggleMastered(Number(btn.dataset.master)));
-      });
-
-      glossary.querySelectorAll("[data-remove]").forEach(btn => {
-        btn.addEventListener("click", () => removeFromGlossary(Number(btn.dataset.remove)));
-      });
-
-      glossary.querySelectorAll("[data-go]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const index = SEGMENTS.findIndex(s => s.id === Number(btn.dataset.go));
-          setActiveSegment(index);
-          timeline.querySelector(`[data-index="${index}"]`)?.scrollIntoView({behavior:"smooth", block:"center"});
-        });
-      });
-    }
-
-    function playSegmentById(id, speed) {
-      const index = SEGMENTS.findIndex(segment => segment.id === id);
-      if (index >= 0) playSegment(index, speed);
-    }
-
-    function addCurrentToGlossary() {
-      const segment = SEGMENTS[activeSegmentIndex];
-      const key = String(segment.id);
-
-      if (glossaryData[key]) {
-        showToast("Ese fragmento ya está en tu glosario.");
-        return;
-      }
-
-      glossaryData[key] = {
-        id: segment.id,
-        start: segment.start,
-        end: segment.end,
-        mastered: false,
-        text: segment.text || "",
-        addedAt: new Date().toISOString()
-      };
-
-      saveProgress();
-      renderGlossary();
-      updateSegmentClasses();
-      showToast(`Fragmento ${segment.id} guardado para practicar.`);
-    }
-
-    function removeFromGlossary(id) {
-      delete glossaryData[String(id)];
-      saveProgress();
-      renderGlossary();
-      updateSegmentClasses();
-      showToast("Fragmento eliminado.");
-    }
-
-    function toggleMastered(id) {
-      const item = glossaryData[String(id)];
-      if (!item) return;
-      item.mastered = !item.mastered;
-      saveProgress();
-      renderGlossary();
-      updateSegmentClasses();
-      showToast(item.mastered ? "¡Fragmento dominado!" : "Regresó a práctica.");
-    }
-
-
-    function getTranscript(id){return TRANSCRIPTS[id]||{chinese:"",pinyin:"",spanish:""};}
-    function safeText(value,pending){return value&&value.trim()?value:`<span class="transcript-pending">${pending}</span>`;}
-    function renderStudyView(){
-      const items=Object.values(glossaryData).sort((a,b)=>a.id-b.id);
-      if(!items.length){studyList.innerHTML=`<div class="study-empty"><div style="font-size:42px;margin-bottom:10px;">🎧</div>Primero guarda fragmentos con el botón <strong>“No entendí esta parte”</strong>.</div>`;return;}
-      studyList.innerHTML=items.map(item=>{const text=getTranscript(item.id);return `<article class="study-card"><div class="study-card-top"><div><div class="segment-name">Fragmento ${item.id}</div><div class="segment-time">${formatTime(item.start)}–${formatTime(item.end)} · ${(item.end-item.start).toFixed(1)} s</div>
-              <div style="margin-top:9px;font-size:1.06rem;line-height:1.6;color:#182230;font-weight:800;">${item.text || SEGMENTS.find(s => s.id === item.id)?.text || ""}</div></div><div class="study-audio-actions"><button data-study-play="${item.id}">▶ Escuchar</button><button data-study-slow="${item.id}">🐢 Lento</button></div></div><div class="language-panel chinese visible">${item.text || SEGMENTS.find(s => s.id === item.id)?.text || ""}</div></article>`}).join("");
-      studyList.querySelectorAll('[data-study-play]').forEach(btn=>btn.addEventListener('click',()=>playSegmentById(Number(btn.dataset.studyPlay),1)));
-      studyList.querySelectorAll('[data-study-slow]').forEach(btn=>btn.addEventListener('click',()=>playSegmentById(Number(btn.dataset.studySlow),.75)));
-      studyList.querySelectorAll('[data-toggle-panel]').forEach(btn=>btn.addEventListener('click',()=>document.getElementById(btn.dataset.togglePanel)?.classList.toggle('visible')));
-    }
-    function openStudyView(){renderStudyView();mainView.classList.add('hidden');studyView.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
-    function closeStudyView(){studyView.classList.remove('active');mainView.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
-    openStudyBtn.addEventListener('click',openStudyView);closeStudyBtn.addEventListener('click',closeStudyView);
-
-    playBtn.addEventListener("click", () => {
-      // Reproducción continua del audio completo.
-      // Cancela cualquier límite que haya quedado de un segmento individual.
-      stopAt = null;
-
-      if (audio.paused) {
-        audio.play().catch(() => showToast("No se pudo iniciar el audio."));
-      } else {
-        audio.pause();
-      }
+function saveForReview(partIndex, button){
+  const lesson = lessons[currentLessonIndex];
+  const id = itemId(lesson.id, partIndex);
+  const items = getReviewItems();
+  if(!items.some(x=>x.id===id)){
+    items.push({
+      id,
+      lessonId: lesson.id,
+      part: partIndex+1,
+      text: lesson.parts[partIndex]
     });
+    setReviewItems(items);
+  }
+  button.textContent = "✓ Guardado para repasar";
+  button.disabled = true;
+}
 
-    repeatBtn.addEventListener("click", () => playSegment(activeSegmentIndex));
-    unknownBtn.addEventListener("click", addCurrentToGlossary);
+function updateReviewCount(){
+  const n = getReviewItems().length;
+  document.getElementById("reviewCount").textContent = n ? `(${n})` : "";
+}
 
-    speedBtn.addEventListener("click", () => {
-      const speeds = [1, .85, .75];
-      const current = speeds.indexOf(audio.playbackRate);
-      const next = speeds[(current + 1) % speeds.length];
-      audio.playbackRate = next;
-      speedBtn.textContent = `${next}× velocidad`;
-    });
+function openReview(){
+  document.getElementById("lessonScreen").style.display="none";
+  document.getElementById("transcriptionScreen").style.display="none";
+  document.getElementById("reviewScreen").style.display="block";
+  renderReview(true);
+  window.scrollTo(0,0);
+}
+function closeReview(){
+  document.getElementById("reviewScreen").style.display="none";
+  document.getElementById("lessonScreen").style.display="block";
+  renderLesson();
+  window.scrollTo(0,0);
+}
 
-    clearBtn.addEventListener("click", () => {
-      if (!Object.keys(glossaryData).length) return;
-      if (!confirm("¿Quieres borrar todo tu glosario auditivo?")) return;
-      glossaryData = {};
-      saveProgress();
-      renderGlossary();
-      updateSegmentClasses();
-      showToast("Glosario borrado.");
-    });
+function removeReview(id){
+  setReviewItems(getReviewItems().filter(x=>x.id!==id));
+  renderReview();
+}
 
-    seek.addEventListener("input", () => {
-      if (!audio.duration) return;
-      stopAt = null;
-      audio.currentTime = (Number(seek.value) / 100) * audio.duration;
-    });
+function shuffleArray(items){
+  const shuffled = [...items];
+  for(let i = shuffled.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
-    audio.addEventListener("loadedmetadata", () => {
-      durationEl.textContent = formatTime(audio.duration);
-    });
+function renderReview(randomize=false){
+  const list = document.getElementById("reviewList");
+  const storedItems = getReviewItems();
+  const items = randomize ? shuffleArray(storedItems) : storedItems;
+  if(!items.length){
+    list.innerHTML='<div class="empty-review">Todavía no has marcado ningún audio para repasar.</div>';
+    return;
+  }
+  list.innerHTML="";
+  items.forEach(item=>{
+    const box=document.createElement("div");
+    box.className="review-item";
 
-    audio.addEventListener("play", () => playBtn.textContent = "❚❚");
-    audio.addEventListener("pause", () => playBtn.textContent = "▶");
+    const badge=document.createElement("div");
+    badge.className="badge";
+    badge.textContent=`Audio ${item.lessonId} · Parte ${item.part}`;
 
-    audio.addEventListener("timeupdate", () => {
-      currentTimeEl.textContent = formatTime(audio.currentTime);
-      if (audio.duration) seek.value = (audio.currentTime / audio.duration) * 100;
+    const txt=document.createElement("div");
+    txt.className="hanzi blurred";
+    txt.textContent=item.text;
 
-      const newIndex = getSegmentIndexAt(audio.currentTime);
-      if (newIndex !== activeSegmentIndex) setActiveSegment(newIndex);
+    const show=document.createElement("button");
+    show.className="show-text";
+    show.textContent="Mostrar texto";
+    show.onclick=()=>{
+      const v=txt.classList.toggle("visible");
+      show.textContent=v?"Ocultar texto":"Mostrar texto";
+    };
 
-      if (stopAt !== null && audio.currentTime >= stopAt) {
-        audio.pause();
-        audio.currentTime = stopAt;
-        stopAt = null;
-      }
-    });
+    const play=document.createElement("button");
+    play.className="play";
+    play.textContent="▶ Escuchar otra vez";
+    play.onclick=()=>speak(item.text);
 
-    audio.addEventListener("ended", () => {
-      stopAt = null;
-      showToast("Terminaste la escucha.");
-    });
+    const remove=document.createElement("button");
+    remove.className="remove";
+    remove.textContent="✓ Ya entendí · quitar de repaso";
+    remove.onclick=()=>removeReview(item.id);
 
-    renderTimeline();
-    renderGlossary();
-    setActiveSegment(0);
-  </script>
+    box.append(badge,txt,show,play,remove);
+    list.appendChild(box);
+  });
+}
+
+let transcriptionItems=[];
+let transcriptionIndex=0;
+
+function startTranscriptionPractice(){
+  transcriptionItems=shuffleArray(getReviewItems());
+  if(!transcriptionItems.length){
+    alert("Primero marca al menos una parte como “No entendí esta parte”.");
+    return;
+  }
+  transcriptionIndex=0;
+  document.getElementById("reviewScreen").style.display="none";
+  document.getElementById("transcriptionScreen").style.display="block";
+  loadTranscriptionItem();
+  window.scrollTo(0,0);
+}
+function exitTranscriptionPractice(){
+  speechSynthesis.cancel();
+  document.getElementById("transcriptionScreen").style.display="none";
+  document.getElementById("reviewScreen").style.display="block";
+  renderReview();
+  window.scrollTo(0,0);
+}
+function loadTranscriptionItem(){
+  const item=transcriptionItems[transcriptionIndex];
+  document.getElementById("transcriptionProgress").textContent=
+    `Audio ${transcriptionIndex+1} de ${transcriptionItems.length} · HSK4 audio ${item.lessonId}, parte ${item.part}`;
+  const input=document.getElementById("transcriptionInput");
+  input.value=""; input.disabled=false;
+  const feedback=document.getElementById("transcriptionFeedback");
+  feedback.textContent=""; feedback.className="feedback";
+  const next=document.getElementById("nextTranscriptionBtn");
+  next.style.display="none";
+  next.textContent=transcriptionIndex===transcriptionItems.length-1?"Terminar práctica":"Siguiente audio →";
+}
+function playCurrentTranscription(){
+  if(transcriptionItems.length) speak(transcriptionItems[transcriptionIndex].text);
+}
+function normalizeTranscription(text){
+  const chars=String(text||"").normalize("NFKC").match(/[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/g);
+  return chars?chars.join(""):"";
+}
+function checkTranscription(){
+  const expected=normalizeTranscription(transcriptionItems[transcriptionIndex].text);
+  const answer=normalizeTranscription(document.getElementById("transcriptionInput").value);
+  const feedback=document.getElementById("transcriptionFeedback");
+  const input=document.getElementById("transcriptionInput");
+  const next=document.getElementById("nextTranscriptionBtn");
+
+  if(answer===expected){
+    feedback.textContent="✓ Correcto.";
+    feedback.className="feedback success";
+    input.disabled=true;
+    next.style.display="block";
+  }else{
+    let i=0, max=Math.max(answer.length,expected.length);
+    while(i<max && answer[i]===expected[i]) i++;
+    feedback.textContent=`✕ Revisa el carácter ${i+1}: escribiste “${answer[i]||"∅"}” y debería ser “${expected[i]||"∅"}”.`;
+    feedback.className="feedback error";
+    next.style.display="none";
+  }
+}
+function nextTranscription(){
+  if(transcriptionIndex>=transcriptionItems.length-1){
+    exitTranscriptionPractice();
+    return;
+  }
+  transcriptionIndex++;
+  loadTranscriptionItem();
+  playCurrentTranscription();
+}
+document.getElementById("transcriptionInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();checkTranscription();}
+});
+
+renderLesson();
+</script>
 </body>
 </html>
